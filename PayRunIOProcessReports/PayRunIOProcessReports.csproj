@@ -35,12 +35,42 @@
   <ItemGroup>
     <Reference Include="DevExpress.BonusSkins.v17.2" />
     <Reference Include="DevExpress.Data.v17.2" />
+    <Reference Include="DevExpress.Pdf.v17.2.Core, Version=17.2.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
     <Reference Include="DevExpress.Utils.v17.2" />
     <Reference Include="DevExpress.Sparkline.v17.2.Core" />
     <Reference Include="DevExpress.XtraEditors.v17.2" />
     <Reference Include="DevExpress.Printing.v17.2.Core" />
+    <Reference Include="DevExpress.XtraPrinting.v17.2, Version=17.2.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.XtraReports.v17.2, Version=17.2.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.XtraReports.v17.2.Extensions, Version=17.2.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DotNetZip, Version=1.13.4.0, Culture=neutral, PublicKeyToken=6583c7c814667745, processorArchitecture=MSIL">
+      <HintPath>..\packages\DotNetZip.1.13.4\lib\net40\DotNetZip.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.VisualBasic" />
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="PayRunIO.Core.Enums, Version=19.20.3.213, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\PayRunIO.Core.Enums.19.20.3.213\lib\net452\PayRunIO.Core.Enums.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="PayRunIO.CSharp.SDK, Version=19.20.3.213, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\PayRunIO.CSharp.SDK.19.20.3.213\lib\net452\PayRunIO.CSharp.SDK.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="PayRunIO.Models, Version=19.20.3.213, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\PayRunIO.Models.19.20.3.213\lib\net452\PayRunIO.Models.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="PayRunIO.OAuth1, Version=19.20.3.213, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\PayRunIO.OAuth1.19.20.3.213\lib\net452\PayRunIO.OAuth1.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -71,6 +101,7 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
