@@ -68,6 +68,9 @@
       <HintPath>..\packages\PayRunIO.OAuth1.19.20.3.213\lib\net452\PayRunIO.OAuth1.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="PayRunIOClassLibrary">
+      <HintPath>..\..\PayRunIOClassLibrary\PayRunIOClassLibrary\bin\Debug\PayRunIOClassLibrary.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Net.Http" />
