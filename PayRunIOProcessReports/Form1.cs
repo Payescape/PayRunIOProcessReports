@@ -2814,7 +2814,7 @@ namespace PayRunIOProcessReports
         public DateTime PeriodStartDate { get; set; }
         public DateTime PeriodEndDate { get; set; }
         public int PayrollYear { get; set; }
-        public decimal Gross { get; set}
+        public decimal Gross { get; set; }
         public decimal NetPayTP { get; set; }
         public int DayHours { get; set; }
         public DateTime StudentLoanStartDate { get; set; }
@@ -2885,7 +2885,8 @@ namespace PayRunIOProcessReports
                           string address1, string address2, string address3, string address4, string postcode,
                           string country, DateTime dateOfBirth, string gender, bool leaver, DateTime leavingDate,
                           string niNumber, string niLetter, string taxCode, bool week1Month1, string frequency,
-                          string paymentMethod, decimal netPayTP, decimal netPayYTD, decimal taxablePayTP, decimal taxablePayYTD,
+                          string paymentMethod, DateTime payRunDate,
+                          decimal netPayTP, decimal netPayYTD, decimal taxablePayTP, decimal taxablePayYTD,
                           decimal taxablePayPrevious, decimal totalPayTP, decimal totalPayYTD, decimal totalDedTP, decimal totalDedYTD,
                           decimal erNICTP, decimal erNICYTD, decimal erPensionTP, decimal eePensionTP, decimal erPensionYTD,
                           decimal eePensionYTD, decimal pensionablePay, string pensionCode, string sortCode, string bankAccNo, string buildingSocRef,
@@ -2913,7 +2914,7 @@ namespace PayRunIOProcessReports
             BuildingSocRef = buildingSocRef;
             NINumber = niNumber;
             PaymentMethod = paymentMethod;
-            //PayRunDate
+            PayRunDate = PayRunDate;
             //PeriodStartDate
             //PeriodEndDate
             //PayrollYear
