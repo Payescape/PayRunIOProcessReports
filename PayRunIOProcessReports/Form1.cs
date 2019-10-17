@@ -406,8 +406,8 @@ namespace PayRunIOProcessReports
             {
                 rpParameters.ErRef = GetElementByTagFromXml(parameter, "EmployerCode");
                 rpParameters.TaxYear = GetIntElementByTagFromXml(parameter, "TaxYear");
-                rpParameters.AccYearStart = GetDateElementByTagFromXml(parameter, "AccountingYearStartDate");
-                rpParameters.AccYearEnd = GetDateElementByTagFromXml(parameter, "AccountingYearEndDate");
+                rpParameters.AccYearStart = Convert.ToDateTime(GetDateElementByTagFromXml(parameter, "AccountingYearStartDate"));
+                rpParameters.AccYearEnd = Convert.ToDateTime(GetDateElementByTagFromXml(parameter, "AccountingYearEndDate"));
                 rpParameters.TaxPeriod = GetIntElementByTagFromXml(parameter, "TaxPeriod");
                 rpParameters.PaySchedule = GetElementByTagFromXml(parameter, "PaySchedule");
             }
@@ -431,7 +431,7 @@ namespace PayRunIOProcessReports
                                               rpParameters.AccYearStart.ToString("yyyy-MM-dd"), parameter4, rpParameters.AccYearEnd.ToString("yyyy-MM-dd"), parameter5, rpParameters.TaxPeriod.ToString(),
                                               parameter6, rpParameters.PaySchedule.ToUpper());
             //PrepareStandardReportsOld(xdoc, xmlPeriodReport);
-            var tuple = PrepareStandardReports(xdoc, xmlPeriodReport);
+            var tuple = PrepareStandardReports(xdoc, xmlPeriodReport, rpParameters);
             List<RPEmployeePeriod> rpEmployeePeriodList = tuple.Item1;
             List<RPPayComponent> rpPayComponents = tuple.Item2;
             //I don't think the P45 report will be able to be produced from the EmployeePeriod report but I'm leaving it here for now.
@@ -673,8 +673,8 @@ namespace PayRunIOProcessReports
             {
                 rpParameters.ErRef = GetElementByTagFromXml(parameter, "EmployerCode");
                 rpParameters.TaxYear = GetIntElementByTagFromXml(parameter, "TaxYear");
-                rpParameters.AccYearStart = GetDateElementByTagFromXml(parameter, "AccountingYearStartDate");
-                rpParameters.AccYearEnd = GetDateElementByTagFromXml(parameter, "AccountingYearEndDate");
+                rpParameters.AccYearStart = Convert.ToDateTime(GetDateElementByTagFromXml(parameter, "AccountingYearStartDate"));
+                rpParameters.AccYearEnd = Convert.ToDateTime(GetDateElementByTagFromXml(parameter, "AccountingYearEndDate"));
                 rpParameters.TaxPeriod = GetIntElementByTagFromXml(parameter, "TaxPeriod");
                 rpParameters.PaySchedule = GetElementByTagFromXml(parameter, "PaySchedule");
             }
@@ -708,7 +708,7 @@ namespace PayRunIOProcessReports
                     {
                         if (!payRunDate)
                         {
-                            rpParameters.PayRunDate = GetDateElementByTagFromXml(employee, "PayRunDate");
+                            rpParameters.PayRunDate = Convert.ToDateTime(GetDateElementByTagFromXml(employee, "PayRunDate"));
                             payRunDate = true;
                         }
 
@@ -1042,7 +1042,19 @@ namespace PayRunIOProcessReports
         {
             XmlDocument xmlPeriodReport = new XmlDocument();
             xmlPeriodReport.Load(file.FullName);
-            PrepareStandardReports(xdoc, xmlPeriodReport);
+            //Now extract the necessary data and produce the required reports.
+
+            RPParameters rpParameters = new RPParameters();
+            foreach (XmlElement parameter in xmlPeriodReport.GetElementsByTagName("Parameters"))
+            {
+                rpParameters.ErRef = GetElementByTagFromXml(parameter, "EmployerCode");
+                rpParameters.TaxYear = GetIntElementByTagFromXml(parameter, "TaxYear");
+                rpParameters.AccYearStart = Convert.ToDateTime(GetDateElementByTagFromXml(parameter, "AccountingYearStartDate"));
+                rpParameters.AccYearEnd = Convert.ToDateTime(GetDateElementByTagFromXml(parameter, "AccountingYearEndDate"));
+                rpParameters.TaxPeriod = GetIntElementByTagFromXml(parameter, "TaxPeriod");
+                rpParameters.PaySchedule = GetElementByTagFromXml(parameter, "PaySchedule");
+            }
+            PrepareStandardReports(xdoc, xmlPeriodReport, rpParameters);
         }
         private void CreateHistoryCSVOld(XDocument xdoc, XmlDocument xmlReport)
         {
@@ -1053,8 +1065,8 @@ namespace PayRunIOProcessReports
             {
                 rpParameters.ErRef = GetElementByTagFromXml(parameter, "EmployerCode");
                 rpParameters.TaxYear = GetIntElementByTagFromXml(parameter, "TaxYear");
-                rpParameters.AccYearStart = GetDateElementByTagFromXml(parameter, "AccountingYearStartDate");
-                rpParameters.AccYearEnd = GetDateElementByTagFromXml(parameter, "AccountingYearEndDate");
+                rpParameters.AccYearStart = Convert.ToDateTime(GetDateElementByTagFromXml(parameter, "AccountingYearStartDate"));
+                rpParameters.AccYearEnd = Convert.ToDateTime(GetDateElementByTagFromXml(parameter, "AccountingYearEndDate"));
                 rpParameters.TaxPeriod = GetIntElementByTagFromXml(parameter, "TaxPeriod");
                 rpParameters.PaySchedule = GetElementByTagFromXml(parameter, "PaySchedule");
             }
@@ -1085,7 +1097,7 @@ namespace PayRunIOProcessReports
                     {
                         if (!payRunDate)
                         {
-                            rpParameters.PayRunDate = GetDateElementByTagFromXml(employee, "PayRunDate");
+                            rpParameters.PayRunDate = Convert.ToDateTime(GetDateElementByTagFromXml(employee, "PayRunDate"));
                             payRunDate = true;
                         }
                         //If the employee is a leaver before the start date then don't include.
@@ -1402,7 +1414,7 @@ namespace PayRunIOProcessReports
                         payHistoryDetails[7] = rpEmployeePeriod.DayHours.ToString();
                         if (rpEmployeePeriod.StudentLoanStartDate != null)
                         {
-                            payHistoryDetails[8] = rpEmployeePeriod.StudentLoanStartDate.ToString("dd/MM/yy", CultureInfo.InvariantCulture);
+                            payHistoryDetails[8] = Convert.ToDateTime(rpEmployeePeriod.StudentLoanStartDate).ToString("dd/MM/yy", CultureInfo.InvariantCulture);
                         }
                         else
                         {
@@ -1410,7 +1422,7 @@ namespace PayRunIOProcessReports
                         }
                         if (rpEmployeePeriod.StudentLoanEndDate != null)
                         {
-                            payHistoryDetails[9] = rpEmployeePeriod.StudentLoanStartDate.ToString("dd/MM/yy", CultureInfo.InvariantCulture);
+                            payHistoryDetails[9] = Convert.ToDateTime(rpEmployeePeriod.StudentLoanStartDate).ToString("dd/MM/yy", CultureInfo.InvariantCulture);
                         }
                         else
                         {
@@ -1433,7 +1445,7 @@ namespace PayRunIOProcessReports
                         payHistoryDetails[24] = rpEmployeePeriod.EeRebate.ToString();
                         payHistoryDetails[25] = rpEmployeePeriod.ErRebate.ToString();
                         payHistoryDetails[26] = rpEmployeePeriod.EeReduction.ToString();
-                        payHistoryDetails[27] = rpEmployeePeriod.LeavingDate.ToString("dd/MM/yy", CultureInfo.InvariantCulture);
+                        payHistoryDetails[27] = Convert.ToDateTime(rpEmployeePeriod.LeavingDate).ToString("dd/MM/yy", CultureInfo.InvariantCulture);
                         if(rpEmployeePeriod.Leaver)
                         {
                             payHistoryDetails[28] = "N";
@@ -1750,20 +1762,27 @@ namespace PayRunIOProcessReports
         {
             decimal decimalValue = 0;
             string element = GetElementByTagFromXml(xmlElement, tag);
-            if (element != "" && element != " " && element != null)
+            try
             {
                 decimalValue = Convert.ToDecimal(GetElementByTagFromXml(xmlElement, tag));
             }
+            catch
+            {
 
+            }
             return decimalValue;
         }
         private bool GetBooleanElementByTagFromXml(XmlElement xmlElement, string tag)
         {
             bool boolValue = false;
             string element = GetElementByTagFromXml(xmlElement, tag);
-            if (element != "" && element != " " && element != null)
+            try
             {
                 boolValue = Convert.ToBoolean(GetElementByTagFromXml(xmlElement, tag));
+            }
+            catch
+            {
+
             }
 
             return boolValue;
@@ -1771,23 +1790,33 @@ namespace PayRunIOProcessReports
         private int GetIntElementByTagFromXml(XmlElement xmlElement, string tag)
         {
             int intValue = 0;
-            string element = GetElementByTagFromXml(xmlElement, tag);
-            if (element != "" && element != " " && element != null)
+
+            //string element = GetElementByTagFromXml(xmlElement, tag);
+            
+            try
             {
                 intValue = Convert.ToInt32(GetElementByTagFromXml(xmlElement, tag));
             }
+            catch
+            {
 
+            }
+           
             return intValue;
         }
-        private DateTime GetDateElementByTagFromXml(XmlElement xmlElement, string tag)
+        private DateTime? GetDateElementByTagFromXml(XmlElement xmlElement, string tag)
         {
-            DateTime dateValue = DateTime.MinValue;
+            DateTime? dateValue = null;
             string element = GetElementByTagFromXml(xmlElement, tag);
-            if (element != "" && element != " " && element != null)
+            try
             {
                 dateValue = Convert.ToDateTime(GetElementByTagFromXml(xmlElement, tag));
             }
+            catch
+            {
 
+            }
+            
             return dateValue;
         }
         private string GetElementByTagFromXml(XmlElement xmlElement, string tag)
@@ -1813,8 +1842,8 @@ namespace PayRunIOProcessReports
                 {
                     rpParameters.ErRef = GetElementByTagFromXml(parameter, "EmployerCode");
                     rpParameters.TaxYear = GetIntElementByTagFromXml(parameter, "TaxYear");
-                    rpParameters.AccYearStart = GetDateElementByTagFromXml(parameter, "AccountingYearStartDate");
-                    rpParameters.AccYearEnd = GetDateElementByTagFromXml(parameter, "AccountingYearEndDate");
+                    rpParameters.AccYearStart = Convert.ToDateTime(GetDateElementByTagFromXml(parameter, "AccountingYearStartDate"));
+                    rpParameters.AccYearEnd = Convert.ToDateTime(GetDateElementByTagFromXml(parameter, "AccountingYearEndDate"));
                     rpParameters.TaxPeriod = GetIntElementByTagFromXml(parameter, "TaxPeriod");
                     rpParameters.PaySchedule = GetElementByTagFromXml(parameter, "PaySchedule");
                 }
@@ -1840,7 +1869,7 @@ namespace PayRunIOProcessReports
                     {
                         if (!payRunDate)
                         {
-                            rpParameters.PayRunDate = GetDateElementByTagFromXml(employee, "PayRunDate");
+                            rpParameters.PayRunDate = Convert.ToDateTime(GetDateElementByTagFromXml(employee, "PayRunDate"));
                             payRunDate = true;
                         }
                         //If the employee is a leaver before the start date then don't include.
@@ -1879,7 +1908,7 @@ namespace PayRunIOProcessReports
                         address[4] = GetElementByTagFromXml(employee, "Postcode");
                         address[5] = GetElementByTagFromXml(employee, "Country");
 
-                        rpEmployeePeriod.DateOfBirth = GetDateElementByTagFromXml(employee, "DateOfBirth");
+                        rpEmployeePeriod.DateOfBirth = Convert.ToDateTime(GetDateElementByTagFromXml(employee, "DateOfBirth"));
                         rpEmployeePeriod.Gender = GetElementByTagFromXml(employee, "Gender");
 
                         string leaver = GetElementByTagFromXml(employee, "Leaver");
@@ -2065,7 +2094,7 @@ namespace PayRunIOProcessReports
                             p45.Title = rpEmployeePeriod.Title;
                             p45.Surname = rpEmployeePeriod.Surname;
                             p45.FirstNames = rpEmployeePeriod.Forename;
-                            p45.LeavingDate = rpEmployeePeriod.LeavingDate;
+                            p45.LeavingDate = Convert.ToDateTime(rpEmployeePeriod.LeavingDate);
                             p45.DateOfBirth = rpEmployeePeriod.DateOfBirth;
                             p45.StudentLoansDeductionToContinue = false;  //Need to find out where this comes from!
                             p45.TaxCode = rpEmployeePeriod.TaxCode;
@@ -2150,7 +2179,7 @@ namespace PayRunIOProcessReports
 
         }
 
-        private Tuple<List<RPEmployeePeriod> ,List<RPPayComponent>, List<P45>, RPEmployer> PrepareStandardReports(XDocument xdoc, XmlDocument xmlReport)
+        private Tuple<List<RPEmployeePeriod> ,List<RPPayComponent>, List<P45>, RPEmployer> PrepareStandardReports(XDocument xdoc, XmlDocument xmlReport, RPParameters rpParameters)
         {
             string textLine = null;
             int logOneIn = Convert.ToInt32(xdoc.Root.Element("LogOneIn").Value);
@@ -2160,21 +2189,10 @@ namespace PayRunIOProcessReports
             List<P45> p45s = new List<P45>();
             //Create a list of Pay Code totals for the Payroll Component Analysis report
             List<RPPayComponent> rpPayComponents = new List<RPPayComponent>();
-            RPParameters rpParameters = new RPParameters();
             RPEmployer rpEmployer = new RPEmployer();
 
             try
             {
-                foreach (XmlElement parameter in xmlReport.GetElementsByTagName("Parameters"))
-                {
-                    rpParameters.ErRef = GetElementByTagFromXml(parameter, "EmployerCode");
-                    rpParameters.TaxYear = GetIntElementByTagFromXml(parameter, "TaxYear");
-                    rpParameters.AccYearStart = GetDateElementByTagFromXml(parameter, "AccountingYearStartDate");
-                    rpParameters.AccYearEnd = GetDateElementByTagFromXml(parameter, "AccountingYearEndDate");
-                    rpParameters.TaxPeriod = GetIntElementByTagFromXml(parameter, "TaxPeriod");
-                    rpParameters.PaySchedule = GetElementByTagFromXml(parameter, "PaySchedule");
-                }
-                
                 foreach (XmlElement employer in xmlReport.GetElementsByTagName("Employer"))
                 {
                     rpEmployer.Name = GetElementByTagFromXml(employer, "Name");
@@ -2192,7 +2210,7 @@ namespace PayRunIOProcessReports
                     {
                         if (!payRunDate)
                         {
-                            rpParameters.PayRunDate = GetDateElementByTagFromXml(employee, "PayRunDate");
+                            rpParameters.PayRunDate = Convert.ToDateTime(GetDateElementByTagFromXml(employee, "PayRunDate"));
                             payRunDate = true;
                         }
                         //If the employee is a leaver before the start date then don't include.
@@ -2233,14 +2251,14 @@ namespace PayRunIOProcessReports
 
                         rpEmployeePeriod.SortCode = GetElementByTagFromXml(employee, "SortCode");
                         rpEmployeePeriod.BankAccNo = GetElementByTagFromXml(employee, "BankAccNo");
-                        rpEmployeePeriod.DateOfBirth = GetDateElementByTagFromXml(employee, "DateOfBirth");
+                        rpEmployeePeriod.DateOfBirth = Convert.ToDateTime(GetDateElementByTagFromXml(employee, "DateOfBirth"));
                         rpEmployeePeriod.Gender = GetElementByTagFromXml(employee, "Gender");
                         rpEmployeePeriod.BuildingSocRef = GetElementByTagFromXml(employee, "BuildingSocRef");
                         rpEmployeePeriod.NINumber = GetElementByTagFromXml(employee, "NiNumber");
                         rpEmployeePeriod.PaymentMethod = GetElementByTagFromXml(employee, "PayMethod");
-                        rpEmployeePeriod.PayRunDate = GetDateElementByTagFromXml(employee, "PayRunDate");
-                        rpEmployeePeriod.PeriodStartDate = GetDateElementByTagFromXml(employee, "PeriodStartDate");
-                        rpEmployeePeriod.PeriodEndDate = GetDateElementByTagFromXml(employee, "PeriodEndDate");
+                        rpEmployeePeriod.PayRunDate = Convert.ToDateTime(GetDateElementByTagFromXml(employee, "PayRunDate"));
+                        rpEmployeePeriod.PeriodStartDate = Convert.ToDateTime(GetDateElementByTagFromXml(employee, "PeriodStartDate"));
+                        rpEmployeePeriod.PeriodEndDate = Convert.ToDateTime(GetDateElementByTagFromXml(employee, "PeriodEndDate"));
                         rpEmployeePeriod.PayrollYear = GetIntElementByTagFromXml(employee, "PayrollYear");
                         rpEmployeePeriod.Gross = GetDecimalElementByTagFromXml(employee, "Gross");
                         rpEmployeePeriod.NetPayTP = GetDecimalElementByTagFromXml(employee, "Net");
@@ -2277,6 +2295,10 @@ namespace PayRunIOProcessReports
                             rpEmployeePeriod.LeavingDate = GetDateElementByTagFromXml(employee, "LeavingDate");
 
                         }
+                        else
+                        {
+                            rpEmployeePeriod.LeavingDate = null;
+                        }
                         rpEmployeePeriod.TaxCode = GetElementByTagFromXml(employee, "TaxCode");
                         rpEmployeePeriod.Week1Month1 = GetBooleanElementByTagFromXml(employee, "Week1Month1");
                         if (rpEmployeePeriod.Week1Month1)
@@ -2298,9 +2320,9 @@ namespace PayRunIOProcessReports
                         rpEmployeePeriod.ErContributionPercent = GetDecimalElementByTagFromXml(employee, "ErContributionPercent") * 100;
                         rpEmployeePeriod.EeContributionPercent = GetDecimalElementByTagFromXml(employee, "EeContributionPercent") * 100;
                         rpEmployeePeriod.PensionablePay = GetDecimalElementByTagFromXml(employee, "PensionablePay");
-                        rpEmployeePeriod.ErPensionPayRunDate = GetDateElementByTagFromXml(employee, "ErPensionPayRunDate");
-                        rpEmployeePeriod.EePensionPayRunDate = GetDateElementByTagFromXml(employee, "EePensionPayRunDate");
-                        rpEmployeePeriod.DirectorshipAppointmentDate = GetDateElementByTagFromXml(employee, "DirectorshipAppointmentDate");
+                        rpEmployeePeriod.ErPensionPayRunDate = Convert.ToDateTime(GetDateElementByTagFromXml(employee, "ErPensionPayRunDate"));
+                        rpEmployeePeriod.EePensionPayRunDate = Convert.ToDateTime(GetDateElementByTagFromXml(employee, "EePensionPayRunDate"));
+                        rpEmployeePeriod.DirectorshipAppointmentDate = Convert.ToDateTime(GetDateElementByTagFromXml(employee, "DirectorshipAppointmentDate"));
                         rpEmployeePeriod.Director = GetBooleanElementByTagFromXml(employee, "Director");
                         rpEmployeePeriod.EeContributionTaxPeriodPt1 = GetDecimalElementByTagFromXml(employee, "EeContributionTaxPeriodPt1");
                         rpEmployeePeriod.EeContributionTaxPeriodPt2 = GetDecimalElementByTagFromXml(employee, "EeContributionTaxPeriodPt2");
@@ -2456,7 +2478,7 @@ namespace PayRunIOProcessReports
                             p45.Title = rpEmployeePeriod.Title;
                             p45.Surname = rpEmployeePeriod.Surname;
                             p45.FirstNames = rpEmployeePeriod.Forename;
-                            p45.LeavingDate = rpEmployeePeriod.LeavingDate;
+                            p45.LeavingDate = Convert.ToDateTime(rpEmployeePeriod.LeavingDate);
                             p45.DateOfBirth = rpEmployeePeriod.DateOfBirth;
                             p45.StudentLoansDeductionToContinue = false;  //Need to find out where this comes from!
                             p45.TaxCode = rpEmployeePeriod.TaxCode;
