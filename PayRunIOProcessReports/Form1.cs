@@ -430,8 +430,32 @@ namespace PayRunIOProcessReports
             XmlDocument xmlPeriodReport = RunReport(rptRef, parameter1, rpParameters.ErRef, parameter2, rpParameters.TaxYear.ToString(), parameter3,
                                               rpParameters.AccYearStart.ToString("yyyy-MM-dd"), parameter4, rpParameters.AccYearEnd.ToString("yyyy-MM-dd"), parameter5, rpParameters.TaxPeriod.ToString(),
                                               parameter6, rpParameters.PaySchedule.ToUpper());
-            CreateHistoryCSV(xdoc, xmlPeriodReport);
-            PrepareStandardReports(xdoc, xmlPeriodReport);
+            //PrepareStandardReportsOld(xdoc, xmlPeriodReport);
+            var tuple = PrepareStandardReports(xdoc, xmlPeriodReport);
+            List<RPEmployeePeriod> rpEmployeePeriodList = tuple.Item1;
+            List<RPPayComponent> rpPayComponents = tuple.Item2;
+            //I don't think the P45 report will be able to be produced from the EmployeePeriod report but I'm leaving it here for now.
+            List<P45> p45s = tuple.Item3;
+            RPEmployer rpEmployer = tuple.Item4;
+            //Put a sort of the pay codes in here
+            //I didn't need to sort it in the end because the DevExpress report does it but this is useful code for future reference.
+            //rpPayComponents.Sort(delegate (RPPayComponent x, RPPayComponent y)
+            //{
+            //    if (x.Description == null && y.Description == null) return 0;
+            //    else if (x.Description == null) return -1;
+            //    else if (y.Description == null) return 1;
+            //    else return x.Description.CompareTo(y.Description);
+            //});
+            //Get the total payable to hmrc, I'm going use it in the zipped file name(possibly!).
+            decimal hmrcTotal = CalculateHMRCTotal(rpEmployeePeriodList);
+            string hmrcDesc = "[" + hmrcTotal.ToString() + "]";
+            //I now have a list of employee with their total for this period & ytd plus addition & deductions
+            //I can print payslips from here.
+            PrintStandardReports(xdoc, rpEmployeePeriodList, rpEmployer, rpParameters, p45s, rpPayComponents);
+
+            //Change this to supply rpEmployeePeriodList instead of xmlPeriodReport
+            CreateHistoryCSV(xdoc, rpParameters,rpEmployer,rpEmployeePeriodList);
+
 
             //Produce and process Employee Ytd report.
             rptRef = "EEYTD";              //Original report name : "PayescapeEmployeeYtd"
@@ -453,6 +477,15 @@ namespace PayRunIOProcessReports
             parameter2 = "TaxYear";
             XmlDocument xmlP32Report = RunReport(rptRef, parameter1, rpParameters.ErRef, parameter2, rpParameters.TaxYear.ToString(), null,
                                               null, null, null, null, null, null, null);
+
+            ZipReports(xdoc, rpEmployer, rpParameters, hmrcDesc);
+            EmailZippedReports(xdoc, rpEmployer, rpParameters);
+
+
+        }
+        private Tuple<int,int> TupleTest()
+        {
+            return new Tuple<int,int>(0,0);
         }
         private XmlDocument RunReport(string rptRef, string prm1, string val1, string prm2, string val2, string prm3, string val3,
                                  string prm4, string val4, string prm5, string val5, string prm6, string val6)
@@ -624,7 +657,7 @@ namespace PayRunIOProcessReports
         {
             XmlDocument xmlPeriodReport = new XmlDocument();
             xmlPeriodReport.Load(file.FullName);
-            CreateHistoryCSV(xdoc, xmlPeriodReport);
+            CreateHistoryCSVOld(xdoc, xmlPeriodReport);
         }
         private void ProduceYTDReport(XDocument xdoc, FileInfo file)
         {
@@ -1011,8 +1044,9 @@ namespace PayRunIOProcessReports
             xmlPeriodReport.Load(file.FullName);
             PrepareStandardReports(xdoc, xmlPeriodReport);
         }
-        private void CreateHistoryCSV(XDocument xdoc, XmlDocument xmlReport)
+        private void CreateHistoryCSVOld(XDocument xdoc, XmlDocument xmlReport)
         {
+            RPEmployeePeriod rpEmployeePeriod = new RPEmployeePeriod();
             string outgoingFolder = xdoc.Root.Element("DataHomeFolder").Value + "PE-Outgoing";
             RPParameters rpParameters = new RPParameters();
             foreach (XmlElement parameter in xmlReport.GetElementsByTagName("Parameters"))
@@ -1325,6 +1359,312 @@ namespace PayRunIOProcessReports
             }
 
         }
+        private void CreateHistoryCSV(XDocument xdoc, RPParameters rpParameters, RPEmployer rpEmployer, List<RPEmployeePeriod> rpEmployeePeriodList)
+        {
+            string outgoingFolder = xdoc.Root.Element("DataHomeFolder").Value + "PE-Outgoing";
+            string coNo = rpParameters.ErRef;
+            //Write the whole xml file to the folder.
+            //string xmlFileName = "V:\\Payescape\\PayRunIO\\WG\\" + coNo + "_PayHistory_" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xml";
+            string dirName = outgoingFolder + "\\" + coNo + "\\";
+            Directory.CreateDirectory(dirName);
+            //Create csv version and write it to the same folder.
+            string csvFileName = outgoingFolder + "\\" + coNo + "\\" + coNo + "_PayHistory_" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".csv";
+            bool writeHeader = true;
+            using (StreamWriter sw = new StreamWriter(csvFileName))
+            {
+
+                //Loop through each employee and write the csv file.
+                string[] payHistoryDetails = new string[49];
+
+                foreach (RPEmployeePeriod rpEmployeePeriod in rpEmployeePeriodList)
+                {
+                    bool include = false;
+                    
+                    //If the employee is a leaver before the start date then don't include.
+                    if (!rpEmployeePeriod.Leaver)
+                    {
+                        include = true;
+                    }
+                    else if (rpEmployeePeriod.LeavingDate >= rpEmployeePeriod.PeriodStartDate)
+                    {
+                        include = true;
+                    }
+                   
+                    if (include)
+                    {
+                        payHistoryDetails[0] = rpEmployeePeriod.Reference;
+                        payHistoryDetails[1] = rpEmployeePeriod.PayRunDate.ToString("dd/MM/yy", CultureInfo.InvariantCulture);
+                        payHistoryDetails[2] = rpEmployeePeriod.PeriodStartDate.ToString("dd/MM/yy", CultureInfo.InvariantCulture);
+                        payHistoryDetails[3] = rpEmployeePeriod.PeriodEndDate.ToString("dd/MM/yy", CultureInfo.InvariantCulture);
+                        payHistoryDetails[4] = rpEmployeePeriod.PayrollYear.ToString();
+                        payHistoryDetails[5] = rpEmployeePeriod.Gross.ToString();
+                        payHistoryDetails[6] = rpEmployeePeriod.NetPayTP.ToString();
+                        payHistoryDetails[7] = rpEmployeePeriod.DayHours.ToString();
+                        if (rpEmployeePeriod.StudentLoanStartDate != null)
+                        {
+                            payHistoryDetails[8] = rpEmployeePeriod.StudentLoanStartDate.ToString("dd/MM/yy", CultureInfo.InvariantCulture);
+                        }
+                        else
+                        {
+                            payHistoryDetails[8] = "";
+                        }
+                        if (rpEmployeePeriod.StudentLoanEndDate != null)
+                        {
+                            payHistoryDetails[9] = rpEmployeePeriod.StudentLoanStartDate.ToString("dd/MM/yy", CultureInfo.InvariantCulture);
+                        }
+                        else
+                        {
+                            payHistoryDetails[9] = "";
+                        }
+                        payHistoryDetails[10] = rpEmployeePeriod.StudentLoan.ToString();
+                        payHistoryDetails[11] = rpEmployeePeriod.NILetter;
+                        payHistoryDetails[12] = rpEmployeePeriod.CalculationBasis;
+                        payHistoryDetails[13] = rpEmployeePeriod.TotalPayTP.ToString();     //Was "Total"
+                        payHistoryDetails[14] = rpEmployeePeriod.EarningsToLEL.ToString();
+                        payHistoryDetails[15] = rpEmployeePeriod.EarningsToSET.ToString();
+                        payHistoryDetails[16] = rpEmployeePeriod.EarningsToPET.ToString();
+                        payHistoryDetails[17] = rpEmployeePeriod.EarningsToUST.ToString(); ;
+                        payHistoryDetails[18] = rpEmployeePeriod.EarningsToAUST.ToString();
+                        payHistoryDetails[19] = rpEmployeePeriod.EarningsToUEL.ToString();
+                        payHistoryDetails[20] = rpEmployeePeriod.EarningsAboveUEL.ToString();
+                        payHistoryDetails[21] = rpEmployeePeriod.EeContributionsPt1.ToString();
+                        payHistoryDetails[22] = rpEmployeePeriod.EeContributionsPt2.ToString();
+                        payHistoryDetails[23] = rpEmployeePeriod.ErNICYTD .ToString();
+                        payHistoryDetails[24] = rpEmployeePeriod.EeRebate.ToString();
+                        payHistoryDetails[25] = rpEmployeePeriod.ErRebate.ToString();
+                        payHistoryDetails[26] = rpEmployeePeriod.EeReduction.ToString();
+                        payHistoryDetails[27] = rpEmployeePeriod.LeavingDate.ToString("dd/MM/yy", CultureInfo.InvariantCulture);
+                        if(rpEmployeePeriod.Leaver)
+                        {
+                            payHistoryDetails[28] = "N";
+                        }
+                        else
+                        {
+                            payHistoryDetails[28] = "Y";
+                        }
+                        
+                        payHistoryDetails[29] = rpEmployeePeriod.TaxCode.ToString();
+                        if (rpEmployeePeriod.Week1Month1)
+                        {
+                            payHistoryDetails[30] = "Y";
+                        }
+                        else
+                        {
+                            payHistoryDetails[30] = "N";
+                        }
+                        payHistoryDetails[31] = "0";   //rpEmployeePeriod.TaxCodeChangeTypeID;
+                        payHistoryDetails[32] = "UNKNOWN"; //rpEmployeePeriod.TaxCodeChangeType;
+                        payHistoryDetails[33] = rpEmployeePeriod.TaxPrev.ToString();
+                        payHistoryDetails[34] = rpEmployeePeriod.TaxablePayPrevious.ToString();
+                        payHistoryDetails[35] = rpEmployeePeriod.TaxThis.ToString();
+                        payHistoryDetails[36] = rpEmployeePeriod.TaxablePayYTD.ToString();
+                        payHistoryDetails[37] = rpEmployeePeriod.HolidayAccruedYTD.ToString();
+                        payHistoryDetails[38] = rpEmployeePeriod.ErPensionYTD.ToString();
+                        payHistoryDetails[39] = rpEmployeePeriod.EePensionYTD.ToString();
+                        payHistoryDetails[40] = rpEmployeePeriod.ErPensionTP.ToString();
+                        payHistoryDetails[41] = rpEmployeePeriod.EePensionTP.ToString();
+                        payHistoryDetails[42] = rpEmployeePeriod.ErPensionPayRunDate.ToString("dd/MM/yy", CultureInfo.InvariantCulture);
+                        payHistoryDetails[43] = rpEmployeePeriod.EePensionPayRunDate.ToString("dd/MM/yy", CultureInfo.InvariantCulture);
+                        payHistoryDetails[44] = rpEmployeePeriod.DirectorshipAppointmentDate.ToString("dd/MM/yy", CultureInfo.InvariantCulture);
+                        if(rpEmployeePeriod.Director)
+                        {
+                            payHistoryDetails[45] = "Y";
+                        }
+                        else
+                        {
+                            payHistoryDetails[45] = "N";
+                        }
+                        if (payHistoryDetails[45] == "N")               //Director
+                        {
+                            //They're not a director
+                            payHistoryDetails[12] = "E";                //They're not a director
+                        }
+                        else
+                        {
+                            //They're a director
+                            if (payHistoryDetails[12] == "Cumulative")  //Calculation basis
+                            {
+                                payHistoryDetails[12] = "C";            //Calculation Basis is Cumulative and they're a director
+                            }
+                            else
+                            {
+                                payHistoryDetails[12] = "N";            //Calculation Basis is Week1Month1 and they're a director
+                            }
+
+                        }
+                        payHistoryDetails[46] = rpEmployeePeriod.EeContributionTaxPeriodPt1.ToString();
+                        payHistoryDetails[47] = rpEmployeePeriod.EeContributionTaxPeriodPt2.ToString();
+                        payHistoryDetails[48] = rpEmployeePeriod.ErNICTP.ToString();
+
+                        //Er NI & Er Pension
+                        for (int i = 0; i < 2; i++)
+                        {
+                            string[] payCodeDetails = new string[12];
+
+                            switch (i)
+                            {
+                                case 0:
+                                    payCodeDetails[1] = "NIEr-A";
+                                    payCodeDetails[2] = "NIEr";
+                                    payCodeDetails[3] = "T";
+                                    payCodeDetails[6] = rpEmployeePeriod.ErNICTP.ToString();
+                                    break;
+                                default:
+                                    payCodeDetails[1] = "PenEr";
+                                    payCodeDetails[2] = "PenEr";
+                                    payCodeDetails[3] = "M";
+                                    payCodeDetails[6] = rpEmployeePeriod.ErPensionTP.ToString();
+                                    break;
+                            }
+                            payCodeDetails[0] = "0";
+                            payCodeDetails[4] = "0";
+                            payCodeDetails[5] = "0.00";
+                            payCodeDetails[7] = "0.00";
+                            payCodeDetails[8] = "0.00";
+                            payCodeDetails[9] = "0.00";
+                            payCodeDetails[10] = "0";
+                            payCodeDetails[11] = "0";
+
+                            //
+                            //Check if any of the values are not zero. If so write the first employee record
+                            //
+                            bool allZeros = false;
+                            if (payCodeDetails[5] == "0.00" && payCodeDetails[6] == "0.00" &&
+                                payCodeDetails[7] == "0.00" && payCodeDetails[8] == "0.00" &&
+                                payCodeDetails[9] == "0.00")
+                            {
+                                allZeros = true;
+
+                            }
+                            if (!allZeros)
+                            {
+                                //Write employee record
+                                WritePayHistoryCSV(rpParameters, payHistoryDetails, payCodeDetails, sw, writeHeader);
+                                writeHeader = false;
+
+                            }
+
+                        }
+                        foreach(RPAddition rpAddition in rpEmployeePeriod.Additions)
+                        {
+                            string[] payCodeDetails = new string[12];
+                            payCodeDetails = new string[12];
+                            payCodeDetails[0] = rpAddition.Code;
+                            payCodeDetails[1] = rpAddition.Description;
+                            payCodeDetails[2] = rpAddition.Code;
+                            payCodeDetails[3] = "E"; //Earnings
+                            payCodeDetails[4] = rpAddition.Rate.ToString();
+                            payCodeDetails[5] = rpAddition.Units.ToString();
+                            payCodeDetails[6] = rpAddition.AmountTP.ToString();
+                            if (payCodeDetails[4] == "0.00")
+                            {
+                                payCodeDetails[4] = payCodeDetails[6];  // Make Rate equal to amount if rate is zero.
+                            }
+                            payCodeDetails[7] = rpAddition.AccountsYearBalance.ToString();
+                            payCodeDetails[8] = rpAddition.AmountYTD.ToString();
+                            payCodeDetails[9] = rpAddition.AccountsYearUnits.ToString();
+                            payCodeDetails[10] = rpAddition.PayeYearUnits.ToString();
+                            payCodeDetails[11] = rpAddition.PayrollAccrued.ToString();
+                            
+                            
+
+                            //
+                            //Check if any of the values are not zero. If so write the first employee record
+                            //
+                            bool allZeros = false;
+                            if (Convert.ToDecimal(payCodeDetails[5]) == 0 && Convert.ToDecimal(payCodeDetails[6]) == 0 &&
+                                Convert.ToDecimal(payCodeDetails[7]) == 0 && Convert.ToDecimal(payCodeDetails[8]) == 0 &&
+                                Convert.ToDecimal(payCodeDetails[9]) == 0)
+                            {
+                                allZeros = true;
+
+                            }
+                            if (!allZeros)
+                            {
+                                //Write employee record
+                                WritePayHistoryCSV(rpParameters, payHistoryDetails, payCodeDetails, sw, writeHeader);
+                                writeHeader = false;
+
+                            }
+
+                        
+                        }
+                        foreach (RPDeduction rpDeduction in rpEmployeePeriod.Deductions)
+                        {
+                            string[] payCodeDetails = new string[12];
+                            payCodeDetails = new string[12];
+                            payCodeDetails[0] = rpDeduction.Code;
+                            payCodeDetails[1] = rpDeduction.Description;
+                            payCodeDetails[2] = rpDeduction.Code;
+                            payCodeDetails[3] = "D"; //Earnings
+                            payCodeDetails[4] = rpDeduction.Rate.ToString();
+                            payCodeDetails[5] = rpDeduction.Units.ToString();
+                            payCodeDetails[6] = rpDeduction.AmountTP.ToString();
+                            if (payCodeDetails[4] == "0.00")
+                            {
+                                payCodeDetails[4] = payCodeDetails[6];  // Make Rate equal to amount if rate is zero.
+                            }
+                            payCodeDetails[7] = rpDeduction.AccountsYearBalance.ToString();
+                            payCodeDetails[8] = rpDeduction.AmountYTD.ToString();
+                            payCodeDetails[9] = rpDeduction.AccountsYearUnits.ToString();
+                            payCodeDetails[10] = rpDeduction.PayeYearUnits.ToString();
+                            payCodeDetails[11] = rpDeduction.PayrollAccrued.ToString();
+                            switch (payCodeDetails[0]) //PayCode
+                            {
+                                case "TAX":
+                                    payCodeDetails[0] = "0";
+                                    payCodeDetails[1] = payHistoryDetails[29];  // Tax Code
+                                    payCodeDetails[2] = payHistoryDetails[29];  // Tax Code
+                                    payCodeDetails[3] = "T";                    // Tax    
+                                    break;
+                                case "NI":
+                                    payCodeDetails[0] = "0";
+                                    payCodeDetails[1] = "NIEeeLERtoUER-A";      // Ee NI
+                                    payCodeDetails[2] = "NIEeeLERtoUER";        // Ee NI
+                                    payCodeDetails[3] = "T";                    // Tax    
+                                    break;
+                                case "PENSION":
+                                case "PENSIONSS":
+                                case "PENSIONRAS":
+                                    payCodeDetails[0] = "0";
+                                    payCodeDetails[1] = "PenPostTaxEe";         // Ee Pension
+                                    payCodeDetails[2] = "PenPostTaxEe";         // Ee Pension
+                                    break;
+                                default:
+                                    payCodeDetails[0] = "";
+                                    break;
+
+                            }
+                            //
+                            //Check if any of the values are not zero. If so write the first employee record
+                            //
+                            bool allZeros = false;
+                            if (Convert.ToDecimal(payCodeDetails[5]) == 0 && Convert.ToDecimal(payCodeDetails[6]) == 0 &&
+                                Convert.ToDecimal(payCodeDetails[7]) == 0 && Convert.ToDecimal(payCodeDetails[8]) == 0 &&
+                                Convert.ToDecimal(payCodeDetails[9]) == 0)
+                            {
+                                allZeros = true;
+
+                            }
+                            if (!allZeros)
+                            {
+                                //Write employee record
+                                WritePayHistoryCSV(rpParameters, payHistoryDetails, payCodeDetails, sw, writeHeader);
+                                writeHeader = false;
+
+                            }
+
+
+                        }
+                        
+                    }
+
+
+                }
+
+            }
+
+        }
         private void WritePayHistoryCSV(RPParameters rpParameters, string[] payHistoryDetails, string[] payCodeDetails, StreamWriter sw, bool writeHeader)
         {
 
@@ -1460,7 +1800,7 @@ namespace PayRunIOProcessReports
             }
             return element;
         }
-        private void PrepareStandardReports(XDocument xdoc, XmlDocument xmlReport)
+        private void PrepareStandardReportsOld(XDocument xdoc, XmlDocument xmlReport)
         {
             string textLine = null;
             int logOneIn = Convert.ToInt32(xdoc.Root.Element("LogOneIn").Value);
@@ -1676,33 +2016,35 @@ namespace PayRunIOProcessReports
 
                                 if (GetElementByTagFromXml(payCode, "EarningOrDeduction") == "E")
                                 {
-                                    RPAddition psAddition = new RPAddition();
-                                    psAddition.EeRef = rpEmployeePeriod.Reference;
-                                    psAddition.Description = GetElementByTagFromXml(payCode, "Description");
-                                    psAddition.Rate = GetDecimalElementByTagFromXml(payCode, "Rate");
-                                    psAddition.Units = GetDecimalElementByTagFromXml(payCode, "Units");
-                                    psAddition.AmountTP = GetDecimalElementByTagFromXml(payCode, "Amount");
-                                    psAddition.AmountYTD = GetDecimalElementByTagFromXml(payCode, "PayeYearBalance");
-                                    if (psAddition.AmountTP != 0 || psAddition.AmountYTD != 0)
+                                    RPAddition rpAddition = new RPAddition();
+                                    rpAddition.EeRef = rpEmployeePeriod.Reference;
+                                    rpAddition.Code = GetElementByTagFromXml(payCode, "Code");
+                                    rpAddition.Description = GetElementByTagFromXml(payCode, "Description");
+                                    rpAddition.Rate = GetDecimalElementByTagFromXml(payCode, "Rate");
+                                    rpAddition.Units = GetDecimalElementByTagFromXml(payCode, "Units");
+                                    rpAddition.AmountTP = GetDecimalElementByTagFromXml(payCode, "Amount");
+                                    rpAddition.AmountYTD = GetDecimalElementByTagFromXml(payCode, "PayeYearBalance");
+                                    if (rpAddition.AmountTP != 0 || rpAddition.AmountYTD != 0)
                                     {
-                                        rpAdditions.Add(psAddition);
-                                        rpEmployeePeriod.TotalPayTP = rpEmployeePeriod.TotalPayTP + psAddition.AmountTP;
-                                        rpEmployeePeriod.TotalPayYTD = rpEmployeePeriod.TotalPayYTD + psAddition.AmountYTD;
+                                        rpAdditions.Add(rpAddition);
+                                        rpEmployeePeriod.TotalPayTP = rpEmployeePeriod.TotalPayTP + rpAddition.AmountTP;
+                                        rpEmployeePeriod.TotalPayYTD = rpEmployeePeriod.TotalPayYTD + rpAddition.AmountYTD;
                                     }
 
                                 }
                                 else
                                 {
-                                    RPDeduction psDeduction = new RPDeduction();
-                                    psDeduction.EeRef = rpEmployeePeriod.Reference;
-                                    psDeduction.Description = GetElementByTagFromXml(payCode, "Description");
-                                    psDeduction.AmountTP = GetDecimalElementByTagFromXml(payCode, "Amount") * -1;
-                                    psDeduction.AmountYTD = GetDecimalElementByTagFromXml(payCode, "PayeYearBalance") * -1;
-                                    if (psDeduction.AmountTP != 0 || psDeduction.AmountYTD != 0)
+                                    RPDeduction rpDeduction = new RPDeduction();
+                                    rpDeduction.EeRef = rpEmployeePeriod.Reference;
+                                    rpDeduction.Code = GetElementByTagFromXml(payCode, "Code");
+                                    rpDeduction.Description = GetElementByTagFromXml(payCode, "Description");
+                                    rpDeduction.AmountTP = GetDecimalElementByTagFromXml(payCode, "Amount") * -1;
+                                    rpDeduction.AmountYTD = GetDecimalElementByTagFromXml(payCode, "PayeYearBalance") * -1;
+                                    if (rpDeduction.AmountTP != 0 || rpDeduction.AmountYTD != 0)
                                     {
-                                        rpDeductions.Add(psDeduction);
-                                        rpEmployeePeriod.TotalDedTP = rpEmployeePeriod.TotalDedTP + psDeduction.AmountTP;
-                                        rpEmployeePeriod.TotalDedYTD = rpEmployeePeriod.TotalDedYTD + psDeduction.AmountYTD;
+                                        rpDeductions.Add(rpDeduction);
+                                        rpEmployeePeriod.TotalDedTP = rpEmployeePeriod.TotalDedTP + rpDeduction.AmountTP;
+                                        rpEmployeePeriod.TotalDedYTD = rpEmployeePeriod.TotalDedYTD + rpDeduction.AmountYTD;
                                     }
 
                                 }
@@ -1806,6 +2148,381 @@ namespace PayRunIOProcessReports
                 update_Progress(textLine, configDirName, logOneIn);
             }
 
+        }
+
+        private Tuple<List<RPEmployeePeriod> ,List<RPPayComponent>, List<P45>, RPEmployer> PrepareStandardReports(XDocument xdoc, XmlDocument xmlReport)
+        {
+            string textLine = null;
+            int logOneIn = Convert.ToInt32(xdoc.Root.Element("LogOneIn").Value);
+            string configDirName = xdoc.Root.Element("SoftwareHomeFolder").Value;
+
+            List<RPEmployeePeriod> rpEmployeePeriodList = new List<RPEmployeePeriod>();
+            List<P45> p45s = new List<P45>();
+            //Create a list of Pay Code totals for the Payroll Component Analysis report
+            List<RPPayComponent> rpPayComponents = new List<RPPayComponent>();
+            RPParameters rpParameters = new RPParameters();
+            RPEmployer rpEmployer = new RPEmployer();
+
+            try
+            {
+                foreach (XmlElement parameter in xmlReport.GetElementsByTagName("Parameters"))
+                {
+                    rpParameters.ErRef = GetElementByTagFromXml(parameter, "EmployerCode");
+                    rpParameters.TaxYear = GetIntElementByTagFromXml(parameter, "TaxYear");
+                    rpParameters.AccYearStart = GetDateElementByTagFromXml(parameter, "AccountingYearStartDate");
+                    rpParameters.AccYearEnd = GetDateElementByTagFromXml(parameter, "AccountingYearEndDate");
+                    rpParameters.TaxPeriod = GetIntElementByTagFromXml(parameter, "TaxPeriod");
+                    rpParameters.PaySchedule = GetElementByTagFromXml(parameter, "PaySchedule");
+                }
+                
+                foreach (XmlElement employer in xmlReport.GetElementsByTagName("Employer"))
+                {
+                    rpEmployer.Name = GetElementByTagFromXml(employer, "Name");
+                    rpEmployer.PayeRef = GetElementByTagFromXml(employer, "EmployerPayeRef");
+                }
+
+                
+
+                bool payRunDate = false;
+                foreach (XmlElement employee in xmlReport.GetElementsByTagName("Employee"))
+                {
+                    bool include = false;
+
+                    if (GetElementByTagFromXml(employee, "PayRunDate") != "No Pay Run Data Found")
+                    {
+                        if (!payRunDate)
+                        {
+                            rpParameters.PayRunDate = GetDateElementByTagFromXml(employee, "PayRunDate");
+                            payRunDate = true;
+                        }
+                        //If the employee is a leaver before the start date then don't include.
+                        string leaver = GetElementByTagFromXml(employee, "Leaver");
+                        DateTime leavingDate = new DateTime();
+                        if (GetElementByTagFromXml(employee, "LeavingDate") != "")
+                        {
+                            leavingDate = DateTime.ParseExact(GetElementByTagFromXml(employee, "LeavingDate"), "yyyy-MM-dd", CultureInfo.InvariantCulture);
+
+                        }
+                        DateTime periodStartDate = DateTime.ParseExact(GetElementByTagFromXml(employee, "PeriodStartDate"), "yyyy-MM-dd", CultureInfo.InvariantCulture);
+                        if (leaver.StartsWith("N"))
+                        {
+                            include = true;
+                        }
+                        else if (leavingDate >= periodStartDate)
+                        {
+                            include = true;
+                        }
+                    }
+
+                    if (include)
+                    {
+                        RPEmployeePeriod rpEmployeePeriod = new RPEmployeePeriod();
+                        rpEmployeePeriod.Reference = GetElementByTagFromXml(employee, "EeRef");
+                        rpEmployeePeriod.Title = GetElementByTagFromXml(employee, "Title");
+                        rpEmployeePeriod.Forename = GetElementByTagFromXml(employee, "FirstName");
+                        rpEmployeePeriod.Surname = GetElementByTagFromXml(employee, "LastName");
+                        rpEmployeePeriod.Fullname = rpEmployeePeriod.Title + " " + rpEmployeePeriod.Forename + " " + rpEmployeePeriod.Surname;
+                        rpEmployeePeriod.RefFullname = rpEmployeePeriod.Reference + " " + rpEmployeePeriod.Fullname;
+                        string[] address = new string[6];
+                        address[0] = GetElementByTagFromXml(employee, "Address1");
+                        address[1] = GetElementByTagFromXml(employee, "Address2");
+                        address[2] = GetElementByTagFromXml(employee, "Address3");
+                        address[3] = GetElementByTagFromXml(employee, "Address4");
+                        address[4] = GetElementByTagFromXml(employee, "Postcode");
+                        address[5] = GetElementByTagFromXml(employee, "Country");
+
+                        rpEmployeePeriod.SortCode = GetElementByTagFromXml(employee, "SortCode");
+                        rpEmployeePeriod.BankAccNo = GetElementByTagFromXml(employee, "BankAccNo");
+                        rpEmployeePeriod.DateOfBirth = GetDateElementByTagFromXml(employee, "DateOfBirth");
+                        rpEmployeePeriod.Gender = GetElementByTagFromXml(employee, "Gender");
+                        rpEmployeePeriod.BuildingSocRef = GetElementByTagFromXml(employee, "BuildingSocRef");
+                        rpEmployeePeriod.NINumber = GetElementByTagFromXml(employee, "NiNumber");
+                        rpEmployeePeriod.PaymentMethod = GetElementByTagFromXml(employee, "PayMethod");
+                        rpEmployeePeriod.PayRunDate = GetDateElementByTagFromXml(employee, "PayRunDate");
+                        rpEmployeePeriod.PeriodStartDate = GetDateElementByTagFromXml(employee, "PeriodStartDate");
+                        rpEmployeePeriod.PeriodEndDate = GetDateElementByTagFromXml(employee, "PeriodEndDate");
+                        rpEmployeePeriod.PayrollYear = GetIntElementByTagFromXml(employee, "PayrollYear");
+                        rpEmployeePeriod.Gross = GetDecimalElementByTagFromXml(employee, "Gross");
+                        rpEmployeePeriod.NetPayTP = GetDecimalElementByTagFromXml(employee, "Net");
+                        rpEmployeePeriod.DayHours = GetIntElementByTagFromXml(employee, "DayHours");
+                        rpEmployeePeriod.StudentLoanStartDate = GetDateElementByTagFromXml(employee, "StudentLoanStartDate");
+                        rpEmployeePeriod.StudentLoanEndDate = GetDateElementByTagFromXml(employee, "StudentLoanEndDate");
+                        rpEmployeePeriod.NILetter = GetElementByTagFromXml(employee, "NiLetter");
+                        rpEmployeePeriod.CalculationBasis = GetElementByTagFromXml(employee, "CalculationBasis");
+                        //TotalPayTP
+                        rpEmployeePeriod.EarningsToLEL = GetDecimalElementByTagFromXml(employee, "EarningsToLEL");
+                        rpEmployeePeriod.EarningsToSET = GetDecimalElementByTagFromXml(employee, "EarningsToSET");
+                        rpEmployeePeriod.EarningsToPET = GetDecimalElementByTagFromXml(employee, "EarningsToPET");
+                        rpEmployeePeriod.EarningsToUST = GetDecimalElementByTagFromXml(employee, "EarningsToUST");
+                        rpEmployeePeriod.EarningsToAUST = GetDecimalElementByTagFromXml(employee, "EarningsToAUST");
+                        rpEmployeePeriod.EarningsToUEL = GetDecimalElementByTagFromXml(employee, "EarningsToUEL");
+                        rpEmployeePeriod.EarningsAboveUEL = GetDecimalElementByTagFromXml(employee, "EarningsAboveUEL");
+                        rpEmployeePeriod.EeContributionsPt1 = GetDecimalElementByTagFromXml(employee, "EeContributionsPt1");
+                        rpEmployeePeriod.EeContributionsPt2 = GetDecimalElementByTagFromXml(employee, "EeContributions2");
+                        rpEmployeePeriod.ErNICYTD = GetDecimalElementByTagFromXml(employee, "ErContributions");
+                        rpEmployeePeriod.EeRebate = GetDecimalElementByTagFromXml(employee, "EeRabate");
+                        rpEmployeePeriod.ErRebate = GetDecimalElementByTagFromXml(employee, "ErRebate");
+                        rpEmployeePeriod.EeReduction = GetDecimalElementByTagFromXml(employee, "EeReduction");
+                        string leaver = GetElementByTagFromXml(employee, "Leaver");
+                        if (leaver == "Y")
+                        {
+                            rpEmployeePeriod.Leaver = true;
+                        }
+                        else
+                        {
+                            rpEmployeePeriod.Leaver = false;
+                        }
+                        if (rpEmployeePeriod.Leaver)
+                        {
+                            rpEmployeePeriod.LeavingDate = GetDateElementByTagFromXml(employee, "LeavingDate");
+
+                        }
+                        rpEmployeePeriod.TaxCode = GetElementByTagFromXml(employee, "TaxCode");
+                        rpEmployeePeriod.Week1Month1 = GetBooleanElementByTagFromXml(employee, "Week1Month1");
+                        if (rpEmployeePeriod.Week1Month1)
+                        {
+                            rpEmployeePeriod.TaxCode = rpEmployeePeriod.TaxCode + " W1";
+                        }
+                        rpEmployeePeriod.TaxCodeChangeTypeID = GetElementByTagFromXml(employee, "TaxCodeChangeTypeID");
+                        rpEmployeePeriod.TaxCodeChangeType = GetElementByTagFromXml(employee, "TaxCodeChangeType");
+                        rpEmployeePeriod.TaxPrev = GetDecimalElementByTagFromXml(employee, "TaxPrevious");
+                        rpEmployeePeriod.TaxablePayPrevious = GetDecimalElementByTagFromXml(employee, "TaxablePayPrevious");
+                        rpEmployeePeriod.TaxThis = GetDecimalElementByTagFromXml(employee, "TaxThis");
+                        rpEmployeePeriod.TaxablePayYTD = GetDecimalElementByTagFromXml(employee, "TaxablePayThisYTD") + GetDecimalElementByTagFromXml(employee, "TaxablePayPrevious");
+                        rpEmployeePeriod.TaxablePayTP = GetDecimalElementByTagFromXml(employee, "TaxablePayThisPeriod");
+                        rpEmployeePeriod.HolidayAccruedYTD = GetDecimalElementByTagFromXml(employee, "HolidayAccruedTd");
+                        rpEmployeePeriod.ErPensionYTD = GetDecimalElementByTagFromXml(employee, "ErPensionYTD");
+                        rpEmployeePeriod.EePensionYTD = GetDecimalElementByTagFromXml(employee, "EePensionYTD");
+                        rpEmployeePeriod.ErPensionTP = GetDecimalElementByTagFromXml(employee, "ErPensionTaxPeriod");
+                        rpEmployeePeriod.EePensionTP = GetDecimalElementByTagFromXml(employee, "EePensionTaxPeriod");
+                        rpEmployeePeriod.ErContributionPercent = GetDecimalElementByTagFromXml(employee, "ErContributionPercent") * 100;
+                        rpEmployeePeriod.EeContributionPercent = GetDecimalElementByTagFromXml(employee, "EeContributionPercent") * 100;
+                        rpEmployeePeriod.PensionablePay = GetDecimalElementByTagFromXml(employee, "PensionablePay");
+                        rpEmployeePeriod.ErPensionPayRunDate = GetDateElementByTagFromXml(employee, "ErPensionPayRunDate");
+                        rpEmployeePeriod.EePensionPayRunDate = GetDateElementByTagFromXml(employee, "EePensionPayRunDate");
+                        rpEmployeePeriod.DirectorshipAppointmentDate = GetDateElementByTagFromXml(employee, "DirectorshipAppointmentDate");
+                        rpEmployeePeriod.Director = GetBooleanElementByTagFromXml(employee, "Director");
+                        rpEmployeePeriod.EeContributionTaxPeriodPt1 = GetDecimalElementByTagFromXml(employee, "EeContributionTaxPeriodPt1");
+                        rpEmployeePeriod.EeContributionTaxPeriodPt2 = GetDecimalElementByTagFromXml(employee, "EeContributionTaxPeriodPt2");
+                        rpEmployeePeriod.ErNICTP = GetDecimalElementByTagFromXml(employee, "ErContributionTaxPeriod");
+                        rpEmployeePeriod.Frequency = rpParameters.PaySchedule;
+                        rpEmployeePeriod.NetPayYTD = 0;
+                        rpEmployeePeriod.TotalPayTP = 0;
+                        rpEmployeePeriod.TotalPayYTD = 0;
+                        rpEmployeePeriod.TotalDedTP = 0;
+                        rpEmployeePeriod.TotalDedYTD = 0;
+                        rpEmployeePeriod.ErNICTP = GetDecimalElementByTagFromXml(employee, "ErContributionsTaxPeriod");
+                        rpEmployeePeriod.ErNICYTD = GetDecimalElementByTagFromXml(employee, "ErContributions");
+                        rpEmployeePeriod.PensionCode = GetElementByTagFromXml(employee, "PensionDetails");
+                        if (rpEmployeePeriod.PensionCode != null)
+                        {
+                            //Just use the part after the last "/".
+                            int i = rpEmployeePeriod.PensionCode.LastIndexOf("/") + 1;
+                            int j = rpEmployeePeriod.PensionCode.Length;
+                            rpEmployeePeriod.PensionCode = rpEmployeePeriod.PensionCode.Substring(i, j - i);
+                        }
+                        rpEmployeePeriod.PreTaxAddDed = 0;
+                        rpEmployeePeriod.GUCosts = 0;
+                        rpEmployeePeriod.AbsencePay = 0;
+                        rpEmployeePeriod.HolidayPay = 0;
+                        rpEmployeePeriod.PreTaxPension = 0;
+                        rpEmployeePeriod.Tax = 0;
+                        rpEmployeePeriod.NetNI = 0;
+                        rpEmployeePeriod.PostTaxAddDed = 0;
+                        rpEmployeePeriod.PostTaxPension = 0;
+                        rpEmployeePeriod.AOE = 0;
+                        rpEmployeePeriod.StudentLoan = 0;
+
+                        List<RPAddition> rpAdditions = new List<RPAddition>();
+                        List<RPDeduction> rpDeductions = new List<RPDeduction>();
+                        foreach (XmlElement payCodes in employee.GetElementsByTagName("PayCodes"))
+                        {
+                            foreach (XmlElement payCode in payCodes.GetElementsByTagName("PayCode"))
+                            {
+                                RPPayComponent rpPayComponent = new RPPayComponent();
+                                rpPayComponent.PayCode = GetElementByTagFromXml(payCode, "Code");
+                                rpPayComponent.Description = GetElementByTagFromXml(payCode, "Description");
+                                rpPayComponent.EeRef = rpEmployeePeriod.Reference;
+                                rpPayComponent.Fullname = rpEmployeePeriod.Fullname;
+                                rpPayComponent.Surname = rpEmployeePeriod.Surname;
+                                rpPayComponent.Rate = GetDecimalElementByTagFromXml(payCode, "Rate");
+                                rpPayComponent.UnitsTP = GetDecimalElementByTagFromXml(payCode, "Units");
+                                rpPayComponent.AmountTP = GetDecimalElementByTagFromXml(payCode, "Amount");
+                                rpPayComponent.UnitsYTD = GetDecimalElementByTagFromXml(payCode, "PayeYearUnits");
+                                rpPayComponent.AmountYTD = GetDecimalElementByTagFromXml(payCode, "PayeYearBalance");
+                                if (rpPayComponent.AmountTP != 0 || rpPayComponent.AmountYTD != 0)
+                                {
+                                    if (GetElementByTagFromXml(payCode, "IsPayCode") == "true")
+                                    {
+                                        rpPayComponents.Add(rpPayComponent);
+                                    }
+                                    //Check for the different pay codes and add to the appropriate total.
+                                    switch (rpPayComponent.PayCode)
+                                    {
+                                        case "HOLPY":
+                                        case "HOLIDAY":
+                                            rpEmployeePeriod.HolidayPay = rpEmployeePeriod.HolidayPay + rpPayComponent.AmountTP;
+                                            break;
+                                        case "PENSION":
+                                            rpEmployeePeriod.PreTaxPension = rpEmployeePeriod.PreTaxPension + rpPayComponent.AmountTP;
+                                            break;
+                                        case "PENSIONRAS":
+                                        case "PENSIONSS":
+                                            rpEmployeePeriod.PostTaxPension = rpEmployeePeriod.PostTaxPension + rpPayComponent.AmountTP;
+                                            break;
+                                        case "AOE":
+                                            rpEmployeePeriod.AOE = rpEmployeePeriod.AOE + rpPayComponent.AmountTP;
+                                            break;
+                                        case "SLOAN":
+                                            rpEmployeePeriod.StudentLoan = rpEmployeePeriod.StudentLoan + rpPayComponent.AmountTP;
+                                            break;
+                                        case "TAX":
+                                            rpEmployeePeriod.Tax = rpEmployeePeriod.Tax + rpPayComponent.AmountTP;
+                                            break;
+                                        case "NI":
+                                            rpEmployeePeriod.NetNI = rpEmployeePeriod.NetNI + rpPayComponent.AmountTP;
+                                            break;
+                                        case "SAP":
+                                        case "SHPP":
+                                        case "SMP":
+                                        case "SPP":
+                                        case "SSP":
+                                            rpEmployeePeriod.AbsencePay = rpEmployeePeriod.AbsencePay + rpPayComponent.AmountTP;
+                                            break;
+                                        default:
+                                            rpEmployeePeriod.PreTaxAddDed = rpEmployeePeriod.PreTaxAddDed + rpPayComponent.AmountTP;
+                                            break;
+
+                                    }
+                                }
+
+
+                                if (GetElementByTagFromXml(payCode, "EarningOrDeduction") == "E")
+                                {
+                                    RPAddition rpAddition = new RPAddition();
+                                    rpAddition.EeRef = rpEmployeePeriod.Reference;
+                                    rpAddition.Code = GetElementByTagFromXml(payCode, "Code");
+                                    rpAddition.Description = GetElementByTagFromXml(payCode, "Description");
+                                    rpAddition.Rate = GetDecimalElementByTagFromXml(payCode, "Rate");
+                                    rpAddition.Units = GetDecimalElementByTagFromXml(payCode, "Units");
+                                    rpAddition.AmountTP = GetDecimalElementByTagFromXml(payCode, "Amount");
+                                    rpAddition.AmountYTD = GetDecimalElementByTagFromXml(payCode, "PayeYearBalance");
+                                    rpAddition.AccountsYearBalance = GetDecimalElementByTagFromXml(payCode, "AccountsYearBalance");
+                                    rpAddition.AccountsYearUnits = GetDecimalElementByTagFromXml(payCode, "AccountsYearUnits");
+                                    rpAddition.PayeYearUnits = GetDecimalElementByTagFromXml(payCode, "PayeYearUnits");
+                                    rpAddition.PayrollAccrued = GetDecimalElementByTagFromXml(payCode, "PayrollAccrued");
+                                    if (rpAddition.AmountTP != 0 || rpAddition.AmountYTD != 0)
+                                    {
+                                        rpAdditions.Add(rpAddition);
+                                        rpEmployeePeriod.TotalPayTP = rpEmployeePeriod.TotalPayTP + rpAddition.AmountTP;
+                                        rpEmployeePeriod.TotalPayYTD = rpEmployeePeriod.TotalPayYTD + rpAddition.AmountYTD;
+                                    }
+
+                                }
+                                else
+                                {
+                                    RPDeduction rpDeduction = new RPDeduction();
+                                    rpDeduction.EeRef = rpEmployeePeriod.Reference;
+                                    rpDeduction.Code = GetElementByTagFromXml(payCode, "Code");
+                                    rpDeduction.Description = GetElementByTagFromXml(payCode, "Description");
+                                    rpDeduction.AmountTP = GetDecimalElementByTagFromXml(payCode, "Amount") * -1;
+                                    rpDeduction.AmountYTD = GetDecimalElementByTagFromXml(payCode, "PayeYearBalance") * -1;
+                                    rpDeduction.AccountsYearBalance = GetDecimalElementByTagFromXml(payCode, "AccountsYearBalance") * -1;
+                                    rpDeduction.AccountsYearUnits = GetDecimalElementByTagFromXml(payCode, "AccountsYearUnits") * -1;
+                                    rpDeduction.PayeYearUnits = GetDecimalElementByTagFromXml(payCode, "PayeYearUnits") * -1;
+                                    rpDeduction.PayrollAccrued = GetDecimalElementByTagFromXml(payCode, "PayrollAccrued") * -1;
+                                    if (rpDeduction.AmountTP != 0 || rpDeduction.AmountYTD != 0)
+                                    {
+                                        rpDeductions.Add(rpDeduction);
+                                        rpEmployeePeriod.TotalDedTP = rpEmployeePeriod.TotalDedTP + rpDeduction.AmountTP;
+                                        rpEmployeePeriod.TotalDedYTD = rpEmployeePeriod.TotalDedYTD + rpDeduction.AmountYTD;
+                                    }
+
+                                }
+                                rpEmployeePeriod.Additions = rpAdditions;
+                                rpEmployeePeriod.Deductions = rpDeductions;
+                            }//End of for each payCode
+                        }//End of for each payCodes
+                         //Multiple Tax and NI by -1 to make them positive
+                        rpEmployeePeriod.Tax = rpEmployeePeriod.Tax * -1;
+                        rpEmployeePeriod.NetNI = rpEmployeePeriod.NetNI * -1;
+                        //Create a P45 object if the employee is a leaver
+                        if (rpEmployeePeriod.Leaver)
+                        {
+                            P45 p45 = new P45();
+                            p45.ErOfficeNo = rpEmployer.PayeRef.Substring(0, 3);
+                            p45.ErRefNo = rpEmployer.PayeRef.Substring(4);
+                            p45.NINumber = rpEmployeePeriod.NINumber;
+                            p45.Title = rpEmployeePeriod.Title;
+                            p45.Surname = rpEmployeePeriod.Surname;
+                            p45.FirstNames = rpEmployeePeriod.Forename;
+                            p45.LeavingDate = rpEmployeePeriod.LeavingDate;
+                            p45.DateOfBirth = rpEmployeePeriod.DateOfBirth;
+                            p45.StudentLoansDeductionToContinue = false;  //Need to find out where this comes from!
+                            p45.TaxCode = rpEmployeePeriod.TaxCode;
+                            p45.Week1Month1 = rpEmployeePeriod.Week1Month1;
+                            if (rpParameters.PaySchedule == "Monthly")
+                            {
+                                p45.MonthNo = rpParameters.TaxPeriod;
+                                p45.WeekNo = 0;
+                            }
+                            else
+                            {
+                                p45.MonthNo = 0;
+                                p45.WeekNo = rpParameters.TaxPeriod;
+                            }
+                            p45.PayToDate = rpEmployeePeriod.TotalPayYTD; //rpEmployeePeriod.TaxablePayYTD + rpEmployeePeriod.TaxablePayPrevious;
+                            p45.TaxToDate = rpEmployeePeriod.TaxThis + rpEmployeePeriod.TaxPrev;
+                            p45.PayThis = rpEmployeePeriod.TotalPayYTD - rpEmployeePeriod.TaxablePayPrevious;    //rpEmployeePeriod.TaxablePayYTD;
+                            p45.TaxThis = rpEmployeePeriod.TaxThis;
+                            p45.EeRef = rpEmployeePeriod.Reference;
+                            if (rpEmployeePeriod.Gender == "Male")
+                            {
+                                p45.IsMale = true;
+                            }
+                            else
+                            {
+                                p45.IsMale = false;
+                            }
+                            p45.Address1 = address[0];
+                            p45.Address2 = address[1];
+                            p45.Address3 = address[2];
+                            p45.Address4 = address[3];
+                            p45.Postcode = address[4];
+                            p45.Country = address[5];
+                            p45.ErName = rpEmployer.Name;
+                            p45.ErAddress1 = "19 Island Hill";// rpEmployer.Address1;
+                            p45.ErAddress2 = "Dromara Road";// rpEmployer.Address2;
+                            p45.ErAddress3 = "Dromore";// rpEmployer.Address3;
+                            p45.ErAddress4 = "Co. Down";// rpEmployer.Address4;
+                            p45.ErPostcode = "BT25 1HA";// rpEmployer.Postcode;
+                            p45.ErCountry = "United Kingdom";// rpEmployer.Country;
+                            p45.Now = DateTime.Now;
+
+                            p45s.Add(p45);
+                        }
+                        //Re-Arrange the employees address so that there are no blank lines shown.
+                        address = RemoveBlankAddressLines(address);
+                        rpEmployeePeriod.Address1 = address[0];
+                        rpEmployeePeriod.Address2 = address[1];
+                        rpEmployeePeriod.Address3 = address[2];
+                        rpEmployeePeriod.Address4 = address[3];
+                        rpEmployeePeriod.Postcode = address[4];
+                        rpEmployeePeriod.Country = address[5];
+                        rpEmployeePeriodList.Add(rpEmployeePeriod);
+                    }//End of for each employee
+
+
+                }
+                
+            }
+            catch (Exception ex)
+            {
+                textLine = string.Format("Error preparing reports.\r\n{0}.\r\n", ex);
+                update_Progress(textLine, configDirName, logOneIn);
+            }
+            return new Tuple<List<RPEmployeePeriod>, List<RPPayComponent>, List<P45>, RPEmployer>(rpEmployeePeriodList, rpPayComponents, p45s, rpEmployer);
+            
         }
         private void PrintStandardReports(XDocument xdoc, List<RPEmployeePeriod> rpEmployeePeriodList, RPEmployer rpEmployer, RPParameters rpParameters, List<P45> p45s, List<RPPayComponent> rpPayComponents)
         {
