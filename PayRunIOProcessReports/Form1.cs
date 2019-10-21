@@ -773,78 +773,66 @@ namespace PayRunIOProcessReports
 
                     for (int i = 0; i < 6; i++)
                     {
-                        string[] payCodeDetails = new string[8];
+                        RPPayCode rpPayCode = new RPPayCode();
+
+                        rpPayCode.EeRef = rpEmployeeYtd.EeRef;
+                        rpPayCode.Code = "0";
+
                         switch (i)
                         {
                             case 0:
-                                RPPayCode rpPayCode = new RPPayCode();
-                                rpPayCode.EeRef = rpEmployeeYtd.EeRef;
-                                rpPayCode.Code = "0";
                                 rpPayCode.PayCode = "EeNIPdByEr";
                                 rpPayCode.Description = "Ee NI Paid By Er";
-                                rpPayCode.IsPayCode = true;
+                                rpPayCode.Type = "E";
                                 rpPayCode.AccountsAmount = rpEmployeeYtd.EeNiPaidByErAccountsAmount;
                                 rpPayCode.PayeAmount = rpEmployeeYtd.EeNiPaidByErPayeAmount;
                                 rpPayCode.AccountsUnits = rpEmployeeYtd.EeNiPaidByErAccountsUnits;
                                 rpPayCode.PayeUnits = rpEmployeeYtd.EeNiPaidByErPayeUnits;
-                                //JCBJCB start here.
-                                payCodeDetails[1] = "E";
-                                payCodeDetails[2] = "EeNIPdByEr";
-                                payCodeDetails[3] = "Ee NI Paid By Er";
-                                payCodeDetails[4] = GetElementByTagFromXml(employee, "EeNiPaidByErAccountsAmount");
-                                payCodeDetails[5] = GetElementByTagFromXml(employee, "EeNiPaidByErPayeAmount");
-                                payCodeDetails[6] = GetElementByTagFromXml(employee, "EeNiPaidByErAccountsUnits");
-                                payCodeDetails[7] = GetElementByTagFromXml(employee, "EeNiPaidByErPayeUnits");
                                 break;
                             case 1:
-                                payCodeDetails[0] = "0";
-                                payCodeDetails[1] = "E";
-                                payCodeDetails[2] = "GUTax";
-                                payCodeDetails[3] = "Grossed up Tax";
-                                payCodeDetails[4] = GetElementByTagFromXml(employee, "EeGuTaxPaidByErAccountsAmount");
-                                payCodeDetails[5] = GetElementByTagFromXml(employee, "EeGuTaxPaidByErPayeAmount");
-                                payCodeDetails[6] = GetElementByTagFromXml(employee, "EeGuTaxPaidByErAccountsUnit");
-                                payCodeDetails[7] = GetElementByTagFromXml(employee, "EeGuTaxPaidByErPayeUnit");
+                                rpPayCode.PayCode = "GUTax";
+                                rpPayCode.Description = "Grossed up Tax";
+                                rpPayCode.Type = "E";
+                                rpPayCode.AccountsAmount = GetDecimalElementByTagFromXml(employee, "EeGuTaxPaidByErAccountsAmount");
+                                rpPayCode.PayeAmount = GetDecimalElementByTagFromXml(employee, "EeGuTaxPaidByErPayeAmount");
+                                rpPayCode.AccountsUnits = GetDecimalElementByTagFromXml(employee, "EeGuTaxPaidByErAccountsUnit");
+                                rpPayCode.PayeUnits = GetDecimalElementByTagFromXml(employee, "EeGuTaxPaidByErPayeUnit");
                                 break;
                             case 2:
-                                payCodeDetails[0] = "0";
-                                payCodeDetails[1] = "T";
-                                payCodeDetails[2] = "NIEeeLERtoUER";
-                                payCodeDetails[3] = "NIEeeLERtoUER-A";
-                                payCodeDetails[4] = GetElementByTagFromXml(employee, "EeNiLERtoUERAccountsAmount");
-                                payCodeDetails[5] = GetElementByTagFromXml(employee, "EeNiLERtoUERPayeAmount");
-                                payCodeDetails[6] = GetElementByTagFromXml(employee, "EeNiLERtoUERAccountsUnit");
-                                payCodeDetails[7] = GetElementByTagFromXml(employee, "EeNiLERtoUERPayeUnit");
+                                rpPayCode.PayCode = "NIEeeLERtoUER";
+                                rpPayCode.Description = "NIEeeLERtoUER-A";
+                                rpPayCode.Type = "E";
+                                rpPayCode.AccountsAmount = GetDecimalElementByTagFromXml(employee, "EeNiLERtoUERAccountsAmount");
+                                rpPayCode.PayeAmount = GetDecimalElementByTagFromXml(employee, "EeNiLERtoUERPayeAmount");
+                                rpPayCode.AccountsUnits = GetDecimalElementByTagFromXml(employee, "EeNiLERtoUERAccountsUnit");
+                                rpPayCode.PayeUnits = GetDecimalElementByTagFromXml(employee, "EeNiLERtoUERPayeUnit");
                                 break;
                             case 3:
-                                payCodeDetails[0] = "0";
-                                payCodeDetails[1] = "T";
-                                payCodeDetails[2] = "NIEr";
-                                payCodeDetails[3] = "NIEr-A";
-                                payCodeDetails[4] = GetElementByTagFromXml(employee, "ErNiAccountAmount");
-                                payCodeDetails[5] = GetElementByTagFromXml(employee, "ErNiPayeAmount");
-                                payCodeDetails[6] = GetElementByTagFromXml(employee, "ErNiAccountUnit");
-                                payCodeDetails[7] = GetElementByTagFromXml(employee, "ErNiPayeUnit");
+                                rpPayCode.PayCode = "NIEr";
+                                rpPayCode.Description = "NIEr-A";
+                                rpPayCode.Type = "T";
+                                rpPayCode.AccountsAmount = GetDecimalElementByTagFromXml(employee, "ErNiAccountAmount");
+                                rpPayCode.PayeAmount = GetDecimalElementByTagFromXml(employee, "ErNiPayeAmount");
+                                rpPayCode.AccountsUnits = GetDecimalElementByTagFromXml(employee, "ErNiAccountUnit");
+                                rpPayCode.PayeUnits = GetDecimalElementByTagFromXml(employee, "ErNiPayeUnit");
                                 break;
                             case 4:
-                                payCodeDetails[0] = "0";
-                                payCodeDetails[1] = "D";
-                                payCodeDetails[2] = "PenEr";
-                                payCodeDetails[3] = "PenEr";
-                                payCodeDetails[4] = GetElementByTagFromXml(employee, "ErPensionYTD");
-                                payCodeDetails[5] = GetElementByTagFromXml(employee, "ErPensionYTD");
-                                payCodeDetails[6] = "0.00";
-                                payCodeDetails[7] = "0.00";
+                                rpPayCode.PayCode = "PenEr";
+                                rpPayCode.Description = "PenEr";
+                                rpPayCode.Type = "D";
+                                rpPayCode.AccountsAmount = GetDecimalElementByTagFromXml(employee, "ErPensionYTD");
+                                rpPayCode.PayeAmount = GetDecimalElementByTagFromXml(employee, "ErPensionYTD");
+                                rpPayCode.AccountsUnits = 0;
+                                rpPayCode.PayeUnits = 0;
                                 break;
                             default:
-                                payCodeDetails[0] = "0";
-                                payCodeDetails[1] = "D";
-                                payCodeDetails[2] = "PenPostTaxEe";
-                                payCodeDetails[3] = "PenPostTaxEe";
-                                payCodeDetails[4] = GetElementByTagFromXml(employee, "EePensionYTD");
-                                payCodeDetails[5] = GetElementByTagFromXml(employee, "EePensionYTD");
-                                payCodeDetails[6] = "0.00";
-                                payCodeDetails[7] = "0.00";
+                                rpPayCode.PayCode = "PenPostTaxEe";
+                                rpPayCode.Description = "PenPostTaxEe";
+                                rpPayCode.Type = "D";
+                                rpPayCode.AccountsAmount = GetDecimalElementByTagFromXml(employee, "EePensionYTD");
+                                rpPayCode.PayeAmount = GetDecimalElementByTagFromXml(employee, "EePensionYTD");
+                                rpPayCode.AccountsUnits = 0;
+                                rpPayCode.PayeUnits = 0;
                                 break;
                         }
 
@@ -852,18 +840,16 @@ namespace PayRunIOProcessReports
                         //Check if any of the values are not zero. If so write the first employee record
                         //
                         bool allZeros = false;
-                        if (payCodeDetails[4] == "0.00" && payCodeDetails[5] == "0.00" &&
-                            payCodeDetails[6] == "0.00" && payCodeDetails[7] == "0.00")
+                        if (rpPayCode.AccountsAmount == 0 && rpPayCode.AccountsUnits == 0 &&
+                            rpPayCode.PayeUnits == 0 && rpPayCode.PayeUnits == 0)
                         {
                             allZeros = true;
 
                         }
                         if (!allZeros)
                         {
-                            //Write employee record
-                            WritePayYTDCSV(rpParameters, payYTDDetails, payCodeDetails, sw, writeHeader);
-                            writeHeader = false;
-
+                            //Add employee record to the list
+                            rpPayCodeList.Add(rpPayCode);
                         }
                     }
 
@@ -871,22 +857,32 @@ namespace PayRunIOProcessReports
                     {
                         foreach (XmlElement payCode in payCodes.GetElementsByTagName("PayCode"))
                         {
-                            string[] payCodeDetails = new string[8];
-                            payCodeDetails[0] = GetElementByTagFromXml(payCode, "Code");
-                            payCodeDetails[1] = GetElementByTagFromXml(payCode, "EarningOrDeduction");
-                            payCodeDetails[2] = GetElementByTagFromXml(payCode, "Code");
-                            payCodeDetails[3] = GetElementByTagFromXml(payCode, "Description");
-                            payCodeDetails[4] = GetElementByTagFromXml(payCode, "AccountsAmount");
-                            payCodeDetails[5] = GetElementByTagFromXml(payCode, "PayeAmount");
-                            payCodeDetails[6] = GetElementByTagFromXml(payCode, "AccountsUnits");
-                            payCodeDetails[7] = GetElementByTagFromXml(payCode, "PayeUnits");
+                            RPPayCode rpPayCode = new RPPayCode();
+
+                            rpPayCode.Code = GetElementByTagFromXml(payCode, "Code");
+                            rpPayCode.Code = GetElementByTagFromXml(payCode, "Code");
+                            rpPayCode.Description] = GetElementByTagFromXml(payCode, "Description");
+                            bool isPayCode = GetBooleanElementByTagFromXml(payCode, "IsPayCode");
+                            if(isPayCode)
+                            {
+                                rpPayCode.Type = "E";
+                            }
+                            else
+                            {
+                                rpPayCode.Type = "E";
+                            }
+                            
+                            rpPayCode.AccountsAmount = GetDecimalElementByTagFromXml(payCode, "AccountsAmount");
+                            rpPayCode.PayeAmount = GetDecimalElementByTagFromXml(payCode, "PayeAmount");
+                            rpPayCode.AccountsUnits = GetDecimalElementByTagFromXml(payCode, "AccountsUnits");
+                            rpPayCode.PayeUnits = GetDecimalElementByTagFromXml(payCode, "PayeUnits");
 
                             //
                             //Check if any of the values are not zero. If so write the first employee record
                             //
                             bool allZeros = false;
-                            if (payCodeDetails[4] == "0.00" && payCodeDetails[5] == "0.00" &&
-                                payCodeDetails[6] == "0.00" && payCodeDetails[7] == "0.00")
+                            if (rpPayCode.AccountsAmount == 0 && rpPayCode.AccountsUnits == 0 &&
+                                rpPayCode.PayeAmount == 0 && rpPayCode.PayeUnits == 0)
                             {
                                 allZeros = true;
 
@@ -894,29 +890,29 @@ namespace PayRunIOProcessReports
                             if (!allZeros)
                             {
                                 //I don't require TAX, NI or PENSION
-                                if (payCodeDetails[0] != "TAX" && payCodeDetails[0] != "NI" && !payCodeDetails[0].StartsWith("PENSION"))
+                                if (rpPayCode.Code != "TAX" && rpPayCode.Code != "NI" && !rpPayCode.Code.StartsWith("PENSION"))
                                 {
-                                    if (payCodeDetails[1] == "D")
+                                    if (rpPayCode.Type == "D")
                                     {
                                         //Deduction so multiply by -1
-                                        for (int i = 4; i < 8; i++)
-                                        {
-                                            payCodeDetails[i] = (Convert.ToDecimal(payCodeDetails[i]) * -1).ToString();
-                                        }
+                                        rpPayCode.AccountsAmount = rpPayCode.AccountsAmount * -1;
+                                        rpPayCode.AccountsUnits = rpPayCode.AccountsUnits * -1;
+                                        rpPayCode.PayeAmount = rpPayCode.PayeAmount * -1;
+                                        rpPayCode.PayeUnits = rpPayCode.PayeUnits * -1;
+                                        
                                     }
-                                    if (payCodeDetails[0] == "UNPDM")
+                                    if (rpPayCode.Code == "UNPDM")
                                     {
                                         //Change UNPDM back to UNPD£. WG uses UNPD£ PR doesn't like symbols like £ in pay codes.
-                                        payCodeDetails[0] = "";// "UNPD£";
-                                        payCodeDetails[2] = "UNPD£";
+                                        rpPayCode.Code = "";// "UNPD£";
+                                        rpPayCode.PayCode = "UNPD£";
                                     }
                                     else
                                     {
-                                        payCodeDetails[0] = "";
+                                        rpPayCode.Code = "";
                                     }
-                                    //Write employee record
-                                    WritePayYTDCSV(rpParameters, payYTDDetails, payCodeDetails, sw, writeHeader);
-                                    writeHeader = false;
+                                    //Add to employee record
+                                    rpPayCodeList.Add(rpPayCode);
                                 }
 
 
@@ -929,7 +925,7 @@ namespace PayRunIOProcessReports
 
 
             }
-
+            return rpEmployeeYtdList;
         }
         private List<RPEmployeeYtd> CreateYTDCSV(XDocument xdoc, XmlDocument xmlReport, RPParameters rpParameters)
         {
