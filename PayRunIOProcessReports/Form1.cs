@@ -151,38 +151,32 @@ namespace PayRunIOProcessReports
             string parameter5 = "TaxPeriod";
             string parameter6 = "PayScheduleKey";
 
+            //
             //Get the history report
+            //
+
             XmlDocument xmlPeriodReport = prWG.RunReport(rptRef, parameter1, rpParameters.ErRef, parameter2, rpParameters.TaxYear.ToString(), parameter3,
                                               rpParameters.AccYearStart.ToString("yyyy-MM-dd"), parameter4, rpParameters.AccYearEnd.ToString("yyyy-MM-dd"), parameter5, rpParameters.TaxPeriod.ToString(),
                                               parameter6, rpParameters.PaySchedule.ToUpper());
 
-            var tuple = prWG.PrepareStandardReports(xdoc, xmlPeriodReport, rpParameters);
-            List<RPEmployeePeriod> rpEmployeePeriodList = tuple.Item1;
-            List<RPPayComponent> rpPayComponents = tuple.Item2;
-            //I don't think the P45 report will be able to be produced from the EmployeePeriod report but I'm leaving it here for now.
-            List<P45> p45s = tuple.Item3;
-            RPEmployer rpEmployer = tuple.Item4;
-            rpParameters = tuple.Item5;
-            //Get the total payable to hmrc, I'm going use it in the zipped file name(possibly!).
-            decimal hmrcTotal = prWG.CalculateHMRCTotal(rpEmployeePeriodList);
-            string hmrcDesc = "[" + hmrcTotal.ToString() + "]";
-            //I now have a list of employee with their total for this period & ytd plus addition & deductions
-            //I can print payslips from here.
-            prWG.PrintStandardReports(xdoc, rpEmployeePeriodList, rpEmployer, rpParameters, p45s, rpPayComponents);
+            RPEmployer rpEmployer = prWG.ProcessPeriodReport(xdoc, xmlPeriodReport, rpParameters);
 
-            //Create the history csv file from the objects
-            prWG.CreateHistoryCSV(xdoc, rpParameters, rpEmployer, rpEmployeePeriodList);
-
-
+            
+            //
             //Produce and process Employee Ytd report.
+            //
+
             rptRef = "EEYTD";              //Original report name : "PayescapeEmployeeYtd"
             XmlDocument xmlYTDReport = prWG.RunReport(rptRef, parameter1, rpParameters.ErRef, parameter2, rpParameters.TaxYear.ToString(), parameter3,
                                               rpParameters.AccYearStart.ToString("yyyy-MM-dd"), parameter4, rpParameters.AccYearEnd.ToString("yyyy-MM-dd"), parameter5, rpParameters.TaxPeriod.ToString(),
                                               parameter6, rpParameters.PaySchedule.ToUpper());
-            List<RPEmployeeYtd> rpEmployeeYtdList = prWG.PrepareYTDCSV(xdoc, xmlYTDReport, rpParameters);
-            prWG.CreateYTDCSV(xdoc, rpEmployeeYtdList, rpParameters);
 
+            prWG.ProcessYtdReport(xdoc, xmlYTDReport, rpParameters);
+            
+            //
             //Produce and process P45s if required. It is intended that PR will provide a list of employees who require a P45 within the completed payroll file.
+            //
+
             rptRef = "P45";
             parameter2 = "EmployeeKey";
             rpParameters.ErRef = "1176";
@@ -190,7 +184,9 @@ namespace PayRunIOProcessReports
             XmlDocument xmlP45Report = prWG.RunReport(rptRef, parameter1, rpParameters.ErRef, parameter2, eeRef, null,
                                               null, null, null, null, null, null, null);
 
+            //
             //Produce and process P32 if required. If the next pay run date gives us a different tax month than the current run date then we need to produce a P32 report.
+            //
             bool p32Required = prWG.CheckIfP32IsRequired(rpParameters);
             if(p32Required)
             {
@@ -201,7 +197,7 @@ namespace PayRunIOProcessReports
             }
             
 
-            prWG.ZipReports(xdoc, rpEmployer, rpParameters, hmrcDesc);
+            prWG.ZipReports(xdoc, rpEmployer, rpParameters);
             prWG.EmailZippedReports(xdoc, rpEmployer, rpParameters);
 
 
