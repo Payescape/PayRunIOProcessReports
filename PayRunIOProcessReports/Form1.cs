@@ -165,8 +165,9 @@ namespace PayRunIOProcessReports
                                               rpParameters.AccYearStart.ToString("yyyy-MM-dd"), parameter4, rpParameters.AccYearEnd.ToString("yyyy-MM-dd"), parameter5, rpParameters.TaxPeriod.ToString(),
                                               parameter6, rpParameters.PaySchedule.ToUpper());
 
-            RPEmployer rpEmployer = prWG.ProcessPeriodReport(xdoc, xmlPeriodReport, rpParameters);
-
+            var tuple = prWG.ProcessPeriodReport(xdoc, xmlPeriodReport, rpParameters);
+            RPEmployer rpEmployer = tuple.Item1;
+            rpParameters = tuple.Item2;
             
             //
             //Produce and process Employee Ytd report.
@@ -202,7 +203,9 @@ namespace PayRunIOProcessReports
                                                   null, null, null, null, null, null, null);
             }
             
-
+            //
+            //All the reports have been produced, so now just zip them and email them.
+            //
             prWG.ZipReports(xdoc, rpEmployer, rpParameters);
             prWG.EmailZippedReports(xdoc, rpEmployer, rpParameters);
 
