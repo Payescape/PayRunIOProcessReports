@@ -80,9 +80,11 @@ namespace PayRunIOProcessReports
             textLine = string.Format("Start processing the reports.");
             prWG.update_Progress(textLine, softwareHomeFolder, logOneIn);
 
+            //
             //We'er going to change the way this done. Instead of PR producing folders with the EmployeePeriod & EmployeeYtd report already in them.
             //PR are going to give us an xml file to tell that the payroll has been done and the file will contain enough info to let us produce the required reports.
-            
+            //
+
             FileInfo[] completedPayrollFiles = prWG.GetAllCompletedPayrollFiles(xdoc);
             foreach (FileInfo completedPayrollFile in completedPayrollFiles)
             {
@@ -91,7 +93,11 @@ namespace PayRunIOProcessReports
                 prWG.ArchiveCompletedPayrollFile(xdoc, completedPayrollFile);
             }
 
+
+
+            //
             //This is the old method with folders containing the reports.
+            //
             string[] directories = prWG.GetAListOfDirectories(xdoc);
             for (int i = 0; i < directories.Count(); i++)
             {
@@ -177,17 +183,17 @@ namespace PayRunIOProcessReports
             //Produce and process P45s if required. It is intended that PR will provide a list of employees who require a P45 within the completed payroll file.
             //
 
-            rptRef = "P45";
-            parameter2 = "EmployeeKey";
-            rpParameters.ErRef = "1176";
-            string eeRef = "14";
-            XmlDocument xmlP45Report = prWG.RunReport(rptRef, parameter1, rpParameters.ErRef, parameter2, eeRef, null,
-                                              null, null, null, null, null, null, null);
+            //rptRef = "P45";
+            //parameter2 = "EmployeeKey";
+            //rpParameters.ErRef = "1176";
+            //string eeRef = "14";
+            //XmlDocument xmlP45Report = prWG.RunReport(rptRef, parameter1, rpParameters.ErRef, parameter2, eeRef, null,
+            //                                  null, null, null, null, null, null, null);
 
             //
             //Produce and process P32 if required. If the next pay run date gives us a different tax month than the current run date then we need to produce a P32 report.
             //
-            bool p32Required = prWG.CheckIfP32IsRequired(rpParameters);
+            bool p32Required = prWG.CheckIfP32Required(rpParameters);
             if(p32Required)
             {
                 rptRef = "P32S";
