@@ -59,7 +59,7 @@ namespace PayRunIOProcessReports
             //Now process the reports
             ProcessReportsFromPayRunIO(xdoc);
 
-            Close();
+            //Close();
         }
         private void ProcessReportsFromPayRunIO(XDocument xdoc)
         {
@@ -197,7 +197,7 @@ namespace PayRunIOProcessReports
             bool p32Required = prWG.CheckIfP32Required(rpParameters);
             if(p32Required)
             {
-                rptRef = "P32S";
+                rptRef = "P32SUM";
                 parameter2 = "TaxYear";
                 XmlDocument xmlP32Report = prWG.RunReport(rptRef, parameter1, rpParameters.ErRef, parameter2, rpParameters.TaxYear.ToString(), null,
                                                   null, null, null, null, null, null, null);
@@ -209,6 +209,30 @@ namespace PayRunIOProcessReports
             prWG.ZipReports(xdoc, rpEmployer, rpParameters);
             prWG.EmailZippedReports(xdoc, rpEmployer, rpParameters);
 
+
+        }
+        public Tuple<RPEmployer, RPParameters> ProcessPeriodReport(XDocument xdoc, XmlDocument xmlPeriodReport, RPParameters rpParameters)
+        {
+            PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
+
+            var tuple = prWG.PrepareStandardReports(xdoc, xmlPeriodReport, rpParameters);
+            List<RPEmployeePeriod> rpEmployeePeriodList = tuple.Item1;
+            List<RPPayComponent> rpPayComponents = tuple.Item2;
+            //I don't think the P45 report will be able to be produced from the EmployeePeriod report but I'm leaving it here for now.
+            List<P45> p45s = tuple.Item3;
+            RPEmployer rpEmployer = tuple.Item4;
+            rpParameters = tuple.Item5;
+            //Get the total payable to hmrc, I'm going use it in the zipped file name(possibly!).
+            decimal hmrcTotal = prWG.CalculateHMRCTotal(rpEmployeePeriodList);
+            rpEmployer.HMRCDesc = "[" + hmrcTotal.ToString() + "]";
+            //I now have a list of employee with their total for this period & ytd plus addition & deductions
+            //I can print payslips from here.
+            prWG.PrintStandardReports(xdoc, rpEmployeePeriodList, rpEmployer, rpParameters, p45s, rpPayComponents);
+
+            //Create the history csv file from the objects
+            prWG.CreateHistoryCSV(xdoc, rpParameters, rpEmployer, rpEmployeePeriodList);
+
+            return new Tuple<RPEmployer, RPParameters>(rpEmployer, rpParameters);
 
         }
         private void Form1_Load(object sender, EventArgs e)
