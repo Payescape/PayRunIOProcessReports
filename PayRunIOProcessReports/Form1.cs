@@ -165,7 +165,7 @@ namespace PayRunIOProcessReports
                                               rpParameters.AccYearStart.ToString("yyyy-MM-dd"), parameter4, rpParameters.AccYearEnd.ToString("yyyy-MM-dd"), parameter5, rpParameters.TaxPeriod.ToString(),
                                               parameter6, rpParameters.PaySchedule.ToUpper());
 
-            var tuple = prWG.ProcessPeriodReport(xdoc, xmlPeriodReport, rpParameters);
+            var tuple = ProcessPeriodReport(xdoc, xmlPeriodReport, rpParameters);
             RPEmployer rpEmployer = tuple.Item1;
             rpParameters = tuple.Item2;
             
@@ -179,7 +179,7 @@ namespace PayRunIOProcessReports
                                               parameter6, rpParameters.PaySchedule.ToUpper());
 
             prWG.ProcessYtdReport(xdoc, xmlYTDReport, rpParameters);
-            
+
             //
             //Produce and process P45s if required. It is intended that PR will provide a list of employees who require a P45 within the completed payroll file.
             //
@@ -231,6 +231,13 @@ namespace PayRunIOProcessReports
 
             //Create the history csv file from the objects
             prWG.CreateHistoryCSV(xdoc, rpParameters, rpEmployer, rpEmployeePeriodList);
+
+            //Produce bank files if necessary
+            prWG.ProcessBankReports(rpEmployeePeriodList, rpEmployer);
+
+
+
+            //Create pension reports.
 
             return new Tuple<RPEmployer, RPParameters>(rpEmployer, rpParameters);
 
