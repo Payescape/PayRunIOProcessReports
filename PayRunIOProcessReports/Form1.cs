@@ -1,19 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Linq;
 using System.IO;
-using System.Data.SqlClient;
-using System.Data;
-using System.Text.RegularExpressions;
 using System.Xml;
-using Microsoft.VisualBasic.FileIO;
-using System.Globalization;
-using System.Net.Mail;
-using DevExpress.XtraReports.UI;
-using PayRunIO.CSharp.SDK;
 using PayRunIOClassLibrary;
 
 namespace PayRunIOProcessReports
@@ -49,17 +39,17 @@ namespace PayRunIOProcessReports
 
             
             // Scan the folder and upload file waiting there.
-            string textLine = string.Format("Starting from called program (ProcessPayRunIOOutput).");
+            string textLine = string.Format("Starting from called program (PayRunIOProcessReports).");
             prWG.update_Progress(textLine, configDirName, 1);
-
+            
             
             //Start by updating the contacts table
             prWG.UpdateContactDetails(xdoc);
-
+            
             //Now process the reports
             ProcessReportsFromPayRunIO(xdoc);
 
-            //Close();
+            Close();
         }
         private void ProcessReportsFromPayRunIO(XDocument xdoc)
         {
@@ -90,6 +80,7 @@ namespace PayRunIOProcessReports
             {
                 ReadProcessCompletedPayrollFile(xdoc, completedPayrollFile);
                 //Put in some test for success then archive the file.
+                
                 prWG.ArchiveCompletedPayrollFile(xdoc, completedPayrollFile);
             }
 
@@ -233,7 +224,7 @@ namespace PayRunIOProcessReports
             prWG.CreateHistoryCSV(xdoc, rpParameters, rpEmployer, rpEmployeePeriodList);
 
             //Produce bank files if necessary
-            prWG.ProcessBankReports(rpEmployeePeriodList, rpEmployer);
+            prWG.ProcessBankReports(xdoc, rpEmployeePeriodList, rpEmployer, rpParameters);
 
 
 
