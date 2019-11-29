@@ -226,7 +226,8 @@ namespace PayRunIOProcessReports
             //Produce bank files if necessary
             prWG.ProcessBankReports(xdoc, rpEmployeePeriodList, rpEmployer, rpParameters);
 
-
+            //Produce the Pre Sample Excel file (.xlsx)
+            //prWG.CreatePreSampleXLSX(xdoc,rpEmployeePeriodList,rpEmployer,rpParameters);
 
             //Create pension reports.
 
