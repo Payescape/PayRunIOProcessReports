@@ -231,7 +231,7 @@ namespace PayRunIOProcessReports
 
             //Produce the Pre Sample Excel file (.xlsx)
             //We have a list of the Pre Sample Pay Codes which are in use and we have list of the employees paid this period. We should be able to produce the Pre Sample Excel file from these.
-            prWG.CreatePreSampleXLSX(xdoc,rpEmployeePeriodList,rpEmployer,rpParameters,rpPreSamplePayCodes);
+            CreatePreSampleXLSX(xdoc,rpEmployeePeriodList,rpEmployer,rpParameters,rpPreSamplePayCodes);
 
             //Create pension reports.
 
@@ -252,7 +252,7 @@ namespace PayRunIOProcessReports
             //Produce bank files if necessary
             prWG.ProcessBankReports(xdoc, rpEmployeePeriodList, rpEmployer, rpParameters);
             //Produce Pre Sample file (XLSX)
-            prWG.CreatePreSampleXLSX(xdoc, rpEmployeePeriodList, rpEmployer, rpParameters, rpPreSamplePayCodes);
+            CreatePreSampleXLSX(xdoc, rpEmployeePeriodList, rpEmployer, rpParameters, rpPreSamplePayCodes);
 
             prWG.ZipReports(xdoc, rpEmployer, rpParameters);
             prWG.EmailZippedReports(xdoc, rpEmployer, rpParameters);
@@ -786,7 +786,7 @@ namespace PayRunIOProcessReports
             reqCol.Add("NI");
             reqCol.Add("PostTaxAddDed");
             reqCol.Add("PostTaxPension");
-            reqCol.Add("AEO");
+            reqCol.Add("AOE");
             reqCol.Add("StudentLoan");
             reqCol.Add("NetPay");
             reqCol.Add("ErNI");
@@ -828,10 +828,77 @@ namespace PayRunIOProcessReports
             //Save the workbook.
             workbook.Save();
         }
-        private void CreateXLSXWorkbook()
+        //private void CreateXLSXWorkbook()
+        //{
+        //    //Create a list of the required columns.
+        //    List <string> reqCol = new List<string>();
+        //    reqCol.Add("EeRef");
+        //    reqCol.Add("Name");
+        //    reqCol.Add("Dept");
+        //    reqCol.Add("CostCentre");
+        //    reqCol.Add("Branch");
+        //    reqCol.Add("Status");
+        //    reqCol.Add("TaxCode");
+        //    reqCol.Add("NILetter");
+        //    reqCol.Add("PreTaxAddDed");
+        //    reqCol.Add("GrossedUpTaxThisRun");
+        //    reqCol.Add("EeNIPdByEr");
+        //    reqCol.Add("GUStudentLoan");
+        //    reqCol.Add("GUNIReduction");
+        //    reqCol.Add("PenPreTaxEeGU");
+        //    reqCol.Add("TotalAbsencePay");
+        //    reqCol.Add("HolidayPay");
+        //    reqCol.Add("PenPreTaxEe");
+        //    reqCol.Add("TaxablePay");
+        //    reqCol.Add("Tax");
+        //    reqCol.Add("NI");
+        //    reqCol.Add("PostTaxAddDed");
+        //    reqCol.Add("PostTaxPension");
+        //    reqCol.Add("AEO");
+        //    reqCol.Add("StudentLoan");
+        //    reqCol.Add("NetPay");
+        //    reqCol.Add("ErNI");
+        //    reqCol.Add("PenEr");
+        //    reqCol.Add("TotalGrossUp");
+
+            
+        //    //Need to count how many columns we are going to need
+        //    string[] headings = new string[51] { "EeRef", "Name", "Dept","CostCentre", "Branch", "Status", "TaxCode", "NILetter", "PreTaxAddDed",
+        //                                         "GrossedUpTaxThisRun", "EeNIPdByEr", "GUStudentLoan", "GUNIReduction", "PenPreTaxEeGU", "TotalAbsencePay",
+        //                                         "HolidayPay", "PenPreTaxEe", "TaxablePay", "Tax", "NI", "PostTaxAddDed", "PostTaxPension", "AEO",
+        //                                         "StudentLoan", "NetPay", "ErNI", "PenEr", "TotalGrossUp", "SSP", "SMP", "SAP", "SPPA", "SPPB", "ASPPA",
+        //                                         "ASPPB", "ShPPA", "ShPPB", "TotalNICs", "TotalPens", "BIK", "BasicPay", "PerformanceRelatedPay",
+        //                                         "Salary(£)", "HolidayHours", "OverPayment(£)", "Bonus", "CycleToWorkScheme(£)", "HattonGroupScheme(Er)",
+        //                                         "HattonGroupScheme", "CCAEO", "DEA"};
+        //    string[] columns = new string[51] { "E1234", "Jim Borland", "Automation","Software Developer", "Dromore", "Calc", "1238L", "A", "432.10",
+        //                                         "32.10", "12.34", "12.35", "12.36", "12.37", "12.38",
+        //                                         "12.39", "12.40", "12.41", "12.42", "12.43", "12.44", "12.45", "12.46",
+        //                                         "12.47", "12.48", "12.49", "12.50", "12.51", "12.52", "12.53", "12.54", "12.55", "12.56", "12.57",
+        //                                         "12.58", "12.59", "12.60", "12.61", "12.62", "12.63", "12.64", "12.65",
+        //                                         "12.66", "12.67", "12.68", "12.69", "12.70", "12.71",
+        //                                         "12.72", "12.73", "12.74"};
+        //    //Create a workbook.
+        //    Workbook workbook = new Workbook("X:\\Payescape\\PayRunIO\\PreSample.xlsx", "Pre Sample");
+        //    //Write the headings.
+        //    foreach(string heading in headings)
+        //    {
+        //        workbook.CurrentWorksheet.AddNextCell(heading);
+        //    }
+        //    //Move to the next row.
+        //    workbook.CurrentWorksheet.GoToNextRow();
+        //    //Now create a sample data line.
+        //    foreach (string column in columns)
+        //    {
+        //        workbook.CurrentWorksheet.AddNextCell(column);
+        //    }
+        //    //Save the workbook.
+        //    workbook.Save();
+        //}
+        private void CreatePreSampleXLSX(XDocument xdoc, List<RPEmployeePeriod> rpEmployeePeriodList,
+                                       RPEmployer rpEmployer, RPParameters rpParameters, List<RPPreSamplePayCode> rpPreSamplePayCodes)
         {
             //Create a list of the required columns.
-            List <string> reqCol = new List<string>();
+            List<string> reqCol = new List<string>();
             reqCol.Add("EeRef");
             reqCol.Add("Name");
             reqCol.Add("Dept");
@@ -854,43 +921,155 @@ namespace PayRunIOProcessReports
             reqCol.Add("NI");
             reqCol.Add("PostTaxAddDed");
             reqCol.Add("PostTaxPension");
-            reqCol.Add("AEO");
+            reqCol.Add("AOE");
             reqCol.Add("StudentLoan");
             reqCol.Add("NetPay");
             reqCol.Add("ErNI");
             reqCol.Add("PenEr");
             reqCol.Add("TotalGrossUp");
 
-            
-            //Need to count how many columns we are going to need
-            string[] headings = new string[51] { "EeRef", "Name", "Dept","CostCentre", "Branch", "Status", "TaxCode", "NILetter", "PreTaxAddDed",
-                                                 "GrossedUpTaxThisRun", "EeNIPdByEr", "GUStudentLoan", "GUNIReduction", "PenPreTaxEeGU", "TotalAbsencePay",
-                                                 "HolidayPay", "PenPreTaxEe", "TaxablePay", "Tax", "NI", "PostTaxAddDed", "PostTaxPension", "AEO",
-                                                 "StudentLoan", "NetPay", "ErNI", "PenEr", "TotalGrossUp", "SSP", "SMP", "SAP", "SPPA", "SPPB", "ASPPA",
-                                                 "ASPPB", "ShPPA", "ShPPB", "TotalNICs", "TotalPens", "BIK", "BasicPay", "PerformanceRelatedPay",
-                                                 "Salary(£)", "HolidayHours", "OverPayment(£)", "Bonus", "CycleToWorkScheme(£)", "HattonGroupScheme(Er)",
-                                                 "HattonGroupScheme", "CCAEO", "DEA"};
-            string[] columns = new string[51] { "E1234", "Jim Borland", "Automation","Software Developer", "Dromore", "Calc", "1238L", "A", "432.10",
-                                                 "32.10", "12.34", "12.35", "12.36", "12.37", "12.38",
-                                                 "12.39", "12.40", "12.41", "12.42", "12.43", "12.44", "12.45", "12.46",
-                                                 "12.47", "12.48", "12.49", "12.50", "12.51", "12.52", "12.53", "12.54", "12.55", "12.56", "12.57",
-                                                 "12.58", "12.59", "12.60", "12.61", "12.62", "12.63", "12.64", "12.65",
-                                                 "12.66", "12.67", "12.68", "12.69", "12.70", "12.71",
-                                                 "12.72", "12.73", "12.74"};
+            foreach (RPPreSamplePayCode rpPreSamplePayCode in rpPreSamplePayCodes)
+            {
+                if(rpPreSamplePayCode.InUse)
+                {
+                    reqCol.Add(rpPreSamplePayCode.Description);
+                }
+                
+            }
+
             //Create a workbook.
             Workbook workbook = new Workbook("X:\\Payescape\\PayRunIO\\PreSample.xlsx", "Pre Sample");
-            //Write the headings.
-            foreach(string heading in headings)
+            foreach (string col in reqCol)
             {
-                workbook.CurrentWorksheet.AddNextCell(heading);
+                workbook.CurrentWorksheet.AddNextCell(col);
             }
-            //Move to the next row.
-            workbook.CurrentWorksheet.GoToNextRow();
+            
+            //Now for each employee create a row and add in the values for each column
+            foreach(RPEmployeePeriod rpEmployeePeriod in rpEmployeePeriodList)
+            {
+                workbook.CurrentWorksheet.GoToNextRow();
+                ////Check for the different pay codes and add to the appropriate total.
+                //switch (rpPayComponent.PayCode)
+                //{
+                //    case "HOLPY":
+                //    case "HOLIDAY":
+                //        rpEmployeePeriod.HolidayPay = rpEmployeePeriod.HolidayPay + rpPayComponent.AmountTP;
+                //        break;
+                //    case "PENSION":
+                foreach (string col in reqCol)
+                {
+                    switch (col)
+                    {
+                        case "EeRef":
+                            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.Reference);
+                            break;
+                        case "Name":
+                            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.Fullname);
+                            break;
+                        case "Dept":
+                            workbook.CurrentWorksheet.AddNextCell("Department");
+                            break;
+                        case "CostCentre":
+                            workbook.CurrentWorksheet.AddNextCell("Cost Centre");
+                            break;
+                        case "Branch":
+                            workbook.CurrentWorksheet.AddNextCell("Branch");
+                            break;
+                        case "Status":
+                            workbook.CurrentWorksheet.AddNextCell("Calc");
+                            break;
+                        case "TaxCode":
+                            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.TaxCode);
+                            break;
+                        case "NILetter":
+                            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.NILetter);
+                            break;
+                        case "PreTaxAddDed":
+                            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.PreTaxAddDed);
+                            break;
+                        case "GrossedUpTaxThisRun":
+                            workbook.CurrentWorksheet.AddNextCell(0.00);//GrossedUpTaxThisRun
+                            break;
+                        case "EeNIPdByEr":
+                            workbook.CurrentWorksheet.AddNextCell(0.00);//EeNIPdByEr
+                            break;
+                        case "GUStudentLoan":
+                            workbook.CurrentWorksheet.AddNextCell(0.00);//GUStudentLoan
+                            break;
+                        case "GUNIRedustion":
+                            workbook.CurrentWorksheet.AddNextCell(0.00);//GUNIReduction
+                            break;
+                        case "PenPreTaxEeGU":
+                            workbook.CurrentWorksheet.AddNextCell(0.00);//PenPreTaxEeGU
+                            break;
+                        case "TotalAbsencePay":
+                            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.AbsencePay);
+                            break;
+                        case "HolidayPay":
+                            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.HolidayPay);
+                            break;
+                        case "PenPreTaxEe":
+                            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.PreTaxPension);
+                            break;
+                        case "TaxablePay":
+                            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.TaxablePayTP);
+                            break;
+                        case "Tax":
+                            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.Tax);
+                            break;
+                        case "NI":
+                            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.NetNI);
+                            break;
+                        case "PostTaxAddDed":
+                            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.PostTaxAddDed);
+                            break;
+                        case "PostTaxPension":
+                            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.PostTaxPension);
+                            break;
+                        case "AOE":
+                            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.AOE);
+                            break;
+                        case "StudentLoan":
+                            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.StudentLoan);
+                            break;
+                        case "NetPay":
+                            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.NetPayTP);
+                            break;
+                        case "ErNI":
+                            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.ErNICTP);
+                            break;
+                        case "PenEr":
+                            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.ErPensionTP);
+                            break;
+                        case "TotalGrossUp":
+                            workbook.CurrentWorksheet.AddNextCell(0.00);//TotalGrossUP
+                            break;
+                        default:
+                            //It's none of the set headings so now look through the pay codes (additions & deductions) to see if we can find it
+                            foreach(RPAddition rpAddition in rpEmployeePeriod.Additions)
+                            {
+                                if(col == rpAddition.Description)
+                                {
+                                    workbook.CurrentWorksheet.AddNextCell(rpAddition.AmountTP);
+                                    break;
+                                }
+                            }
+                            break;
+                    }
+                }
+
+                //Now go through each pay code that has a value and add it in.
+                foreach(RPAddition rpAddition in rpEmployeePeriod.Additions)
+                {
+
+                }
+            }
+            
             //Now create a sample data line.
-            foreach (string column in columns)
-            {
-                workbook.CurrentWorksheet.AddNextCell(column);
-            }
+            //foreach (string column in columns)
+            //{
+            //    workbook.CurrentWorksheet.AddNextCell(column);
+            //}
             //Save the workbook.
             workbook.Save();
         }
