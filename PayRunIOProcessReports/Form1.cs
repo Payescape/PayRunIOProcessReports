@@ -17,11 +17,6 @@ namespace PayRunIOProcessReports
             InitializeComponent();
         }
 
-        private Tuple<int,int> TupleTest()
-        {
-            return new Tuple<int,int>(0,0);
-        }
-        
         private void btnProduceReports_Click(object sender, EventArgs e)
         {
             string configDirName = "C:\\Payescape\\Service\\Config\\";
@@ -242,20 +237,59 @@ namespace PayRunIOProcessReports
                                           List<P45> p45s, List<RPPayComponent> rpPayComponents, RPParameters rpParameters,
                                           List<RPPreSamplePayCode> rpPreSamplePayCodes)
         {
+            string softwareHomeFolder = xdoc.Root.Element("SoftwareHomeFolder").Value;
+            int logOneIn = Convert.ToInt32(xdoc.Root.Element("LogOneIn").Value);
+
+            string textLine = null;
+
             PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
             //Get the total payable to hmrc, I'm going use it in the zipped file name(possibly!).
             decimal hmrcTotal = prWG.CalculateHMRCTotal(rpEmployeePeriodList);
             rpEmployer.HMRCDesc = "[" + hmrcTotal.ToString() + "]";
             //I now have a list of employee with their total for this period & ytd plus addition & deductions
             //I can print payslips and standard reports from here.
-            prWG.PrintStandardReports(xdoc, rpEmployeePeriodList, rpEmployer, rpParameters, p45s, rpPayComponents);
+            try
+            {
+                prWG.PrintStandardReports(xdoc, rpEmployeePeriodList, rpEmployer, rpParameters, p45s, rpPayComponents);
+            }
+            catch(Exception ex)
+            {
+                textLine = string.Format("Error printing standard reports.\r\n", ex);
+                prWG.update_Progress(textLine, softwareHomeFolder, logOneIn);
+            }
             //Produce bank files if necessary
-            prWG.ProcessBankReports(xdoc, rpEmployeePeriodList, rpEmployer, rpParameters);
-            //Produce Pre Sample file (XLSX)
-            CreatePreSampleXLSX(xdoc, rpEmployeePeriodList, rpEmployer, rpParameters, rpPreSamplePayCodes);
+            try
+            {
+                prWG.ProcessBankReports(xdoc, rpEmployeePeriodList, rpEmployer, rpParameters);
+            }
+            catch(Exception ex)
+            {
+                textLine = string.Format("Error processing bank reports.\r\n", ex);
+                prWG.update_Progress(textLine, softwareHomeFolder, logOneIn);
+            }
 
-            prWG.ZipReports(xdoc, rpEmployer, rpParameters);
-            prWG.EmailZippedReports(xdoc, rpEmployer, rpParameters);
+            
+            //Produce Pre Sample file (XLSX)
+            //CreatePreSampleXLSX(xdoc, rpEmployeePeriodList, rpEmployer, rpParameters, rpPreSamplePayCodes);
+            try
+            {
+                prWG.ZipReports(xdoc, rpEmployer, rpParameters);
+            }
+            catch(Exception ex)
+            {
+                textLine = string.Format("Error zipping reports.\r\n", ex);
+                prWG.update_Progress(textLine, softwareHomeFolder, logOneIn);
+            }
+            try
+            {
+                prWG.EmailZippedReports(xdoc, rpEmployer, rpParameters);
+            }
+            catch(Exception ex)
+            {
+                textLine = string.Format("Error emailing zipped reports.\r\n", ex);
+                prWG.update_Progress(textLine, softwareHomeFolder, logOneIn);
+            }
+            
 
         }
         private Tuple<List<RPEmployeePeriod>, List<RPPayComponent>, List<P45>, List<RPPreSamplePayCode>, RPEmployer, RPParameters> PrepareStandardReports(XDocument xdoc, XmlDocument xmlReport, RPParameters rpParameters)
@@ -460,7 +494,8 @@ namespace PayRunIOProcessReports
                                 rpPayComponent.AmountTP = prWG.GetDecimalElementByTagFromXml(payCode, "Amount");
                                 rpPayComponent.UnitsYTD = prWG.GetDecimalElementByTagFromXml(payCode, "PayeYearUnits");
                                 rpPayComponent.AmountYTD = prWG.GetDecimalElementByTagFromXml(payCode, "PayeYearBalance");
-                                if (rpPayComponent.AmountTP != 0 || rpPayComponent.AmountYTD != 0)
+                                //if (rpPayComponent.AmountTP != 0 || rpPayComponent.AmountYTD != 0)
+                                if (rpPayComponent.AmountTP != 0)
                                 {
                                     //Value is not equal to zero so go through the list of Pre Sample codes and mark this one as in use
                                     rpPreSamplePayCodes = MarkPreSampleCodeAsInUse(rpPayComponent.PayCode, rpPreSamplePayCodes);
@@ -514,6 +549,23 @@ namespace PayRunIOProcessReports
                                     RPAddition rpAddition = new RPAddition();
                                     rpAddition.EeRef = rpEmployeePeriod.Reference;
                                     rpAddition.Code = prWG.GetElementByTagFromXml(payCode, "Code");
+                                    //They want Basic pay and Salary to come first. This will only work if they use the following codes!
+                                    switch(rpAddition.Code)
+                                    {
+                                        case "BASCH":
+                                            rpAddition.Code = " BASCH";
+                                            break;
+                                        case "BASIC":
+                                            rpAddition.Code = " BASIC";
+                                            break;
+                                        case "SALRY":
+                                            rpAddition.Code = " SALRY";
+                                            break;
+                                        case "SALARY":
+                                            rpAddition.Code = " SALARY";
+                                            break;
+                                    }
+                                   
                                     rpAddition.Description = prWG.GetElementByTagFromXml(payCode, "Description");
                                     rpAddition.Rate = prWG.GetDecimalElementByTagFromXml(payCode, "Rate");
                                     rpAddition.Units = prWG.GetDecimalElementByTagFromXml(payCode, "Units");
@@ -523,19 +575,42 @@ namespace PayRunIOProcessReports
                                     rpAddition.AccountsYearUnits = prWG.GetDecimalElementByTagFromXml(payCode, "AccountsYearUnits");
                                     rpAddition.PayeYearUnits = prWG.GetDecimalElementByTagFromXml(payCode, "PayeYearUnits");
                                     rpAddition.PayrollAccrued = prWG.GetDecimalElementByTagFromXml(payCode, "PayrollAccrued");
-                                    if (rpAddition.AmountTP != 0 || rpAddition.AmountYTD != 0)
+                                    //if (rpAddition.AmountTP != 0 || rpAddition.AmountYTD != 0)
+                                    if (rpAddition.AmountTP != 0)
                                     {
                                         rpAdditions.Add(rpAddition);
-                                        rpEmployeePeriod.TotalPayTP = rpEmployeePeriod.TotalPayTP + rpAddition.AmountTP;
-                                        rpEmployeePeriod.TotalPayYTD = rpEmployeePeriod.TotalPayYTD + rpAddition.AmountYTD;
+                                        
                                     }
-
+                                    rpEmployeePeriod.TotalPayTP = rpEmployeePeriod.TotalPayTP + rpAddition.AmountTP;
+                                    rpEmployeePeriod.TotalPayYTD = rpEmployeePeriod.TotalPayYTD + rpAddition.AmountYTD;
                                 }
                                 else
                                 {
                                     RPDeduction rpDeduction = new RPDeduction();
                                     rpDeduction.EeRef = rpEmployeePeriod.Reference;
                                     rpDeduction.Code = prWG.GetElementByTagFromXml(payCode, "Code");
+                                    //They want Tax then NI, then Pension to come first, then the rest in alphabetical order. This will only work if they use the following codes!
+                                    switch (rpDeduction.Code)
+                                    {
+                                        case "TAX":
+                                            rpDeduction.Code = "   TAX";
+                                            break;
+                                        case "NI":
+                                            rpDeduction.Code = "  NI";
+                                            break;
+                                        case "PENSION":
+                                            rpDeduction.Code = " PENSION";
+                                            break;
+                                        case "PENSIONRAS":
+                                            rpDeduction.Code = " PENSIONRAS";
+                                            break;
+                                        case "PENSIONSS":
+                                            rpDeduction.Code = " PENSIONSS";
+                                            break;
+                                        case "PENSIONTAXEX":
+                                            rpDeduction.Code = " PENSIONTAXEX";
+                                            break;
+                                    }
                                     rpDeduction.Description = prWG.GetElementByTagFromXml(payCode, "Description");
                                     rpDeduction.AmountTP = prWG.GetDecimalElementByTagFromXml(payCode, "Amount") * -1;
                                     rpDeduction.AmountYTD = prWG.GetDecimalElementByTagFromXml(payCode, "PayeYearBalance") * -1;
@@ -543,14 +618,31 @@ namespace PayRunIOProcessReports
                                     rpDeduction.AccountsYearUnits = prWG.GetDecimalElementByTagFromXml(payCode, "AccountsYearUnits") * -1;
                                     rpDeduction.PayeYearUnits = prWG.GetDecimalElementByTagFromXml(payCode, "PayeYearUnits") * -1;
                                     rpDeduction.PayrollAccrued = prWG.GetDecimalElementByTagFromXml(payCode, "PayrollAccrued") * -1;
-                                    if (rpDeduction.AmountTP != 0 || rpDeduction.AmountYTD != 0)
+                                    //if (rpDeduction.AmountTP != 0 || rpDeduction.AmountYTD != 0)
+                                    if (rpDeduction.AmountTP != 0)
                                     {
                                         rpDeductions.Add(rpDeduction);
-                                        rpEmployeePeriod.TotalDedTP = rpEmployeePeriod.TotalDedTP + rpDeduction.AmountTP;
-                                        rpEmployeePeriod.TotalDedYTD = rpEmployeePeriod.TotalDedYTD + rpDeduction.AmountYTD;
+                                        
                                     }
-
+                                    rpEmployeePeriod.TotalDedTP = rpEmployeePeriod.TotalDedTP + rpDeduction.AmountTP;
+                                    rpEmployeePeriod.TotalDedYTD = rpEmployeePeriod.TotalDedYTD + rpDeduction.AmountYTD;
                                 }
+                                //Sort the list of additions into Code sequence before returning them.
+                                rpAdditions.Sort(delegate (RPAddition x, RPAddition y)
+                                {
+                                    if (x.Code == null && y.Code == null) return 0;
+                                    else if (x.Code == null) return -1;
+                                    else if (y.Code == null) return 1;
+                                    else return x.Code.CompareTo(y.Code);
+                                });
+                                //Sort the list of deductions into Code sequence before returning them.
+                                rpDeductions.Sort(delegate (RPDeduction x, RPDeduction y)
+                                {
+                                    if (x.Code == null && y.Code == null) return 0;
+                                    else if (x.Code == null) return -1;
+                                    else if (y.Code == null) return 1;
+                                    else return x.Code.CompareTo(y.Code);
+                                });
                                 rpEmployeePeriod.Additions = rpAdditions;
                                 rpEmployeePeriod.Deductions = rpDeductions;
                             }//End of for each payCode
@@ -688,27 +780,48 @@ namespace PayRunIOProcessReports
             {
                 if (file.FullName.Contains("EmployeePeriod"))
                 {
+                    List<RPEmployeePeriod> rpEmployeePeriodList = null;
+                    List<RPPayComponent> rpPayComponents = null;
+                    List<P45> p45s = null;
+                    List<RPPreSamplePayCode> rpPreSamplePayCodes = null;
+                    RPEmployer rpEmployer = null;
+                    
                     try
                     {
                         var tuple = PreparePeriodReport(xdoc, file);
-                        List<RPEmployeePeriod> rpEmployeePeriodList = tuple.Item1;
-                        List<RPPayComponent> rpPayComponents = tuple.Item2;
-                        List<P45> p45s = tuple.Item3;
-                        List<RPPreSamplePayCode> rpPreSamplePayCodes = tuple.Item4;
-                        RPEmployer rpEmployer = tuple.Item5;
+                        rpEmployeePeriodList = tuple.Item1;
+                        rpPayComponents = tuple.Item2;
+                        p45s = tuple.Item3;
+                        rpPreSamplePayCodes = tuple.Item4;
+                        rpEmployer = tuple.Item5;
                         rpParameters = tuple.Item6;
-
+                    }
+                    catch (Exception ex)
+                    {
+                        textLine = string.Format("Error preparing the employee period reports for file {0}.\r\n{1}.\r\n", file, ex);
+                        prWG.update_Progress(textLine, configDirName, logOneIn);
+                    }
+                    try
+                    {
                         prWG.CreateHistoryCSV(xdoc, rpParameters, rpEmployer, rpEmployeePeriodList);
+                    }
+                    catch(Exception ex)
+                    {
+                        textLine = string.Format("Error creating the history csv file for file {0}.\r\n{1}.\r\n", file, ex);
+                        prWG.update_Progress(textLine, configDirName, logOneIn);
+                    }
 
+                    try
+                    {
                         ProducePeriodReports(xdoc, rpEmployeePeriodList, rpEmployer, p45s, rpPayComponents, rpParameters, rpPreSamplePayCodes);
 
                         eePeriodProcessed = true;
-                    }
+                    }   
                     catch (Exception ex)
                     {
                         textLine = string.Format("Error producing the employee period reports for file {0}.\r\n{1}.\r\n", file, ex);
                         prWG.update_Progress(textLine, configDirName, logOneIn);
-                    }
+                    } 
 
                 }
                 else if (file.FullName.Contains("EmployeeYtd"))
