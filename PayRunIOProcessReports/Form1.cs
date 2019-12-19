@@ -72,14 +72,14 @@ namespace PayRunIOProcessReports
             //PR are going to give us an xml file to tell that the payroll has been done and the file will contain enough info to let us produce the required reports.
             //
 
-            FileInfo[] completedPayrollFiles = prWG.GetAllCompletedPayrollFiles(xdoc);
-            foreach (FileInfo completedPayrollFile in completedPayrollFiles)
-            {
-                ReadProcessCompletedPayrollFile(xdoc, completedPayrollFile);
-                //Put in some test for success then archive the file.
+            //FileInfo[] completedPayrollFiles = prWG.GetAllCompletedPayrollFiles(xdoc);
+            //foreach (FileInfo completedPayrollFile in completedPayrollFiles)
+            //{
+            //    ReadProcessCompletedPayrollFile(xdoc, completedPayrollFile);
+            //    //Put in some test for success then archive the file.
                 
-                prWG.ArchiveCompletedPayrollFile(xdoc, completedPayrollFile);
-            }
+            //    prWG.ArchiveCompletedPayrollFile(xdoc, completedPayrollFile);
+            //}
 
 
 
@@ -110,129 +110,137 @@ namespace PayRunIOProcessReports
             textLine = string.Format("Finished processing the reports.");
             prWG.update_Progress(textLine, softwareHomeFolder, logOneIn);
         }
-        private void ReadProcessCompletedPayrollFile(XDocument xdoc, FileInfo completedPayrollFile)
-        {
-            PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
+        //private void ReadProcessCompletedPayrollFile(XDocument xdoc, FileInfo completedPayrollFile)
+        //{
+        //    PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
 
-            XmlDocument xmlCompletedPayroll = new XmlDocument();
-            xmlCompletedPayroll.Load(completedPayrollFile.FullName);
+        //    XmlDocument xmlCompletedPayroll = new XmlDocument();
+        //    xmlCompletedPayroll.Load(completedPayrollFile.FullName);
 
-            //Now extract the necessary data and produce the required reports.
+        //    //Now extract the necessary data and produce the required reports.
 
-            RPParameters rpParameters = new RPParameters();
-            foreach (XmlElement parameter in xmlCompletedPayroll.GetElementsByTagName("Parameters"))
-            {
-                rpParameters.ErRef = prWG.GetElementByTagFromXml(parameter, "EmployerCode");
-                rpParameters.TaxYear = prWG.GetIntElementByTagFromXml(parameter, "TaxYear");
-                rpParameters.AccYearStart = Convert.ToDateTime(prWG.GetDateElementByTagFromXml(parameter, "AccountingYearStartDate"));
-                rpParameters.AccYearEnd = Convert.ToDateTime(prWG.GetDateElementByTagFromXml(parameter, "AccountingYearEndDate"));
-                rpParameters.TaxPeriod = prWG.GetIntElementByTagFromXml(parameter, "TaxPeriod");
-                rpParameters.PaySchedule = prWG.GetElementByTagFromXml(parameter, "PaySchedule");
-            }
-            GenerateReportsFromPR(xdoc, rpParameters);
+        //    RPParameters rpParameters = new RPParameters();
+        //    foreach (XmlElement parameter in xmlCompletedPayroll.GetElementsByTagName("Parameters"))
+        //    {
+        //        rpParameters.ErRef = prWG.GetElementByTagFromXml(parameter, "EmployerCode");
+        //        rpParameters.TaxYear = prWG.GetIntElementByTagFromXml(parameter, "TaxYear");
+        //        rpParameters.AccYearStart = Convert.ToDateTime(prWG.GetDateElementByTagFromXml(parameter, "AccountingYearStartDate"));
+        //        rpParameters.AccYearEnd = Convert.ToDateTime(prWG.GetDateElementByTagFromXml(parameter, "AccountingYearEndDate"));
+        //        rpParameters.TaxPeriod = prWG.GetIntElementByTagFromXml(parameter, "TaxPeriod");
+        //        rpParameters.PaySchedule = prWG.GetElementByTagFromXml(parameter, "PaySchedule");
+        //    }
+        //    GenerateReportsFromPR(xdoc, rpParameters);
 
-        }
-        private void GenerateReportsFromPR(XDocument xdoc, RPParameters rpParameters)
-        {
-            PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
-            //Produce and process Employee Period report. From this one report we are producing 5/6 standard pdf reports.
-            //Get the history report
-            string rptRef = "EEPERIOD";              //Original report name : "PayescapeEmployeePeriod"
-            string parameter1 = "EmployerKey";
-            string parameter2 = "TaxYear";
-            string parameter3 = "AccPeriodStart";
-            string parameter4 = "AccPeriodEnd";
-            string parameter5 = "TaxPeriod";
-            string parameter6 = "PayScheduleKey";
+        //}
+        //private void GenerateReportsFromPR(XDocument xdoc, RPParameters rpParameters)
+        //{
+        //    PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
+        //    //Produce and process Employee Period report. From this one report we are producing 5/6 standard pdf reports.
+        //    //Get the history report
+        //    string rptRef = "EEPERIOD";              //Original report name : "PayescapeEmployeePeriod"
+        //    string parameter1 = "EmployerKey";
+        //    string parameter2 = "TaxYear";
+        //    string parameter3 = "AccPeriodStart";
+        //    string parameter4 = "AccPeriodEnd";
+        //    string parameter5 = "TaxPeriod";
+        //    string parameter6 = "PayScheduleKey";
 
-            //
-            //Get the history report
-            //
+        //    //
+        //    //Get the history report
+        //    //
 
-            XmlDocument xmlPeriodReport = prWG.RunReport(rptRef, parameter1, rpParameters.ErRef, parameter2, rpParameters.TaxYear.ToString(), parameter3,
-                                              rpParameters.AccYearStart.ToString("yyyy-MM-dd"), parameter4, rpParameters.AccYearEnd.ToString("yyyy-MM-dd"), parameter5, rpParameters.TaxPeriod.ToString(),
-                                              parameter6, rpParameters.PaySchedule.ToUpper());
+        //    XmlDocument xmlPeriodReport = prWG.RunReport(rptRef, parameter1, rpParameters.ErRef, parameter2, rpParameters.TaxYear.ToString(), parameter3,
+        //                                      rpParameters.AccYearStart.ToString("yyyy-MM-dd"), parameter4, rpParameters.AccYearEnd.ToString("yyyy-MM-dd"), parameter5, rpParameters.TaxPeriod.ToString(),
+        //                                      parameter6, rpParameters.PaySchedule.ToUpper());
 
-            var tuple = ProcessPeriodReport(xdoc, xmlPeriodReport, rpParameters);
-            RPEmployer rpEmployer = tuple.Item1;
-            rpParameters = tuple.Item2;
+        //    var tuple = ProcessPeriodReport(xdoc, xmlPeriodReport, rpParameters);
+        //    RPEmployer rpEmployer = tuple.Item1;
+        //    rpParameters = tuple.Item2;
             
-            //
-            //Produce and process Employee Ytd report.
-            //
+        //    //
+        //    //Produce and process Employee Ytd report.
+        //    //
 
-            rptRef = "EEYTD";              //Original report name : "PayescapeEmployeeYtd"
-            XmlDocument xmlYTDReport = prWG.RunReport(rptRef, parameter1, rpParameters.ErRef, parameter2, rpParameters.TaxYear.ToString(), parameter3,
-                                              rpParameters.AccYearStart.ToString("yyyy-MM-dd"), parameter4, rpParameters.AccYearEnd.ToString("yyyy-MM-dd"), parameter5, rpParameters.TaxPeriod.ToString(),
-                                              parameter6, rpParameters.PaySchedule.ToUpper());
+        //    rptRef = "EEYTD";              //Original report name : "PayescapeEmployeeYtd"
+        //    XmlDocument xmlYTDReport = prWG.RunReport(rptRef, parameter1, rpParameters.ErRef, parameter2, rpParameters.TaxYear.ToString(), parameter3,
+        //                                      rpParameters.AccYearStart.ToString("yyyy-MM-dd"), parameter4, rpParameters.AccYearEnd.ToString("yyyy-MM-dd"), parameter5, rpParameters.TaxPeriod.ToString(),
+        //                                      parameter6, rpParameters.PaySchedule.ToUpper());
 
-            prWG.ProcessYtdReport(xdoc, xmlYTDReport, rpParameters);
+        //    prWG.ProcessYtdReport(xdoc, xmlYTDReport, rpParameters);
 
-            //
-            //Produce and process P45s if required. It is intended that PR will provide a list of employees who require a P45 within the completed payroll file.
-            //
+        //    //
+        //    //Produce and process P45s if required. It is intended that PR will provide a list of employees who require a P45 within the completed payroll file.
+        //    //
 
-            //rptRef = "P45";
-            //parameter2 = "EmployeeKey";
-            //rpParameters.ErRef = "1176";
-            //string eeRef = "14";
-            //XmlDocument xmlP45Report = prWG.RunReport(rptRef, parameter1, rpParameters.ErRef, parameter2, eeRef, null,
-            //                                  null, null, null, null, null, null, null);
+        //    //rptRef = "P45";
+        //    //parameter2 = "EmployeeKey";
+        //    //rpParameters.ErRef = "1176";
+        //    //string eeRef = "14";
+        //    //XmlDocument xmlP45Report = prWG.RunReport(rptRef, parameter1, rpParameters.ErRef, parameter2, eeRef, null,
+        //    //                                  null, null, null, null, null, null, null);
 
-            //
-            //Produce and process P32 if required. If the next pay run date gives us a different tax month than the current run date then we need to produce a P32 report.
-            //
-            bool p32Required = prWG.CheckIfP32Required(rpParameters);
-            if(p32Required)
-            {
-                rptRef = "P32SUM";
-                parameter2 = "TaxYear";
-                XmlDocument xmlP32Report = prWG.RunReport(rptRef, parameter1, rpParameters.ErRef, parameter2, rpParameters.TaxYear.ToString(), null,
-                                                  null, null, null, null, null, null, null);
-            }
+        //    //
+        //    //Produce and process P32 if required. If the next pay run date gives us a different tax month than the current run date then we need to produce a P32 report.
+        //    //
+        //    bool p32Required = prWG.CheckIfP32Required(rpParameters);
+        //    if(p32Required)
+        //    {
+        //        rptRef = "P32SUM";
+        //        parameter2 = "TaxYear";
+        //        XmlDocument xmlP32Report = prWG.RunReport(rptRef, parameter1, rpParameters.ErRef, parameter2, rpParameters.TaxYear.ToString(), null,
+        //                                          null, null, null, null, null, null, null);
+        //    }
             
-            //
-            //All the reports have been produced, so now just zip them and email them.
-            //
-            prWG.ZipReports(xdoc, rpEmployer, rpParameters);
-            prWG.EmailZippedReports(xdoc, rpEmployer, rpParameters);
+        //    //
+        //    //All the reports have been produced, so now just zip them and email them.
+        //    //
+        //    prWG.ZipReports(xdoc, rpEmployer, rpParameters);
+        //    prWG.EmailZippedReports(xdoc, rpEmployer, rpParameters);
 
 
-        }
-        private Tuple<RPEmployer, RPParameters> ProcessPeriodReport(XDocument xdoc, XmlDocument xmlPeriodReport, RPParameters rpParameters)
-        {
-            PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
+        //}
+        //private Tuple<RPEmployer, RPParameters> ProcessPeriodReport(XDocument xdoc, XmlDocument xmlPeriodReport, RPParameters rpParameters)
+        //{
+        //    PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
 
-            var tuple = PrepareStandardReports(xdoc, xmlPeriodReport, rpParameters);
-            List<RPEmployeePeriod> rpEmployeePeriodList = tuple.Item1;
-            List<RPPayComponent> rpPayComponents = tuple.Item2;
-            //I don't think the P45 report will be able to be produced from the EmployeePeriod report but I'm leaving it here for now.
-            List<P45> p45s = tuple.Item3;
-            List<RPPreSamplePayCode> rpPreSamplePayCodes = tuple.Item4;
-            RPEmployer rpEmployer = tuple.Item5;
-            rpParameters = tuple.Item6;
-            //Get the total payable to hmrc, I'm going use it in the zipped file name(possibly!).
-            decimal hmrcTotal = prWG.CalculateHMRCTotal(rpEmployeePeriodList);
-            rpEmployer.HMRCDesc = "[" + hmrcTotal.ToString() + "]";
-            //I now have a list of employee with their total for this period & ytd plus addition & deductions
-            //I can print payslips from here.
-            prWG.PrintStandardReports(xdoc, rpEmployeePeriodList, rpEmployer, rpParameters, p45s, rpPayComponents);
+        //    var tuple = PrepareStandardReports(xdoc, xmlPeriodReport, rpParameters);
+        //    List<RPEmployeePeriod> rpEmployeePeriodList = tuple.Item1;
+        //    List<RPPayComponent> rpPayComponents = tuple.Item2;
+        //    //I don't think the P45 report will be able to be produced from the EmployeePeriod report but I'm leaving it here for now.
+        //    List<P45> p45s = tuple.Item3;
+        //    List<RPPreSamplePayCode> rpPreSamplePayCodes = tuple.Item4;
+        //    RPEmployer rpEmployer = tuple.Item5;
+        //    rpParameters = tuple.Item6;
+        //    //Get the total payable to hmrc, I'm going use it in the zipped file name(possibly!).
+        //    decimal hmrcTotal = prWG.CalculateHMRCTotal(rpEmployeePeriodList);
+        //    rpEmployer.HMRCDesc = "[" + hmrcTotal.ToString() + "]";
+        //    //I now have a list of employee with their total for this period & ytd plus addition & deductions
+        //    //I can print payslips from here.
+        //    //Test for 2 decimal place Units
+        //    //foreach(RPEmployeePeriod rpEmployeePeriod in rpEmployeePeriodList)
+        //    //{
+        //    //    foreach(RPAddition rpAddition in rpEmployeePeriod.Additions)
+        //    //    {
+        //    //        rpAddition.Units = 12.3456m;
+        //    //    }
+        //    //}
+        //    prWG.PrintStandardReports(xdoc, rpEmployeePeriodList, rpEmployer, rpParameters, p45s, rpPayComponents);
 
-            //Create the history csv file from the objects
-            prWG.CreateHistoryCSV(xdoc, rpParameters, rpEmployer, rpEmployeePeriodList);
+        //    //Create the history csv file from the objects
+        //    prWG.CreateHistoryCSV(xdoc, rpParameters, rpEmployer, rpEmployeePeriodList);
 
-            //Produce bank files if necessary
-            prWG.ProcessBankReports(xdoc, rpEmployeePeriodList, rpEmployer, rpParameters);
+        //    //Produce bank files if necessary
+        //    prWG.ProcessBankReports(xdoc, rpEmployeePeriodList, rpEmployer, rpParameters);
 
-            //Produce the Pre Sample Excel file (.xlsx)
-            //We have a list of the Pre Sample Pay Codes which are in use and we have list of the employees paid this period. We should be able to produce the Pre Sample Excel file from these.
-            CreatePreSampleXLSX(xdoc,rpEmployeePeriodList,rpEmployer,rpParameters,rpPreSamplePayCodes);
+        //    //Produce the Pre Sample Excel file (.xlsx)
+        //    //We have a list of the Pre Sample Pay Codes which are in use and we have list of the employees paid this period. We should be able to produce the Pre Sample Excel file from these.
+        //    CreatePreSampleXLSX(xdoc,rpEmployeePeriodList,rpEmployer,rpParameters,rpPreSamplePayCodes);
 
-            //Create pension reports.
+        //    //Create pension reports.
 
-            return new Tuple<RPEmployer, RPParameters>(rpEmployer, rpParameters);
+        //    return new Tuple<RPEmployer, RPParameters>(rpEmployer, rpParameters);
 
-        }
+        //}
         private void ProducePeriodReports(XDocument xdoc, List<RPEmployeePeriod> rpEmployeePeriodList, RPEmployer rpEmployer,
                                           List<P45> p45s, List<RPPayComponent> rpPayComponents, RPParameters rpParameters,
                                           List<RPPreSamplePayCode> rpPreSamplePayCodes)
@@ -270,7 +278,7 @@ namespace PayRunIOProcessReports
 
             
             //Produce Pre Sample file (XLSX)
-            //CreatePreSampleXLSX(xdoc, rpEmployeePeriodList, rpEmployer, rpParameters, rpPreSamplePayCodes);
+            CreatePreSampleXLSX(xdoc, rpEmployeePeriodList, rpEmployer, rpParameters, rpPreSamplePayCodes);
             try
             {
                 prWG.ZipReports(xdoc, rpEmployer, rpParameters);
@@ -869,6 +877,14 @@ namespace PayRunIOProcessReports
             List<RPPreSamplePayCode> rpPreSamplePayCodes = tuple.Item4;
             RPEmployer rpEmployer = tuple.Item5;
             rpParameters = tuple.Item6;
+            //Test for 2 decimal place Units
+            //foreach (RPEmployeePeriod rpEmployeePeriod in rpEmployeePeriodList)
+            //{
+            //    foreach (RPAddition rpAddition in rpEmployeePeriod.Additions)
+            //    {
+            //        rpAddition.Units = 12.3446m;
+            //    }
+            //}
 
             return new Tuple<List<RPEmployeePeriod>, List<RPPayComponent>, List<P45>, List<RPPreSamplePayCode>, RPEmployer, RPParameters>(rpEmployeePeriodList, rpPayComponents, p45s, rpPreSamplePayCodes, rpEmployer, rpParameters);
 
@@ -1109,7 +1125,7 @@ namespace PayRunIOProcessReports
                         case "GUStudentLoan":
                             workbook.CurrentWorksheet.AddNextCell(0.00);//GUStudentLoan
                             break;
-                        case "GUNIRedustion":
+                        case "GUNIReduction":
                             workbook.CurrentWorksheet.AddNextCell(0.00);//GUNIReduction
                             break;
                         case "PenPreTaxEeGU":
