@@ -1026,49 +1026,22 @@ namespace PayRunIOProcessReports
         private void CreatePreSampleXLSX(XDocument xdoc, List<RPEmployeePeriod> rpEmployeePeriodList,
                                        RPEmployer rpEmployer, RPParameters rpParameters, List<RPPreSamplePayCode> rpPreSamplePayCodes)
         {
-            //Create a list of the required columns.
-            List<string> reqCol = new List<string>();
-            reqCol.Add("EeRef");
-            reqCol.Add("Name");
-            reqCol.Add("Dept");
-            reqCol.Add("CostCentre");
-            reqCol.Add("Branch");
-            reqCol.Add("Status");
-            reqCol.Add("TaxCode");
-            reqCol.Add("NILetter");
-            reqCol.Add("PreTaxAddDed");
-            reqCol.Add("GrossedUpTaxThisRun");
-            reqCol.Add("EeNIPdByEr");
-            reqCol.Add("GUStudentLoan");
-            reqCol.Add("GUNIReduction");
-            reqCol.Add("PenPreTaxEeGU");
-            reqCol.Add("TotalAbsencePay");
-            reqCol.Add("HolidayPay");
-            reqCol.Add("PenPreTaxEe");
-            reqCol.Add("TaxablePay");
-            reqCol.Add("Tax");
-            reqCol.Add("NI");
-            reqCol.Add("PostTaxAddDed");
-            reqCol.Add("PostTaxPension");
-            reqCol.Add("AOE");
-            reqCol.Add("StudentLoan");
-            reqCol.Add("NetPay");
-            reqCol.Add("ErNI");
-            reqCol.Add("PenEr");
-            reqCol.Add("TotalGrossUp");
+            //Create a list of the required fixed columns.
+            List<string> fixCol = new List<string>();
+            fixCol = CreateListOfFixedColumns();
 
-            foreach (RPPreSamplePayCode rpPreSamplePayCode in rpPreSamplePayCodes)
-            {
-                if(rpPreSamplePayCode.InUse)
-                {
-                    reqCol.Add(rpPreSamplePayCode.Description);
-                }
-                
-            }
-
+            //Create a list of the required variable columns.
+            List<string> varCol = new List<string>();
+            varCol = CreateListOfVariableColumns(rpPreSamplePayCodes);
+            
             //Create a workbook.
             Workbook workbook = new Workbook("X:\\Payescape\\PayRunIO\\PreSample.xlsx", "Pre Sample");
-            foreach (string col in reqCol)
+            foreach (string col in fixCol)
+            {
+                workbook.CurrentWorksheet.AddNextCell(col);
+            }
+
+            foreach (string col in varCol)
             {
                 workbook.CurrentWorksheet.AddNextCell(col);
             }
@@ -1076,135 +1049,149 @@ namespace PayRunIOProcessReports
             //Now for each employee create a row and add in the values for each column
             foreach(RPEmployeePeriod rpEmployeePeriod in rpEmployeePeriodList)
             {
+                if(rpEmployeePeriod.Reference=="81")
+                {
+
+                }
                 workbook.CurrentWorksheet.GoToNextRow();
-                ////Check for the different pay codes and add to the appropriate total.
-                //switch (rpPayComponent.PayCode)
-                //{
-                //    case "HOLPY":
-                //    case "HOLIDAY":
-                //        rpEmployeePeriod.HolidayPay = rpEmployeePeriod.HolidayPay + rpPayComponent.AmountTP;
-                //        break;
-                //    case "PENSION":
-                foreach (string col in reqCol)
-                {
-                    switch (col)
-                    {
-                        case "EeRef":
-                            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.Reference);
-                            break;
-                        case "Name":
-                            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.Fullname);
-                            break;
-                        case "Dept":
-                            workbook.CurrentWorksheet.AddNextCell("Department");
-                            break;
-                        case "CostCentre":
-                            workbook.CurrentWorksheet.AddNextCell("Cost Centre");
-                            break;
-                        case "Branch":
-                            workbook.CurrentWorksheet.AddNextCell("Branch");
-                            break;
-                        case "Status":
-                            workbook.CurrentWorksheet.AddNextCell("Calc");
-                            break;
-                        case "TaxCode":
-                            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.TaxCode);
-                            break;
-                        case "NILetter":
-                            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.NILetter);
-                            break;
-                        case "PreTaxAddDed":
-                            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.PreTaxAddDed);
-                            break;
-                        case "GrossedUpTaxThisRun":
-                            workbook.CurrentWorksheet.AddNextCell(0.00);//GrossedUpTaxThisRun
-                            break;
-                        case "EeNIPdByEr":
-                            workbook.CurrentWorksheet.AddNextCell(0.00);//EeNIPdByEr
-                            break;
-                        case "GUStudentLoan":
-                            workbook.CurrentWorksheet.AddNextCell(0.00);//GUStudentLoan
-                            break;
-                        case "GUNIReduction":
-                            workbook.CurrentWorksheet.AddNextCell(0.00);//GUNIReduction
-                            break;
-                        case "PenPreTaxEeGU":
-                            workbook.CurrentWorksheet.AddNextCell(0.00);//PenPreTaxEeGU
-                            break;
-                        case "TotalAbsencePay":
-                            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.AbsencePay);
-                            break;
-                        case "HolidayPay":
-                            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.HolidayPay);
-                            break;
-                        case "PenPreTaxEe":
-                            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.PreTaxPension);
-                            break;
-                        case "TaxablePay":
-                            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.TaxablePayTP);
-                            break;
-                        case "Tax":
-                            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.Tax);
-                            break;
-                        case "NI":
-                            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.NetNI);
-                            break;
-                        case "PostTaxAddDed":
-                            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.PostTaxAddDed);
-                            break;
-                        case "PostTaxPension":
-                            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.PostTaxPension);
-                            break;
-                        case "AOE":
-                            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.AOE);
-                            break;
-                        case "StudentLoan":
-                            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.StudentLoan);
-                            break;
-                        case "NetPay":
-                            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.NetPayTP);
-                            break;
-                        case "ErNI":
-                            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.ErNICTP);
-                            break;
-                        case "PenEr":
-                            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.ErPensionTP);
-                            break;
-                        case "TotalGrossUp":
-                            workbook.CurrentWorksheet.AddNextCell(0.00);//TotalGrossUP
-                            break;
-                        default:
-                            //It's none of the set headings so now look through the pay codes (additions & deductions) to see if we can find it
-                            foreach(RPAddition rpAddition in rpEmployeePeriod.Additions)
-                            {
-                                if(col == rpAddition.Description)
-                                {
-                                    workbook.CurrentWorksheet.AddNextCell(rpAddition.AmountTP);
-                                    break;
-                                }
-                            }
-                            break;
-                    }
-                }
 
-                //Now go through each pay code that has a value and add it in.
-                foreach(RPAddition rpAddition in rpEmployeePeriod.Additions)
-                {
-
-                }
+                workbook = CreateFixedWorkbookColumns(workbook, rpEmployeePeriod);
+                workbook = CreateVariableWorkbookColumns(workbook, rpEmployeePeriod, varCol);
+                
             }
             
-            //Now create a sample data line.
-            //foreach (string column in columns)
-            //{
-            //    workbook.CurrentWorksheet.AddNextCell(column);
-            //}
-            //Save the workbook.
             workbook.Save();
+        }
+        private List<string> CreateListOfFixedColumns()
+        {
+            //Create a list of the required fixed columns.
+            List<string> fixCol = new List<string>();
+            fixCol.Add("EeRef");
+            fixCol.Add("Name");
+            fixCol.Add("Dept");
+            fixCol.Add("CostCentre");
+            fixCol.Add("Branch");
+            fixCol.Add("Status");
+            fixCol.Add("TaxCode");
+            fixCol.Add("NILetter");
+            fixCol.Add("PreTaxAddDed");
+            fixCol.Add("GrossedUpTaxThisRun");
+            fixCol.Add("EeNIPdByEr");
+            fixCol.Add("GUStudentLoan");
+            fixCol.Add("GUNIReduction");
+            fixCol.Add("PenPreTaxEeGU");
+            fixCol.Add("TotalAbsencePay");
+            fixCol.Add("HolidayPay");
+            fixCol.Add("PenPreTaxEe");
+            fixCol.Add("TaxablePay");
+            fixCol.Add("Tax");
+            fixCol.Add("NI");
+            fixCol.Add("PostTaxAddDed");
+            fixCol.Add("PostTaxPension");
+            fixCol.Add("AEO");
+            fixCol.Add("StudentLoan");
+            fixCol.Add("NetPay");
+            fixCol.Add("ErNI");
+            fixCol.Add("PenEr");
+            fixCol.Add("TotalGrossUp");
+
+            return fixCol;
+        }
+        private List<string> CreateListOfVariableColumns(List<RPPreSamplePayCode> rpPreSamplePayCodes)
+        {
+            //Create a list of the required variable columns.
+            List<string> varCol = new List<string>();
+
+            foreach (RPPreSamplePayCode rpPreSamplePayCode in rpPreSamplePayCodes)
+            {
+                if(rpPreSamplePayCode.Code != "TAX" && rpPreSamplePayCode.Code != "NI")
+                {
+                    if (rpPreSamplePayCode.InUse)
+                    {
+                        varCol.Add(rpPreSamplePayCode.Description);
+                    }
+                }
+            }
+
+            return varCol;
+        }
+        private Workbook CreateFixedWorkbookColumns(Workbook workbook, RPEmployeePeriod rpEmployeePeriod)
+        {
+            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.Reference);
+            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.Fullname);
+            workbook.CurrentWorksheet.AddNextCell("Department");
+            workbook.CurrentWorksheet.AddNextCell("Cost Centre");
+            workbook.CurrentWorksheet.AddNextCell("Branch");
+            workbook.CurrentWorksheet.AddNextCell("Calc");
+            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.TaxCode);
+            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.NILetter);
+            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.PreTaxAddDed);
+            workbook.CurrentWorksheet.AddNextCell(0.00);//GrossedUpTaxThisRun
+            workbook.CurrentWorksheet.AddNextCell(0.00);//EeNIPdByEr
+            workbook.CurrentWorksheet.AddNextCell(0.00);//GUStudentLoan
+            workbook.CurrentWorksheet.AddNextCell(0.00);//GUNIReduction
+            workbook.CurrentWorksheet.AddNextCell(0.00);//PenPreTaxEeGU
+            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.AbsencePay);
+            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.HolidayPay);
+            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.PreTaxPension);
+            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.TaxablePayTP);
+            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.Tax);
+            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.NetNI);
+            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.PostTaxAddDed);
+            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.PostTaxPension);
+            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.AOE);
+            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.StudentLoan);
+            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.NetPayTP);
+            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.ErNICTP);
+            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.ErPensionTP);
+            workbook.CurrentWorksheet.AddNextCell(0.00);//TotalGrossUP
+            
+            return workbook;
+        }
+        private Workbook CreateVariableWorkbookColumns(Workbook workbook, RPEmployeePeriod rpEmployeePeriod, List<string> varCol)
+        {
+            foreach (string col in varCol)
+            {
+                //Add in the variable additions.
+                bool colFound = false;
+                foreach (RPAddition rpAddition in rpEmployeePeriod.Additions)
+                {
+                    if (col == rpAddition.Description)
+                    {
+                        workbook.CurrentWorksheet.AddNextCell(rpAddition.AmountTP);
+                        colFound = true;
+                        break;
+                    }
+                    
+                }
+                //If the column has not been found in additions check the variable deductions.
+                if(!colFound)
+                {
+                    foreach (RPDeduction rpDeduction in rpEmployeePeriod.Deductions)
+                    {
+                        if (col == rpDeduction.Description)
+                        {
+                            workbook.CurrentWorksheet.AddNextCell(rpDeduction.AmountTP);
+                            colFound = true;
+                            break;
+                        }
+
+                    }
+                    //If the column hasn't been found in additions or deduction set it to zero.
+                    if (!colFound)
+                    {
+                        workbook.CurrentWorksheet.AddNextCell(0.00m);
+                    }
+                }
+                
+                
+
+            }
+
+            return workbook;
         }
         private void Form1_Load(object sender, EventArgs e)
         {
-            //CreateXLSXWorkbook();
             btnProduceReports.PerformClick();
         }
     }
