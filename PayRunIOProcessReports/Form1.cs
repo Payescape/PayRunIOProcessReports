@@ -1026,6 +1026,8 @@ namespace PayRunIOProcessReports
         private void CreatePreSampleXLSX(XDocument xdoc, List<RPEmployeePeriod> rpEmployeePeriodList,
                                        RPEmployer rpEmployer, RPParameters rpParameters, List<RPPreSamplePayCode> rpPreSamplePayCodes)
         {
+            string outgoingFolder = xdoc.Root.Element("DataHomeFolder").Value + "PE-Reports";
+            string coNo = rpParameters.ErRef;
             //Create a list of the required fixed columns.
             List<string> fixCol = new List<string>();
             fixCol = CreateListOfFixedColumns();
@@ -1033,9 +1035,10 @@ namespace PayRunIOProcessReports
             //Create a list of the required variable columns.
             List<string> varCol = new List<string>();
             varCol = CreateListOfVariableColumns(rpPreSamplePayCodes);
-            
+
             //Create a workbook.
-            Workbook workbook = new Workbook("X:\\Payescape\\PayRunIO\\PreSample.xlsx", "Pre Sample");
+            string workBookName = outgoingFolder + "\\" + coNo + "\\PreSample.xlsx";
+            Workbook workbook = new Workbook(workBookName, "Pre Sample");
             foreach (string col in fixCol)
             {
                 workbook.CurrentWorksheet.AddNextCell(col);
