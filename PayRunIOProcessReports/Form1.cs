@@ -384,7 +384,7 @@ namespace PayRunIOProcessReports
                         rpEmployeePeriod.StudentLoanEndDate = prWG.GetDateElementByTagFromXml(employee, "StudentLoanEndDate");
                         rpEmployeePeriod.NILetter = prWG.GetElementByTagFromXml(employee, "NiLetter");
                         rpEmployeePeriod.CalculationBasis = prWG.GetElementByTagFromXml(employee, "CalculationBasis");
-                        //TotalPayTP
+                        rpEmployeePeriod.Total = prWG.GetDecimalElementByTagFromXml(employee, "Total");
                         rpEmployeePeriod.EarningsToLEL = prWG.GetDecimalElementByTagFromXml(employee, "EarningsToLEL");
                         rpEmployeePeriod.EarningsToSET = prWG.GetDecimalElementByTagFromXml(employee, "EarningsToSET");
                         rpEmployeePeriod.EarningsToPET = prWG.GetDecimalElementByTagFromXml(employee, "EarningsToPET");
