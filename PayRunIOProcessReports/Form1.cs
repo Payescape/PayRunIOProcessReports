@@ -354,23 +354,30 @@ namespace PayRunIOProcessReports
                                 rpPayComponent.AmountTP = prWG.GetDecimalElementByTagFromXml(payCode, "Amount");
                                 rpPayComponent.UnitsYTD = prWG.GetDecimalElementByTagFromXml(payCode, "PayeYearUnits");
                                 rpPayComponent.AmountYTD = prWG.GetDecimalElementByTagFromXml(payCode, "PayeYearBalance");
+                                rpPayComponent.IsTaxable = prWG.GetBooleanElementByTagFromXml(payCode, "IsTaxable");
+                                rpPayComponent.IsPayCode = prWG.GetBooleanElementByTagFromXml(payCode, "IsPayCode");
+                                rpPayComponent.EarningOrDeduction = prWG.GetElementByTagFromXml(payCode, "EarningOrDeduction");
                                 //if (rpPayComponent.AmountTP != 0 || rpPayComponent.AmountYTD != 0)
                                 if (rpPayComponent.AmountTP != 0)
                                 {
                                     //Value is not equal to zero so go through the list of Pre Sample codes and mark this one as in use
                                     rpPreSamplePayCodes = MarkPreSampleCodeAsInUse(rpPayComponent.PayCode, rpPreSamplePayCodes);
-                                    if (prWG.GetElementByTagFromXml(payCode, "IsPayCode") == "true")
+                                    if (rpPayComponent.IsPayCode)
                                     {
                                         rpPayComponents.Add(rpPayComponent);
                                     }
-                                    if (prWG.GetElementByTagFromXml(payCode, "IsTaxable") == "true")
+                                    if(rpPayComponent.PayCode != "TAX" && rpPayComponent.PayCode != "NI" && !rpPayComponent.PayCode.StartsWith("PENSION"))
                                     {
-                                        rpEmployeePeriod.PreTaxAddDed = rpEmployeePeriod.PreTaxAddDed + rpPayComponent.AmountTP;
+                                        if (rpPayComponent.IsTaxable)
+                                        {
+                                            rpEmployeePeriod.PreTaxAddDed = rpEmployeePeriod.PreTaxAddDed + rpPayComponent.AmountTP;
+                                        }
+                                        else
+                                        {
+                                            rpEmployeePeriod.PostTaxAddDed = rpEmployeePeriod.PostTaxAddDed + rpPayComponent.AmountTP;
+                                        }
                                     }
-                                    else
-                                    {
-                                        rpEmployeePeriod.PostTaxAddDed = rpEmployeePeriod.PostTaxAddDed + rpPayComponent.AmountTP;
-                                    }
+                                    
                                     //Check for the different pay codes and add to the appropriate total.
                                     switch (rpPayComponent.PayCode)
                                     {
@@ -383,6 +390,7 @@ namespace PayRunIOProcessReports
                                             break;
                                         case "PENSIONRAS":
                                         case "PENSIONSS":
+                                        case "PENSIONTAXEX":
                                             rpEmployeePeriod.PostTaxPension = rpEmployeePeriod.PostTaxPension + rpPayComponent.AmountTP;
                                             break;
                                         case "AOE":
