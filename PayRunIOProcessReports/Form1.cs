@@ -377,21 +377,28 @@ namespace PayRunIOProcessReports
                                             rpEmployeePeriod.PostTaxAddDed = rpEmployeePeriod.PostTaxAddDed + rpPayComponent.AmountTP;
                                         }
                                     }
-                                    
+
                                     //Check for the different pay codes and add to the appropriate total.
-                                    switch (rpPayComponent.PayCode)
+                                    string swPayCode = rpPayComponent.PayCode;
+                                    if (swPayCode.StartsWith("PENSION"))
+                                    {
+                                        swPayCode = "PENSION";
+                                    }
+                                    switch (swPayCode)
                                     {
                                         case "HOLPY":
                                         case "HOLIDAY":
                                             rpEmployeePeriod.HolidayPay = rpEmployeePeriod.HolidayPay + rpPayComponent.AmountTP;
                                             break;
                                         case "PENSION":
-                                            rpEmployeePeriod.PreTaxPension = rpEmployeePeriod.PreTaxPension + rpPayComponent.AmountTP;
-                                            break;
-                                        case "PENSIONRAS":
-                                        case "PENSIONSS":
-                                        case "PENSIONTAXEX":
-                                            rpEmployeePeriod.PostTaxPension = rpEmployeePeriod.PostTaxPension + rpPayComponent.AmountTP;
+                                            if(rpPayComponent.IsTaxable)
+                                            {
+                                                rpEmployeePeriod.PreTaxPension = rpEmployeePeriod.PreTaxPension + rpPayComponent.AmountTP;
+                                            }
+                                            else
+                                            {
+                                                rpEmployeePeriod.PostTaxPension = rpEmployeePeriod.PostTaxPension + rpPayComponent.AmountTP;
+                                            }
                                             break;
                                         case "AOE":
                                             rpEmployeePeriod.AOE = rpEmployeePeriod.AOE + rpPayComponent.AmountTP;
@@ -624,7 +631,7 @@ namespace PayRunIOProcessReports
             return new Tuple<List<RPEmployeePeriod>, List<RPPayComponent>, List<P45>, List<RPPreSamplePayCode>, RPEmployer, RPParameters>(rpEmployeePeriodList, rpPayComponents, p45s, rpPreSamplePayCodes, rpEmployer, rpParameters);
 
         }
-        //rpPreSamplePayCodes = MarkPreSampleCodeAsInUse(rpPayComponent.PayCode, rpPreSamplePayCodes);
+        
         private List<RPPreSamplePayCode> MarkPreSampleCodeAsInUse(string payCode, List<RPPreSamplePayCode> rpPreSamplePayCodes)
         {
             foreach(RPPreSamplePayCode rpPreSamplePayCode in rpPreSamplePayCodes)
