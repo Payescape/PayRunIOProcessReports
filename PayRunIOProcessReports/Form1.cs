@@ -393,11 +393,11 @@ namespace PayRunIOProcessReports
                                         case "PENSION":
                                             if(rpPayComponent.IsTaxable)
                                             {
-                                                rpEmployeePeriod.PreTaxPension = rpEmployeePeriod.PreTaxPension + rpPayComponent.AmountTP;
+                                                rpEmployeePeriod.PostTaxPension = rpEmployeePeriod.PostTaxPension + rpPayComponent.AmountTP;
                                             }
                                             else
                                             {
-                                                rpEmployeePeriod.PostTaxPension = rpEmployeePeriod.PostTaxPension + rpPayComponent.AmountTP;
+                                                rpEmployeePeriod.PreTaxPension = rpEmployeePeriod.PreTaxPension + rpPayComponent.AmountTP;
                                             }
                                             break;
                                         case "AOE":
