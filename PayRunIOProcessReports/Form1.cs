@@ -210,6 +210,7 @@ namespace PayRunIOProcessReports
                         rpEmployeePeriod.Surname = prWG.GetElementByTagFromXml(employee, "LastName");
                         rpEmployeePeriod.Fullname = rpEmployeePeriod.Title + " " + rpEmployeePeriod.Forename + " " + rpEmployeePeriod.Surname;
                         rpEmployeePeriod.RefFullname = rpEmployeePeriod.Reference + " " + rpEmployeePeriod.Fullname;
+                        rpEmployeePeriod.SurnameForename = rpEmployeePeriod.Surname + rpEmployeePeriod.Forename;
                         string[] address = new string[6];
                         address[0] = prWG.GetElementByTagFromXml(employee, "Address1");
                         address[1] = prWG.GetElementByTagFromXml(employee, "Address2");
