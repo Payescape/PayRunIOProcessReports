@@ -11,7 +11,7 @@
   <Bands>
     <Item1 Ref="11" ControlType="DetailBand" Name="Detail" KeepTogetherWithDetailReports="true" HeightF="17.708334" KeepTogether="true" TextAlignment="TopLeft" Padding="0,0,0,0,100">
       <SortFields>
-        <Item1 Ref="12" FieldName="Surname" />
+        <Item1 Ref="12" FieldName="SurnameForename" />
       </SortFields>
       <Controls>
         <Item1 Ref="13" ControlType="XRLabel" Name="label11" TextFormatString="{0:0.00}" Text="label30" TextAlignment="MiddleRight" SizeF="52.49994,15.0000257" LocationFloat="294.958557, 0" Font="Arial, 6.75pt, charSet=0" Padding="2,2,0,0,100">
