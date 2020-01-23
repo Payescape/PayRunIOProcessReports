@@ -349,6 +349,7 @@ namespace PayRunIOProcessReports
                                 rpPayComponent.Description = prWG.GetElementByTagFromXml(payCode, "Description");
                                 rpPayComponent.EeRef = rpEmployeePeriod.Reference;
                                 rpPayComponent.Fullname = rpEmployeePeriod.Fullname;
+                                rpPayComponent.SurnameForename = rpEmployeePeriod.SurnameForename;
                                 rpPayComponent.Surname = rpEmployeePeriod.Surname;
                                 rpPayComponent.Rate = prWG.GetDecimalElementByTagFromXml(payCode, "Rate");
                                 rpPayComponent.UnitsTP = prWG.GetDecimalElementByTagFromXml(payCode, "Units");
@@ -358,8 +359,7 @@ namespace PayRunIOProcessReports
                                 rpPayComponent.IsTaxable = prWG.GetBooleanElementByTagFromXml(payCode, "IsTaxable");
                                 rpPayComponent.IsPayCode = prWG.GetBooleanElementByTagFromXml(payCode, "IsPayCode");
                                 rpPayComponent.EarningOrDeduction = prWG.GetElementByTagFromXml(payCode, "EarningOrDeduction");
-                                //if (rpPayComponent.AmountTP != 0 || rpPayComponent.AmountYTD != 0)
-                                if (rpPayComponent.AmountTP != 0)
+                                if (rpPayComponent.AmountTP != 0 || rpPayComponent.AmountYTD != 0)
                                 {
                                     //Value is not equal to zero so go through the list of Pre Sample codes and mark this one as in use
                                     rpPreSamplePayCodes = MarkPreSampleCodeAsInUse(rpPayComponent.PayCode, rpPreSamplePayCodes);
