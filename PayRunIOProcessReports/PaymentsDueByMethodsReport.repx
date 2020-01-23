@@ -1,52 +1,52 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<XtraReportsLayoutSerializer SerializerVersion="17.2.5.0" Ref="1" ControlType="DevExpress.XtraReports.UI.XtraReport, DevExpress.XtraReports.v17.2, Version=17.2.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Name="PayementsDueByMethods" DisplayName="PaymentsDueByMethodsReport" Margins="15, 15, 0, 1" PaperKind="A4" PageWidth="827" PageHeight="1169" Version="17.2" DataSource="#Ref-0">
+<XtraReportsLayoutSerializer SerializerVersion="19.2.3.0" Ref="1" ControlType="DevExpress.XtraReports.UI.XtraReport, DevExpress.XtraReports.v19.2, Version=19.2.3.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Name="PayementsDueByMethods" DisplayName="PaymentsDueByMethodsReport" Margins="15, 15, 0, 1" PaperKind="A4" PageWidth="827" PageHeight="1169" Version="19.2" DataSource="#Ref-0">
   <Parameters>
-    <Item1 Ref="3" Description="Company name" ValueInfo="Mr Stephen and Rosemay Taylor" Name="CmpName" />
-    <Item2 Ref="4" Description="PAYE Reference" ValueInfo="120/FA88797" Name="PayeRef" />
-    <Item3 Ref="6" Description="Date" ValueInfo="2019-10-11" Name="Date" Type="#Ref-5" />
-    <Item4 Ref="8" Description="Tax Period" ValueInfo="27" Name="Period" Type="#Ref-7" />
+    <Item1 Ref="3" Description="Company name" ValueInfo="Dundonald Auto Engineering" Name="CmpName" />
+    <Item2 Ref="4" Description="PAYE Reference" ValueInfo="925/RA01937" Name="PayeRef" />
+    <Item3 Ref="6" Description="Date" ValueInfo="2020-01-09" Name="Date" Type="#Ref-5" />
+    <Item4 Ref="8" Description="Tax Period" ValueInfo="40" Name="Period" Type="#Ref-7" />
     <Item5 Ref="9" Description="Frequency" ValueInfo="Weekly" Name="Freq" />
-    <Item6 Ref="10" Description="PAYE Month" ValueInfo="7" Name="PAYEMonth" Type="#Ref-7" />
+    <Item6 Ref="10" Description="PAYE Month" ValueInfo="10" Name="PAYEMonth" Type="#Ref-7" />
   </Parameters>
   <Bands>
     <Item1 Ref="11" ControlType="DetailBand" Name="Detail" KeepTogetherWithDetailReports="true" HeightF="25.0000134" KeepTogether="true" TextAlignment="TopLeft" Padding="0,0,0,0,100">
       <SortFields>
-        <Item1 Ref="12" FieldName="Surname" />
+        <Item1 Ref="12" FieldName="SurnameForename" />
       </SortFields>
       <Controls>
         <Item1 Ref="13" ControlType="XRLabel" Name="label30" Text="label30" TextAlignment="MiddleLeft" SizeF="114.583313,23" LocationFloat="534.3749, 2.000014" Font="Arial, 9.75pt, charSet=0" Padding="2,2,0,0,100">
           <ExpressionBindings>
-            <Item1 Ref="14" Expression="[BuildingSocRef]" PropertyName="Text" EventName="BeforePrint" />
+            <Item1 Ref="14" EventName="BeforePrint" PropertyName="Text" Expression="[BuildingSocRef]" />
           </ExpressionBindings>
           <StylePriority Ref="15" UseFont="false" UseTextAlignment="false" />
         </Item1>
         <Item2 Ref="16" ControlType="XRLabel" Name="label29" Text="label29" TextAlignment="MiddleLeft" SizeF="121.875,23" LocationFloat="412.499878, 2.000014" Font="Arial, 9.75pt, charSet=0" Padding="2,2,0,0,100">
           <ExpressionBindings>
-            <Item1 Ref="17" Expression="[BankAccNo]" PropertyName="Text" EventName="BeforePrint" />
+            <Item1 Ref="17" EventName="BeforePrint" PropertyName="Text" Expression="[BankAccNo]" />
           </ExpressionBindings>
           <StylePriority Ref="18" UseFont="false" UseTextAlignment="false" />
         </Item2>
         <Item3 Ref="19" ControlType="XRLabel" Name="label28" Text="label28" TextAlignment="MiddleLeft" SizeF="100,23" LocationFloat="312.500122, 0" Font="Arial, 9.75pt, charSet=0" Padding="2,2,0,0,100">
           <ExpressionBindings>
-            <Item1 Ref="20" Expression="[SortCode]" PropertyName="Text" EventName="BeforePrint" />
+            <Item1 Ref="20" EventName="BeforePrint" PropertyName="Text" Expression="[SortCode]" />
           </ExpressionBindings>
           <StylePriority Ref="21" UseFont="false" UseTextAlignment="false" />
         </Item3>
         <Item4 Ref="22" ControlType="XRLabel" Name="label18" TextFormatString="{0:0.00;#.##}" Text="label18" TextAlignment="MiddleRight" SizeF="100,23" LocationFloat="649.291565, 0" Font="Arial, 9.75pt, charSet=0" Padding="2,2,0,0,100">
           <ExpressionBindings>
-            <Item1 Ref="23" Expression="[NetPayTP]" PropertyName="Text" EventName="BeforePrint" />
+            <Item1 Ref="23" EventName="BeforePrint" PropertyName="Text" Expression="[NetPayTP]" />
           </ExpressionBindings>
           <StylePriority Ref="24" UseFont="false" UseTextAlignment="false" />
         </Item4>
         <Item5 Ref="25" ControlType="XRLabel" Name="label17" Text="label17" TextAlignment="MiddleLeft" SizeF="211.458313,23" LocationFloat="99.99987, 2.000014" Font="Arial, 9.75pt, charSet=0" Padding="2,2,0,0,100">
           <ExpressionBindings>
-            <Item1 Ref="26" Expression="[Fullname]" PropertyName="Text" EventName="BeforePrint" />
+            <Item1 Ref="26" EventName="BeforePrint" PropertyName="Text" Expression="[Fullname]" />
           </ExpressionBindings>
           <StylePriority Ref="27" UseFont="false" UseTextAlignment="false" />
         </Item5>
         <Item6 Ref="28" ControlType="XRLabel" Name="label16" Text="label16" TextAlignment="MiddleLeft" SizeF="94,23" LocationFloat="6, 2.000014" Font="Arial, 9.75pt, charSet=0" Padding="2,2,0,0,100">
           <ExpressionBindings>
-            <Item1 Ref="29" Expression="[Reference]" PropertyName="Text" EventName="BeforePrint" />
+            <Item1 Ref="29" EventName="BeforePrint" PropertyName="Text" Expression="[Reference]" />
           </ExpressionBindings>
           <StylePriority Ref="30" UseFont="false" UseTextAlignment="false" />
         </Item6>
@@ -64,7 +64,7 @@
         </Item1>
         <Item2 Ref="37" ControlType="XRLabel" Name="label4" Text="label4" SizeF="298.958374,23.0000076" LocationFloat="4, 6" Font="Arial, 14.25pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
           <ExpressionBindings>
-            <Item1 Ref="38" Expression="[PaymentMethod]" PropertyName="Text" EventName="BeforePrint" />
+            <Item1 Ref="38" EventName="BeforePrint" PropertyName="Text" Expression="[PaymentMethod]" />
           </ExpressionBindings>
           <StylePriority Ref="39" UseFont="false" />
         </Item2>
@@ -80,21 +80,21 @@
         </Item2>
         <Item3 Ref="45" ControlType="XRLabel" Name="label25" Text="label25" TextAlignment="MiddleLeft" SizeF="71.0834656,23" LocationFloat="236.874908, 13.9583588" Font="Arial, 9.75pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
           <ExpressionBindings>
-            <Item1 Ref="46" Expression="[PaymentMethod]" PropertyName="Text" EventName="BeforePrint" />
+            <Item1 Ref="46" EventName="BeforePrint" PropertyName="Text" Expression="[PaymentMethod]" />
           </ExpressionBindings>
           <StylePriority Ref="47" UseFont="false" UseTextAlignment="false" />
         </Item3>
         <Item4 Ref="48" ControlType="XRLabel" Name="label21" Text="label16" TextAlignment="MiddleLeft" SizeF="49.58331,23" LocationFloat="319.374939, 13.9583588" Font="Arial, 9.75pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
           <Summary Ref="49" Running="Group" />
           <ExpressionBindings>
-            <Item1 Ref="50" Expression="sumCount([Reference])" PropertyName="Text" EventName="BeforePrint" />
+            <Item1 Ref="50" EventName="BeforePrint" PropertyName="Text" Expression="sumCount([Reference])" />
           </ExpressionBindings>
           <StylePriority Ref="51" UseFont="false" UseTextAlignment="false" />
         </Item4>
         <Item5 Ref="52" ControlType="XRLabel" Name="label20" TextFormatString="{0:#,#.00;-#,#.00; }" Text="label20" TextAlignment="MiddleRight" SizeF="100,23" LocationFloat="649.291565, 10.0000067" Font="Arial, 9.75pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
           <Summary Ref="53" Running="Group" />
           <ExpressionBindings>
-            <Item1 Ref="54" Expression="sumSum([NetPayTP])" PropertyName="Text" EventName="BeforePrint" />
+            <Item1 Ref="54" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([NetPayTP])" />
           </ExpressionBindings>
           <StylePriority Ref="55" UseFont="false" UseTextAlignment="false" />
         </Item5>
@@ -123,14 +123,14 @@
         <Item6 Ref="69" ControlType="XRLabel" Name="label23" TextFormatString="{0:#,#.00;-#,#.00; }" Text="label20" TextAlignment="MiddleRight" SizeF="100,23" LocationFloat="649.291565, 67.12501" Font="Arial, 14.25pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
           <Summary Ref="70" Running="Report" />
           <ExpressionBindings>
-            <Item1 Ref="71" Expression="sumSum([NetPayTP])" PropertyName="Text" EventName="BeforePrint" />
+            <Item1 Ref="71" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([NetPayTP])" />
           </ExpressionBindings>
           <StylePriority Ref="72" UseFont="false" UseTextAlignment="false" />
         </Item6>
         <Item7 Ref="73" ControlType="XRLabel" Name="label24" Text="label16" TextAlignment="MiddleLeft" SizeF="39.5833435,23.0000038" LocationFloat="291.9163, 70.12507" Font="Arial, 14.25pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
           <Summary Ref="74" Running="Report" />
           <ExpressionBindings>
-            <Item1 Ref="75" Expression="sumCount([Reference])" PropertyName="Text" EventName="BeforePrint" />
+            <Item1 Ref="75" EventName="BeforePrint" PropertyName="Text" Expression="sumCount([Reference])" />
           </ExpressionBindings>
           <StylePriority Ref="76" UseFont="false" UseTextAlignment="false" />
         </Item7>
@@ -166,25 +166,25 @@
           <Controls>
             <Item1 Ref="95" ControlType="XRLabel" Name="label27" Text="label27" TextAlignment="MiddleLeft" SizeF="99.20845,22.9999924" LocationFloat="107.083511, 84.70834" Font="Arial, 9.75pt, charSet=0" Padding="2,2,0,0,100" Borders="None">
               <ExpressionBindings>
-                <Item1 Ref="96" Expression="[Parameters].[PAYEMonth]" PropertyName="Text" EventName="BeforePrint" />
+                <Item1 Ref="96" EventName="BeforePrint" PropertyName="Text" Expression="[Parameters].[PAYEMonth]" />
               </ExpressionBindings>
               <StylePriority Ref="97" UseFont="false" UseBorders="false" UseTextAlignment="false" />
             </Item1>
             <Item2 Ref="98" ControlType="XRLabel" Name="label26" Text="label26" TextAlignment="MiddleLeft" SizeF="99.2084,23" LocationFloat="107.083382, 15.625" Font="Arial, 9.75pt, charSet=0" Padding="2,2,0,0,100" Borders="None">
               <ExpressionBindings>
-                <Item1 Ref="99" Expression="[Parameters].[Freq]" PropertyName="Text" EventName="BeforePrint" />
+                <Item1 Ref="99" EventName="BeforePrint" PropertyName="Text" Expression="[Parameters].[Freq]" />
               </ExpressionBindings>
               <StylePriority Ref="100" UseFont="false" UseBorders="false" UseTextAlignment="false" />
             </Item2>
             <Item3 Ref="101" ControlType="XRLabel" Name="label15" Text="label15" TextAlignment="MiddleLeft" SizeF="99.20839,23.0000153" LocationFloat="107.083511, 38.625" Font="Arial, 9.75pt, charSet=0" Padding="2,2,0,0,100" Borders="None">
               <ExpressionBindings>
-                <Item1 Ref="102" Expression="[Parameters].[Period]" PropertyName="Text" EventName="BeforePrint" />
+                <Item1 Ref="102" EventName="BeforePrint" PropertyName="Text" Expression="[Parameters].[Period]" />
               </ExpressionBindings>
               <StylePriority Ref="103" UseFont="false" UseBorders="false" UseTextAlignment="false" />
             </Item3>
             <Item4 Ref="104" ControlType="XRLabel" Name="label14" TextFormatString="{0:d MMM yyyy}" Text="label14" TextAlignment="MiddleLeft" SizeF="99.20839,22.9999886" LocationFloat="107.083511, 61.6250038" Font="Arial, 9.75pt, charSet=0" Padding="2,2,0,0,100" Borders="None">
               <ExpressionBindings>
-                <Item1 Ref="105" Expression="[Parameters].[Date]" PropertyName="Text" EventName="BeforePrint" />
+                <Item1 Ref="105" EventName="BeforePrint" PropertyName="Text" Expression="[Parameters].[Date]" />
               </ExpressionBindings>
               <StylePriority Ref="106" UseFont="false" UseBorders="false" UseTextAlignment="false" />
             </Item4>
@@ -208,7 +208,7 @@
         </Item10>
         <Item11 Ref="118" ControlType="XRLabel" Name="label1" Text="label1" SizeF="400.499969,23" LocationFloat="12.00002, 14.0000029" Font="Arial, 12pt, style=Bold, charSet=0" ForeColor="Maroon" Padding="2,2,0,0,100">
           <ExpressionBindings>
-            <Item1 Ref="119" Expression="[Parameters].[CmpName]" PropertyName="Text" EventName="BeforePrint" />
+            <Item1 Ref="119" EventName="BeforePrint" PropertyName="Text" Expression="[Parameters].[CmpName]" />
           </ExpressionBindings>
           <StylePriority Ref="120" UseFont="false" UseForeColor="false" />
         </Item11>
@@ -216,8 +216,8 @@
     </Item7>
   </Bands>
   <ObjectStorage>
-    <Item1 ObjectType="DevExpress.XtraReports.Serialization.ObjectStorageInfo, DevExpress.XtraReports.v17.2" Ref="5" Content="System.DateTime" Type="System.Type" />
-    <Item2 ObjectType="DevExpress.XtraReports.Serialization.ObjectStorageInfo, DevExpress.XtraReports.v17.2" Ref="7" Content="System.Int32" Type="System.Type" />
-    <Item3 ObjectType="DevExpress.XtraReports.Serialization.ObjectStorageInfo, DevExpress.XtraReports.v17.2" Ref="0" Content="~Xtra#NULL" Type="System.Collections.Generic.List`1[[PayRunIOProcessReports.PSEmployee, PayRunIOProcessReports, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]" />
+    <Item1 ObjectType="DevExpress.XtraReports.Serialization.ObjectStorageInfo, DevExpress.XtraReports.v19.2" Ref="5" Content="System.DateTime" Type="System.Type" />
+    <Item2 ObjectType="DevExpress.XtraReports.Serialization.ObjectStorageInfo, DevExpress.XtraReports.v19.2" Ref="7" Content="System.Int32" Type="System.Type" />
+    <Item3 ObjectType="DevExpress.XtraReports.Serialization.ObjectStorageInfo, DevExpress.XtraReports.v19.2" Ref="0" Content="~Xtra#NULL" Type="System.Collections.Generic.List`1[[PayRunIOClassLibrary.RPEmployeePeriod, PayRunIOClassLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]" />
   </ObjectStorage>
 </XtraReportsLayoutSerializer>

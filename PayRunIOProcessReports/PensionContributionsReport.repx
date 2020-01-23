@@ -1,64 +1,64 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<XtraReportsLayoutSerializer SerializerVersion="17.2.5.0" Ref="1" ControlType="DevExpress.XtraReports.UI.XtraReport, DevExpress.XtraReports.v17.2, Version=17.2.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Name="PensionContributionsReport" DisplayName="PensionContributionsReport" Margins="15, 15, 0, 1" PaperKind="A4" PageWidth="827" PageHeight="1169" Version="17.2" DataSource="#Ref-0" Font="Arial, 9.75pt, charSet=0">
+<XtraReportsLayoutSerializer SerializerVersion="19.2.3.0" Ref="1" ControlType="DevExpress.XtraReports.UI.XtraReport, DevExpress.XtraReports.v19.2, Version=19.2.3.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Name="PensionContributionsReport" DisplayName="PensionContributionsReport" Margins="15, 15, 0, 1" PaperKind="A4" PageWidth="827" PageHeight="1169" Version="19.2" DataSource="#Ref-0" Font="Arial, 9.75pt, charSet=0">
   <Parameters>
-    <Item1 Ref="3" Description="Company name" ValueInfo="Mr Stephen and Rosemay Taylor" Name="CmpName" />
-    <Item2 Ref="4" Description="PAYE Reference" ValueInfo="120/FA88797" Name="PayeRef" />
-    <Item3 Ref="6" Description="Date" ValueInfo="2019-10-11" Name="Date" Type="#Ref-5" />
-    <Item4 Ref="8" Description="Tax Period" ValueInfo="27" Name="Period" Type="#Ref-7" />
+    <Item1 Ref="3" Description="Company name" ValueInfo="Dundonald Auto Engineering" Name="CmpName" />
+    <Item2 Ref="4" Description="PAYE Reference" ValueInfo="925/RA01937" Name="PayeRef" />
+    <Item3 Ref="6" Description="Date" ValueInfo="2020-01-09" Name="Date" Type="#Ref-5" />
+    <Item4 Ref="8" Description="Tax Period" ValueInfo="40" Name="Period" Type="#Ref-7" />
     <Item5 Ref="9" Description="Frequency" ValueInfo="Weekly" Name="Freq" />
-    <Item6 Ref="10" Description="PAYE Month" ValueInfo="7" Name="PAYEMonth" Type="#Ref-7" />
+    <Item6 Ref="10" Description="PAYE Month" ValueInfo="10" Name="PAYEMonth" Type="#Ref-7" />
   </Parameters>
   <Bands>
     <Item1 Ref="11" ControlType="DetailBand" Name="Detail" KeepTogetherWithDetailReports="true" HeightF="25.0000134" KeepTogether="true" TextAlignment="TopLeft" Padding="0,0,0,0,100">
       <SortFields>
-        <Item1 Ref="12" FieldName="Surname" />
+        <Item1 Ref="12" FieldName="SurnameForename" />
       </SortFields>
       <Controls>
         <Item1 Ref="13" ControlType="XRLabel" Name="label24" TextFormatString="{0:0.00;#.##}" Text="label24" TextAlignment="MiddleRight" SizeF="100,23" LocationFloat="483.958344, 2.000014" Padding="2,2,0,0,100">
           <ExpressionBindings>
-            <Item1 Ref="14" Expression="[PensionablePay]" PropertyName="Text" EventName="BeforePrint" />
+            <Item1 Ref="14" EventName="BeforePrint" PropertyName="Text" Expression="[PensionablePay]" />
           </ExpressionBindings>
           <StylePriority Ref="15" UseTextAlignment="false" />
         </Item1>
         <Item2 Ref="16" ControlType="XRLabel" Name="label29" TextFormatString="{0:0.00;#.##}" Text="label29" TextAlignment="MiddleRight" SizeF="72.2503052,23" LocationFloat="677.041565, 2.000014" Padding="2,2,0,0,100">
           <ExpressionBindings>
-            <Item1 Ref="17" Expression="[ErPensionTP]" PropertyName="Text" EventName="BeforePrint" />
+            <Item1 Ref="17" EventName="BeforePrint" PropertyName="Text" Expression="[ErPensionTP]" />
           </ExpressionBindings>
           <StylePriority Ref="18" UseTextAlignment="false" />
         </Item2>
         <Item3 Ref="19" ControlType="XRLabel" Name="label22" TextFormatString="{0:0.00;#.##}" Text="label22" TextAlignment="MiddleRight" SizeF="68.74963,23" LocationFloat="606.583557, 2.000014" Padding="2,2,0,0,100">
           <ExpressionBindings>
-            <Item1 Ref="20" Expression="[EePensionTP]" PropertyName="Text" EventName="BeforePrint" />
+            <Item1 Ref="20" EventName="BeforePrint" PropertyName="Text" Expression="[EePensionTP]" />
           </ExpressionBindings>
           <StylePriority Ref="21" UseTextAlignment="false" />
         </Item3>
         <Item4 Ref="22" ControlType="XRLabel" Name="label28" TextFormatString="{0:0.0000;#.####}" Text="label28" TextAlignment="MiddleRight" SizeF="45.50006,23" LocationFloat="433.375061, 0" Padding="2,2,0,0,100">
           <ExpressionBindings>
-            <Item1 Ref="23" Expression="[ErContributionPercent]" PropertyName="Text" EventName="BeforePrint" />
+            <Item1 Ref="23" EventName="BeforePrint" PropertyName="Text" Expression="[ErContributionPercent]" />
           </ExpressionBindings>
           <StylePriority Ref="24" UseTextAlignment="false" />
         </Item4>
         <Item5 Ref="25" ControlType="XRLabel" Name="label25" TextFormatString="{0:0.0000;#.####}" Text="label25" TextAlignment="MiddleRight" SizeF="46.416626,23" LocationFloat="385.958435, 0" Padding="2,2,0,0,100">
           <ExpressionBindings>
-            <Item1 Ref="26" Expression="[EeContributionPercent]" PropertyName="Text" EventName="BeforePrint" />
+            <Item1 Ref="26" EventName="BeforePrint" PropertyName="Text" Expression="[EeContributionPercent]" />
           </ExpressionBindings>
           <StylePriority Ref="27" UseTextAlignment="false" />
         </Item5>
         <Item6 Ref="28" ControlType="XRLabel" Name="label21" Text="label21" TextAlignment="MiddleLeft" SizeF="96.04172,23" LocationFloat="285.54184, 0" Padding="2,2,0,0,100">
           <ExpressionBindings>
-            <Item1 Ref="29" Expression="[NINumber]" PropertyName="Text" EventName="BeforePrint" />
+            <Item1 Ref="29" EventName="BeforePrint" PropertyName="Text" Expression="[NINumber]" />
           </ExpressionBindings>
           <StylePriority Ref="30" UseTextAlignment="false" />
         </Item6>
         <Item7 Ref="31" ControlType="XRLabel" Name="label17" Text="label17" TextAlignment="MiddleLeft" SizeF="147.916626,23" LocationFloat="54.9999, 2.000014" Padding="2,2,0,0,100">
           <ExpressionBindings>
-            <Item1 Ref="32" Expression="[Fullname]" PropertyName="Text" EventName="BeforePrint" />
+            <Item1 Ref="32" EventName="BeforePrint" PropertyName="Text" Expression="[Fullname]" />
           </ExpressionBindings>
           <StylePriority Ref="33" UseTextAlignment="false" />
         </Item7>
         <Item8 Ref="34" ControlType="XRLabel" Name="label16" Text="label16" TextAlignment="MiddleLeft" SizeF="48.0833244,23" LocationFloat="4, 2.000014" Padding="2,2,0,0,100">
           <ExpressionBindings>
-            <Item1 Ref="35" Expression="[Reference]" PropertyName="Text" EventName="BeforePrint" />
+            <Item1 Ref="35" EventName="BeforePrint" PropertyName="Text" Expression="[Reference]" />
           </ExpressionBindings>
           <StylePriority Ref="36" UseTextAlignment="false" />
         </Item8>
@@ -76,7 +76,7 @@
         </Item1>
         <Item2 Ref="43" ControlType="XRLabel" Name="label4" Text="label4" TextAlignment="MiddleLeft" SizeF="288.541565,23" LocationFloat="7.947286E-05, 0" Font="Arial, 9.75pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
           <ExpressionBindings>
-            <Item1 Ref="44" Expression="[PensionCode]" PropertyName="Text" EventName="BeforePrint" />
+            <Item1 Ref="44" EventName="BeforePrint" PropertyName="Text" Expression="[PensionCode]" />
           </ExpressionBindings>
           <StylePriority Ref="45" UseFont="false" UseTextAlignment="false" />
         </Item2>
@@ -87,7 +87,7 @@
         <Item1 Ref="47" ControlType="XRLabel" Name="label33" TextFormatString="{0:0.00;#.##}" Text="label24" TextAlignment="MiddleRight" SizeF="100.000061,23.0000019" LocationFloat="483.958344, 14.7916794" Padding="2,2,0,0,100">
           <Summary Ref="48" Running="Group" />
           <ExpressionBindings>
-            <Item1 Ref="49" Expression="sumSum([PensionablePay])" PropertyName="Text" EventName="BeforePrint" />
+            <Item1 Ref="49" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([PensionablePay])" />
           </ExpressionBindings>
           <StylePriority Ref="50" UseTextAlignment="false" />
         </Item1>
@@ -100,14 +100,14 @@
         <Item4 Ref="55" ControlType="XRLabel" Name="label30" TextFormatString="{0:0.00;#.##}" Text="label30" TextAlignment="MiddleRight" SizeF="72.2503052,23" LocationFloat="677.041565, 14.7916794" Padding="2,2,0,0,100">
           <Summary Ref="56" Running="Group" />
           <ExpressionBindings>
-            <Item1 Ref="57" Expression="sumSum([ErPensionTP])" PropertyName="Text" EventName="BeforePrint" />
+            <Item1 Ref="57" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([ErPensionTP])" />
           </ExpressionBindings>
           <StylePriority Ref="58" UseTextAlignment="false" />
         </Item4>
         <Item5 Ref="59" ControlType="XRLabel" Name="label23" TextFormatString="{0:0.00;#.##}" Text="label23" TextAlignment="MiddleRight" SizeF="68.75,23" LocationFloat="608.2915, 14.7916794" Padding="2,2,0,0,100">
           <Summary Ref="60" Running="Group" />
           <ExpressionBindings>
-            <Item1 Ref="61" Expression="sumSum([EePensionTP])" PropertyName="Text" EventName="BeforePrint" />
+            <Item1 Ref="61" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([EePensionTP])" />
           </ExpressionBindings>
           <StylePriority Ref="62" UseTextAlignment="false" />
         </Item5>
@@ -139,21 +139,21 @@
         <Item7 Ref="78" ControlType="XRLabel" Name="label34" TextFormatString="{0:0.00;#.##}" Text="label24" TextAlignment="MiddleRight" SizeF="100.000031,23.0000038" LocationFloat="483.958344, 68.70836" Font="Arial, 9.75pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
           <Summary Ref="79" Running="Report" />
           <ExpressionBindings>
-            <Item1 Ref="80" Expression="sumSum([PensionablePay])" PropertyName="Text" EventName="BeforePrint" />
+            <Item1 Ref="80" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([PensionablePay])" />
           </ExpressionBindings>
           <StylePriority Ref="81" UseFont="false" UseTextAlignment="false" />
         </Item7>
         <Item8 Ref="82" ControlType="XRLabel" Name="label32" TextFormatString="{0:0.00;#.##}" Text="label23" TextAlignment="MiddleRight" SizeF="68.75,23.0000038" LocationFloat="606.5832, 68.70836" Font="Arial, 9.75pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
           <Summary Ref="83" Running="Report" />
           <ExpressionBindings>
-            <Item1 Ref="84" Expression="sumSum([EePensionTP])" PropertyName="Text" EventName="BeforePrint" />
+            <Item1 Ref="84" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([EePensionTP])" />
           </ExpressionBindings>
           <StylePriority Ref="85" UseFont="false" UseTextAlignment="false" />
         </Item8>
         <Item9 Ref="86" ControlType="XRLabel" Name="label31" TextFormatString="{0:0.00;#.##}" Text="label30" TextAlignment="MiddleRight" SizeF="72.2503052,23.0000019" LocationFloat="677.041565, 68.708374" Font="Arial, 9.75pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
           <Summary Ref="87" Running="Report" />
           <ExpressionBindings>
-            <Item1 Ref="88" Expression="sumSum([ErPensionTP])" PropertyName="Text" EventName="BeforePrint" />
+            <Item1 Ref="88" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([ErPensionTP])" />
           </ExpressionBindings>
           <StylePriority Ref="89" UseFont="false" UseTextAlignment="false" />
         </Item9>
@@ -197,25 +197,25 @@
           <Controls>
             <Item1 Ref="114" ControlType="XRLabel" Name="label27" Text="label27" TextAlignment="MiddleLeft" SizeF="85.79185,22.9999771" LocationFloat="117.083611, 84.70834" Padding="2,2,0,0,100" Borders="None">
               <ExpressionBindings>
-                <Item1 Ref="115" Expression="[Parameters].[PAYEMonth]" PropertyName="Text" EventName="BeforePrint" />
+                <Item1 Ref="115" EventName="BeforePrint" PropertyName="Text" Expression="[Parameters].[PAYEMonth]" />
               </ExpressionBindings>
               <StylePriority Ref="116" UseBorders="false" UseTextAlignment="false" />
             </Item1>
             <Item2 Ref="117" ControlType="XRLabel" Name="label26" Text="label26" TextAlignment="MiddleLeft" SizeF="85.79172,23" LocationFloat="117.08342, 15.625" Padding="2,2,0,0,100" Borders="None">
               <ExpressionBindings>
-                <Item1 Ref="118" Expression="[Parameters].[Freq]" PropertyName="Text" EventName="BeforePrint" />
+                <Item1 Ref="118" EventName="BeforePrint" PropertyName="Text" Expression="[Parameters].[Freq]" />
               </ExpressionBindings>
               <StylePriority Ref="119" UseBorders="false" UseTextAlignment="false" />
             </Item2>
             <Item3 Ref="120" ControlType="XRLabel" Name="label15" Text="label15" TextAlignment="MiddleLeft" SizeF="85.79171,23.0000076" LocationFloat="117.083549, 38.625" Padding="2,2,0,0,100" Borders="None">
               <ExpressionBindings>
-                <Item1 Ref="121" Expression="[Parameters].[Period]" PropertyName="Text" EventName="BeforePrint" />
+                <Item1 Ref="121" EventName="BeforePrint" PropertyName="Text" Expression="[Parameters].[Period]" />
               </ExpressionBindings>
               <StylePriority Ref="122" UseBorders="false" UseTextAlignment="false" />
             </Item3>
             <Item4 Ref="123" ControlType="XRLabel" Name="label14" TextFormatString="{0:d MMM yyyy}" Text="label14" TextAlignment="MiddleLeft" SizeF="85.79171,23.0000038" LocationFloat="117.083549, 61.6250038" Padding="2,2,0,0,100" Borders="None">
               <ExpressionBindings>
-                <Item1 Ref="124" Expression="[Parameters].[Date]" PropertyName="Text" EventName="BeforePrint" />
+                <Item1 Ref="124" EventName="BeforePrint" PropertyName="Text" Expression="[Parameters].[Date]" />
               </ExpressionBindings>
               <StylePriority Ref="125" UseBorders="false" UseTextAlignment="false" />
             </Item4>
@@ -239,7 +239,7 @@
         </Item13>
         <Item14 Ref="137" ControlType="XRLabel" Name="label1" Text="label1" SizeF="424.833252,23" LocationFloat="19.5416775, 14.9999933" Font="Arial, 14.25pt, style=Bold, charSet=0" ForeColor="Maroon" Padding="2,2,0,0,100">
           <ExpressionBindings>
-            <Item1 Ref="138" Expression="[Parameters].[CmpName]" PropertyName="Text" EventName="BeforePrint" />
+            <Item1 Ref="138" EventName="BeforePrint" PropertyName="Text" Expression="[Parameters].[CmpName]" />
           </ExpressionBindings>
           <StylePriority Ref="139" UseFont="false" UseForeColor="false" />
         </Item14>
@@ -247,8 +247,8 @@
     </Item8>
   </Bands>
   <ObjectStorage>
-    <Item1 ObjectType="DevExpress.XtraReports.Serialization.ObjectStorageInfo, DevExpress.XtraReports.v17.2" Ref="5" Content="System.DateTime" Type="System.Type" />
-    <Item2 ObjectType="DevExpress.XtraReports.Serialization.ObjectStorageInfo, DevExpress.XtraReports.v17.2" Ref="7" Content="System.Int32" Type="System.Type" />
-    <Item3 ObjectType="DevExpress.XtraReports.Serialization.ObjectStorageInfo, DevExpress.XtraReports.v17.2" Ref="0" Content="~Xtra#NULL" Type="System.Collections.Generic.List`1[[PayRunIOProcessReports.PSEmployee, PayRunIOProcessReports, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]" />
+    <Item1 ObjectType="DevExpress.XtraReports.Serialization.ObjectStorageInfo, DevExpress.XtraReports.v19.2" Ref="5" Content="System.DateTime" Type="System.Type" />
+    <Item2 ObjectType="DevExpress.XtraReports.Serialization.ObjectStorageInfo, DevExpress.XtraReports.v19.2" Ref="7" Content="System.Int32" Type="System.Type" />
+    <Item3 ObjectType="DevExpress.XtraReports.Serialization.ObjectStorageInfo, DevExpress.XtraReports.v19.2" Ref="0" Content="~Xtra#NULL" Type="System.Collections.Generic.List`1[[PayRunIOClassLibrary.RPEmployeePeriod, PayRunIOClassLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]" />
   </ObjectStorage>
 </XtraReportsLayoutSerializer>
