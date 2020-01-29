@@ -16,6 +16,12 @@ namespace PayRunIOProcessReports
         //Changed by Jim. 29/1/2020 10:17
         public Form1()
         {
+            int j = 0;
+            for(int i=0;i<15;i++)
+            {
+                j = i;
+            }
+            MessageBox.Show("J=" + j);
             InitializeComponent();
         }
 
