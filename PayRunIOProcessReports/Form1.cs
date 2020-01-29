@@ -12,6 +12,7 @@ namespace PayRunIOProcessReports
 {
     public partial class Form1 : DevExpress.XtraEditors.XtraForm
     {
+        //Changed by Jim. 29/1/2020 10:17
         public Form1()
         {
             InitializeComponent();
