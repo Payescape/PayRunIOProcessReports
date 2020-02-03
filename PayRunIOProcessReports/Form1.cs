@@ -7,7 +7,6 @@ using System.Xml;
 using PicoXLSX;
 using PayRunIOClassLibrary;
 using System.Globalization;
-using System.Windows.Forms;
 
 namespace PayRunIOProcessReports
 {
@@ -16,13 +15,7 @@ namespace PayRunIOProcessReports
         //Changed by Jim. 29/1/2020 10:17
         public Form1()
         {
-            int j = 0;
-            for(int i=0;i<15;i++)
-            {
-                j = i;
-            }
-            MessageBox.Show("J=" + j);
-            InitializeComponent();
+           InitializeComponent();
         }
 
         private void btnProduceReports_Click(object sender, EventArgs e)
@@ -839,72 +832,6 @@ namespace PayRunIOProcessReports
             //Save the workbook.
             workbook.Save();
         }
-        //private void CreateXLSXWorkbook()
-        //{
-        //    //Create a list of the required columns.
-        //    List <string> reqCol = new List<string>();
-        //    reqCol.Add("EeRef");
-        //    reqCol.Add("Name");
-        //    reqCol.Add("Dept");
-        //    reqCol.Add("CostCentre");
-        //    reqCol.Add("Branch");
-        //    reqCol.Add("Status");
-        //    reqCol.Add("TaxCode");
-        //    reqCol.Add("NILetter");
-        //    reqCol.Add("PreTaxAddDed");
-        //    reqCol.Add("GrossedUpTaxThisRun");
-        //    reqCol.Add("EeNIPdByEr");
-        //    reqCol.Add("GUStudentLoan");
-        //    reqCol.Add("GUNIReduction");
-        //    reqCol.Add("PenPreTaxEeGU");
-        //    reqCol.Add("TotalAbsencePay");
-        //    reqCol.Add("HolidayPay");
-        //    reqCol.Add("PenPreTaxEe");
-        //    reqCol.Add("TaxablePay");
-        //    reqCol.Add("Tax");
-        //    reqCol.Add("NI");
-        //    reqCol.Add("PostTaxAddDed");
-        //    reqCol.Add("PostTaxPension");
-        //    reqCol.Add("AEO");
-        //    reqCol.Add("StudentLoan");
-        //    reqCol.Add("NetPay");
-        //    reqCol.Add("ErNI");
-        //    reqCol.Add("PenEr");
-        //    reqCol.Add("TotalGrossUp");
-
-            
-        //    //Need to count how many columns we are going to need
-        //    string[] headings = new string[51] { "EeRef", "Name", "Dept","CostCentre", "Branch", "Status", "TaxCode", "NILetter", "PreTaxAddDed",
-        //                                         "GrossedUpTaxThisRun", "EeNIPdByEr", "GUStudentLoan", "GUNIReduction", "PenPreTaxEeGU", "TotalAbsencePay",
-        //                                         "HolidayPay", "PenPreTaxEe", "TaxablePay", "Tax", "NI", "PostTaxAddDed", "PostTaxPension", "AEO",
-        //                                         "StudentLoan", "NetPay", "ErNI", "PenEr", "TotalGrossUp", "SSP", "SMP", "SAP", "SPPA", "SPPB", "ASPPA",
-        //                                         "ASPPB", "ShPPA", "ShPPB", "TotalNICs", "TotalPens", "BIK", "BasicPay", "PerformanceRelatedPay",
-        //                                         "Salary(£)", "HolidayHours", "OverPayment(£)", "Bonus", "CycleToWorkScheme(£)", "HattonGroupScheme(Er)",
-        //                                         "HattonGroupScheme", "CCAEO", "DEA"};
-        //    string[] columns = new string[51] { "E1234", "Jim Borland", "Automation","Software Developer", "Dromore", "Calc", "1238L", "A", "432.10",
-        //                                         "32.10", "12.34", "12.35", "12.36", "12.37", "12.38",
-        //                                         "12.39", "12.40", "12.41", "12.42", "12.43", "12.44", "12.45", "12.46",
-        //                                         "12.47", "12.48", "12.49", "12.50", "12.51", "12.52", "12.53", "12.54", "12.55", "12.56", "12.57",
-        //                                         "12.58", "12.59", "12.60", "12.61", "12.62", "12.63", "12.64", "12.65",
-        //                                         "12.66", "12.67", "12.68", "12.69", "12.70", "12.71",
-        //                                         "12.72", "12.73", "12.74"};
-        //    //Create a workbook.
-        //    Workbook workbook = new Workbook("X:\\Payescape\\PayRunIO\\PreSample.xlsx", "Pre Sample");
-        //    //Write the headings.
-        //    foreach(string heading in headings)
-        //    {
-        //        workbook.CurrentWorksheet.AddNextCell(heading);
-        //    }
-        //    //Move to the next row.
-        //    workbook.CurrentWorksheet.GoToNextRow();
-        //    //Now create a sample data line.
-        //    foreach (string column in columns)
-        //    {
-        //        workbook.CurrentWorksheet.AddNextCell(column);
-        //    }
-        //    //Save the workbook.
-        //    workbook.Save();
-        //}
         private void CreatePreSampleXLSX(XDocument xdoc, List<RPEmployeePeriod> rpEmployeePeriodList,
                                        RPEmployer rpEmployer, RPParameters rpParameters, List<RPPreSamplePayCode> rpPreSamplePayCodes)
         {
