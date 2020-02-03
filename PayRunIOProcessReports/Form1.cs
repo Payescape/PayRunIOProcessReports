@@ -708,7 +708,7 @@ namespace PayRunIOProcessReports
                     if(rpEmployer.P32Required)
                     {
                         RPP32SummaryReport rpP32SummaryReport = CreateP32Report(xdoc, rpEmployer, rpParameters);
-                        prWG.PrintP32Report(xdoc, rpP32SummaryReport);
+                        prWG.PrintP32Report(xdoc, rpP32SummaryReport, rpParameters);
                     }
                 }
                 else if (file.FullName.Contains("EmployeeYtd"))
