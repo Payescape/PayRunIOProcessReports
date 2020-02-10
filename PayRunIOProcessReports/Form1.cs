@@ -49,7 +49,7 @@ namespace PayRunIOProcessReports
 
             Close();
 
-            string masterChange = "Master Change";
+            
         }
         private void ProcessReportsFromPayRunIO(XDocument xdoc)
         {
