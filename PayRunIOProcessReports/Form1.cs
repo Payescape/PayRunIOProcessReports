@@ -48,6 +48,8 @@ namespace PayRunIOProcessReports
             ProcessReportsFromPayRunIO(xdoc);
 
             Close();
+
+            string masterChange = "Master Change";
         }
         private void ProcessReportsFromPayRunIO(XDocument xdoc)
         {
