@@ -51,6 +51,8 @@ namespace PayRunIOProcessReports
 
             string change = "Change";
             string change1 = "change1";
+            string change2 = "Change2";
+            string change3 = "change3";
         }
         private void ProcessReportsFromPayRunIO(XDocument xdoc)
         {
