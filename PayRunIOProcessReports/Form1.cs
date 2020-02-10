@@ -50,6 +50,7 @@ namespace PayRunIOProcessReports
             Close();
 
             string change = "Change";
+            string change1 = "change1";
         }
         private void ProcessReportsFromPayRunIO(XDocument xdoc)
         {
