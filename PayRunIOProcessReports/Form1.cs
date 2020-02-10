@@ -705,11 +705,11 @@ namespace PayRunIOProcessReports
                         textLine = string.Format("Error producing the employee period reports for file {0}.\r\n{1}.\r\n", file, ex);
                         prWG.update_Progress(textLine, configDirName, logOneIn);
                     } 
-                    if(rpEmployer.P32Required)
-                    {
-                        RPP32SummaryReport rpP32SummaryReport = CreateP32Report(xdoc, rpEmployer, rpParameters);
-                        prWG.PrintP32Report(xdoc, rpP32SummaryReport, rpParameters);
-                    }
+                    //if(rpEmployer.P32Required)
+                    //{
+                    //    RPP32SummaryReport rpP32SummaryReport = CreateP32Report(xdoc, rpEmployer, rpParameters);
+                    //    prWG.PrintP32Report(xdoc, rpP32SummaryReport, rpParameters);
+                    //}
                 }
                 else if (file.FullName.Contains("EmployeeYtd"))
                 {
