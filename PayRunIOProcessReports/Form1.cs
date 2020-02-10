@@ -48,6 +48,8 @@ namespace PayRunIOProcessReports
             ProcessReportsFromPayRunIO(xdoc);
 
             Close();
+
+           
         }
         private void ProcessReportsFromPayRunIO(XDocument xdoc)
         {
@@ -159,7 +161,7 @@ namespace PayRunIOProcessReports
             int logOneIn = Convert.ToInt32(xdoc.Root.Element("LogOneIn").Value);
             string configDirName = xdoc.Root.Element("SoftwareHomeFolder").Value;
             PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
-
+            
             List<RPEmployeePeriod> rpEmployeePeriodList = new List<RPEmployeePeriod>();
             List<P45> p45s = new List<P45>();
             //Create a list of Pay Code totals for the Payroll Component Analysis report
@@ -284,15 +286,30 @@ namespace PayRunIOProcessReports
                         rpEmployeePeriod.TaxablePayYTD = prWG.GetDecimalElementByTagFromXml(employee, "TaxablePayThisYTD") + prWG.GetDecimalElementByTagFromXml(employee, "TaxablePayPrevious");
                         rpEmployeePeriod.TaxablePayTP = prWG.GetDecimalElementByTagFromXml(employee, "TaxablePayThisPeriod");
                         rpEmployeePeriod.HolidayAccruedTd = prWG.GetDecimalElementByTagFromXml(employee, "HolidayAccruedTd");
-                        rpEmployeePeriod.ErPensionYTD = prWG.GetDecimalElementByTagFromXml(employee, "ErPensionYTD");
-                        rpEmployeePeriod.EePensionYTD = prWG.GetDecimalElementByTagFromXml(employee, "EePensionYTD");
-                        rpEmployeePeriod.ErPensionTP = prWG.GetDecimalElementByTagFromXml(employee, "ErPensionTaxPeriod");
-                        rpEmployeePeriod.EePensionTP = prWG.GetDecimalElementByTagFromXml(employee, "EePensionTaxPeriod");
-                        rpEmployeePeriod.ErContributionPercent = prWG.GetDecimalElementByTagFromXml(employee, "ErContributionPercent") * 100;
-                        rpEmployeePeriod.EeContributionPercent = prWG.GetDecimalElementByTagFromXml(employee, "EeContributionPercent") * 100;
-                        rpEmployeePeriod.PensionablePay = prWG.GetDecimalElementByTagFromXml(employee, "PensionablePay");
-                        rpEmployeePeriod.ErPensionPayRunDate = Convert.ToDateTime(prWG.GetDateElementByTagFromXml(employee, "ErPensionPayRunDate"));
-                        rpEmployeePeriod.EePensionPayRunDate = Convert.ToDateTime(prWG.GetDateElementByTagFromXml(employee, "EePensionPayRunDate"));
+
+                        List<RPPensionPeriod> rpPensionsPeriod = new List<RPPensionPeriod>();
+                        foreach (XmlElement pension in employee.GetElementsByTagName("Pension"))
+                        {
+                            RPPensionPeriod rpPensionPeriod = new RPPensionPeriod();
+                            rpPensionPeriod.Key = Convert.ToInt32(pension.GetAttribute("Key"));
+                            rpPensionPeriod.Code = prWG.GetElementByTagFromXml(pension, "Code");
+                            rpPensionPeriod.SchemeName = prWG.GetElementByTagFromXml(pension, "SchemeName");
+                            rpPensionPeriod.EePensionYtd = prWG.GetDecimalElementByTagFromXml(pension, "EePensionYtd");
+                            rpPensionPeriod.ErPensionYtd = prWG.GetDecimalElementByTagFromXml(pension, "ErPensionYtd");
+                            rpPensionPeriod.PensionablePayYtd = prWG.GetDecimalElementByTagFromXml(pension, "PensionablePayYtd");
+                            rpPensionPeriod.EePensionTaxPeriod = prWG.GetDecimalElementByTagFromXml(pension, "EePensionTaxPeriod");
+                            rpPensionPeriod.ErPensionTaxPeriod = prWG.GetDecimalElementByTagFromXml(pension, "ErPensionTaxPeriod");
+                            rpPensionPeriod.PensionablePayTaxPeriod = prWG.GetDecimalElementByTagFromXml(pension, "PensionablePayTaxPeriod");
+                            rpPensionPeriod.EePensionPayRunDate = prWG.GetDecimalElementByTagFromXml(pension, "EePensionPayRunDate");
+                            rpPensionPeriod.ErPensionPayRunDate = prWG.GetDecimalElementByTagFromXml(pension, "ErPensionPayRunDate");
+                            rpPensionPeriod.PensionablePayPayRunDate = prWG.GetDecimalElementByTagFromXml(pension, "PensionablePayDate");
+                            rpPensionPeriod.EeContibutionPercent = prWG.GetDecimalElementByTagFromXml(pension, "EeContributionPercent");
+                            rpPensionPeriod.ErContributionPercent = prWG.GetDecimalElementByTagFromXml(pension, "ErContributionPercent");
+
+                            rpPensionsPeriod.Add(rpPensionPeriod);
+                        }
+                        rpEmployeePeriod.Pensions = rpPensionsPeriod;
+
                         rpEmployeePeriod.DirectorshipAppointmentDate = Convert.ToDateTime(prWG.GetDateElementByTagFromXml(employee, "DirectorshipAppointmentDate"));
                         rpEmployeePeriod.Director = prWG.GetBooleanElementByTagFromXml(employee, "Director");
                         rpEmployeePeriod.EeContributionsTaxPeriodPt1 = prWG.GetDecimalElementByTagFromXml(employee, "EeContributionTaxPeriodPt1");
@@ -1080,7 +1097,13 @@ namespace PayRunIOProcessReports
             workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.StudentLoan);
             workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.NetPayTP);
             workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.ErNICTP);
-            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.ErPensionTP);
+
+            decimal erPensionTP = 0;
+            foreach(RPPensionPeriod pensionPeriod in rpEmployeePeriod.Pensions)
+            {
+                erPensionTP = erPensionTP + pensionPeriod.ErPensionTaxPeriod;
+            }
+            workbook.CurrentWorksheet.AddNextCell(erPensionTP);
             workbook.CurrentWorksheet.AddNextCell(0.00);//TotalGrossUP
             
             return workbook;
