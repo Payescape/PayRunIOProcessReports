@@ -7,12 +7,12 @@ using System.Xml;
 using PicoXLSX;
 using PayRunIOClassLibrary;
 using System.Globalization;
+using System.Reflection;
 
 namespace PayRunIOProcessReports
 {
     public partial class Form1 : DevExpress.XtraEditors.XtraForm
     {
-        //Changed by Jim. 29/1/2020 10:17
         public Form1()
         {
            InitializeComponent();
@@ -49,10 +49,6 @@ namespace PayRunIOProcessReports
 
             Close();
 
-            string change = "Change";
-            string change1 = "change1";
-            string change2 = "Change2";
-            string change3 = "change3";
         }
         private void ProcessReportsFromPayRunIO(XDocument xdoc)
         {
@@ -164,7 +160,7 @@ namespace PayRunIOProcessReports
             int logOneIn = Convert.ToInt32(xdoc.Root.Element("LogOneIn").Value);
             string configDirName = xdoc.Root.Element("SoftwareHomeFolder").Value;
             PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
-
+            
             List<RPEmployeePeriod> rpEmployeePeriodList = new List<RPEmployeePeriod>();
             List<P45> p45s = new List<P45>();
             //Create a list of Pay Code totals for the Payroll Component Analysis report
@@ -289,15 +285,30 @@ namespace PayRunIOProcessReports
                         rpEmployeePeriod.TaxablePayYTD = prWG.GetDecimalElementByTagFromXml(employee, "TaxablePayThisYTD") + prWG.GetDecimalElementByTagFromXml(employee, "TaxablePayPrevious");
                         rpEmployeePeriod.TaxablePayTP = prWG.GetDecimalElementByTagFromXml(employee, "TaxablePayThisPeriod");
                         rpEmployeePeriod.HolidayAccruedTd = prWG.GetDecimalElementByTagFromXml(employee, "HolidayAccruedTd");
-                        rpEmployeePeriod.ErPensionYTD = prWG.GetDecimalElementByTagFromXml(employee, "ErPensionYTD");
-                        rpEmployeePeriod.EePensionYTD = prWG.GetDecimalElementByTagFromXml(employee, "EePensionYTD");
-                        rpEmployeePeriod.ErPensionTP = prWG.GetDecimalElementByTagFromXml(employee, "ErPensionTaxPeriod");
-                        rpEmployeePeriod.EePensionTP = prWG.GetDecimalElementByTagFromXml(employee, "EePensionTaxPeriod");
-                        rpEmployeePeriod.ErContributionPercent = prWG.GetDecimalElementByTagFromXml(employee, "ErContributionPercent") * 100;
-                        rpEmployeePeriod.EeContributionPercent = prWG.GetDecimalElementByTagFromXml(employee, "EeContributionPercent") * 100;
-                        rpEmployeePeriod.PensionablePay = prWG.GetDecimalElementByTagFromXml(employee, "PensionablePay");
-                        rpEmployeePeriod.ErPensionPayRunDate = Convert.ToDateTime(prWG.GetDateElementByTagFromXml(employee, "ErPensionPayRunDate"));
-                        rpEmployeePeriod.EePensionPayRunDate = Convert.ToDateTime(prWG.GetDateElementByTagFromXml(employee, "EePensionPayRunDate"));
+
+                        List<RPPensionPeriod> rpPensionsPeriod = new List<RPPensionPeriod>();
+                        foreach (XmlElement pension in employee.GetElementsByTagName("Pension"))
+                        {
+                            RPPensionPeriod rpPensionPeriod = new RPPensionPeriod();
+                            rpPensionPeriod.Key = Convert.ToInt32(pension.GetAttribute("Key"));
+                            rpPensionPeriod.Code = prWG.GetElementByTagFromXml(pension, "Code");
+                            rpPensionPeriod.SchemeName = prWG.GetElementByTagFromXml(pension, "SchemeName");
+                            rpPensionPeriod.EePensionYtd = prWG.GetDecimalElementByTagFromXml(pension, "EePensionYtd");
+                            rpPensionPeriod.ErPensionYtd = prWG.GetDecimalElementByTagFromXml(pension, "ErPensionYtd");
+                            rpPensionPeriod.PensionablePayYtd = prWG.GetDecimalElementByTagFromXml(pension, "PensionablePayYtd");
+                            rpPensionPeriod.EePensionTaxPeriod = prWG.GetDecimalElementByTagFromXml(pension, "EePensionTaxPeriod");
+                            rpPensionPeriod.ErPensionTaxPeriod = prWG.GetDecimalElementByTagFromXml(pension, "ErPensionTaxPeriod");
+                            rpPensionPeriod.PensionablePayTaxPeriod = prWG.GetDecimalElementByTagFromXml(pension, "PensionablePayTaxPeriod");
+                            rpPensionPeriod.EePensionPayRunDate = prWG.GetDecimalElementByTagFromXml(pension, "EePensionPayRunDate");
+                            rpPensionPeriod.ErPensionPayRunDate = prWG.GetDecimalElementByTagFromXml(pension, "ErPensionPayRunDate");
+                            rpPensionPeriod.PensionablePayPayRunDate = prWG.GetDecimalElementByTagFromXml(pension, "PensionablePayDate");
+                            rpPensionPeriod.EeContibutionPercent = prWG.GetDecimalElementByTagFromXml(pension, "EeContributionPercent");
+                            rpPensionPeriod.ErContributionPercent = prWG.GetDecimalElementByTagFromXml(pension, "ErContributionPercent");
+
+                            rpPensionsPeriod.Add(rpPensionPeriod);
+                        }
+                        rpEmployeePeriod.Pensions = rpPensionsPeriod;
+
                         rpEmployeePeriod.DirectorshipAppointmentDate = Convert.ToDateTime(prWG.GetDateElementByTagFromXml(employee, "DirectorshipAppointmentDate"));
                         rpEmployeePeriod.Director = prWG.GetBooleanElementByTagFromXml(employee, "Director");
                         rpEmployeePeriod.EeContributionsTaxPeriodPt1 = prWG.GetDecimalElementByTagFromXml(employee, "EeContributionTaxPeriodPt1");
@@ -710,7 +721,11 @@ namespace PayRunIOProcessReports
                         textLine = string.Format("Error producing the employee period reports for file {0}.\r\n{1}.\r\n", file, ex);
                         prWG.update_Progress(textLine, configDirName, logOneIn);
                     } 
-
+                    //if(rpEmployer.P32Required)
+                    //{
+                    //    RPP32SummaryReport rpP32SummaryReport = CreateP32Report(xdoc, rpEmployer, rpParameters);
+                    //    prWG.PrintP32Report(xdoc, rpP32SummaryReport, rpParameters);
+                    //}
                 }
                 else if (file.FullName.Contains("EmployeeYtd"))
                 {
@@ -757,19 +772,140 @@ namespace PayRunIOProcessReports
             List<RPPreSamplePayCode> rpPreSamplePayCodes = tuple.Item4;
             RPEmployer rpEmployer = tuple.Item5;
             rpParameters = tuple.Item6;
-            //Test for 2 decimal place Units
-            //foreach (RPEmployeePeriod rpEmployeePeriod in rpEmployeePeriodList)
-            //{
-            //    foreach (RPAddition rpAddition in rpEmployeePeriod.Additions)
-            //    {
-            //        rpAddition.Units = 12.3446m;
-            //    }
-            //}
-
+            
             return new Tuple<List<RPEmployeePeriod>, List<RPPayComponent>, List<P45>, List<RPPreSamplePayCode>, RPEmployer, RPParameters>(rpEmployeePeriodList, rpPayComponents, p45s, rpPreSamplePayCodes, rpEmployer, rpParameters);
 
         }
-        public void CreatePreSampleXLSX(XDocument xdoc, List<RPEmployeePeriod> rpEmployeePeriodList, RPEmployer rpEmployer, RPParameters rpParameters)
+        private RPP32SummaryReport CreateP32Report(XDocument xdoc, RPEmployer rpEmplopyer, RPParameters rpParameters)
+        {
+            RPP32SummaryReport rpP32SummaryReport = null;
+            PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
+
+            XmlDocument p32SumReport = prWG.GetP32SumReport(rpParameters);
+            rpP32SummaryReport = PrepareP32SummaryReport(xdoc, p32SumReport, rpParameters, prWG);
+
+            return rpP32SummaryReport;
+        }
+        private RPP32SummaryReport PrepareP32SummaryReport(XDocument xdoc, XmlDocument p32SumReport, RPParameters rpParameters, PayRunIOWebGlobeClass prWG)
+        {
+            RPP32SummaryReport rpP32SummaryReport = new RPP32SummaryReport();
+            foreach (XmlElement header in p32SumReport.GetElementsByTagName("Header"))
+            {
+                rpP32SummaryReport.EmployerName = prWG.GetElementByTagFromXml(header, "EmployerName");
+                rpP32SummaryReport.EmployerPayeRef = prWG.GetElementByTagFromXml(header, "EmployerPayeRef");
+                rpP32SummaryReport.PaymentRef = prWG.GetElementByTagFromXml(header, "PaymentRef");
+                rpP32SummaryReport.TaxYear = prWG.GetIntElementByTagFromXml(header, "TaxYear");
+                rpP32SummaryReport.TaxYearStartDate = Convert.ToDateTime(prWG.GetDateElementByTagFromXml(header, "TaxYearStartDate"));
+                rpP32SummaryReport.TaxYearEndDate = Convert.ToDateTime(prWG.GetDateElementByTagFromXml(header, "TaxYearEndDate"));
+            }
+            bool addToList = false;
+            bool annualTotalRequired = false;
+            List<RPP32Period> rpP32Periods = new List<RPP32Period>();
+            foreach(XmlElement reportMonth in p32SumReport.GetElementsByTagName("ReportMonth"))
+            {
+                RPP32Period rpP32Period = new RPP32Period();
+                rpP32Period.PeriodNo = Convert.ToInt32(reportMonth.GetAttribute("Period"));
+                rpP32Period.PeriodName = reportMonth.GetAttribute("RootNodeName");
+                rpP32Period.Tax = prWG.GetDecimalElementByTagFromXml(reportMonth, "Tax");
+                rpP32Period.StudentLoan = prWG.GetDecimalElementByTagFromXml(reportMonth, "StudentLoan");
+                rpP32Period.PostGraduateLoan = prWG.GetDecimalElementByTagFromXml(reportMonth, "PostGraduateLoan");
+                rpP32Period.NetTax = prWG.GetDecimalElementByTagFromXml(reportMonth, "NetTax");
+                rpP32Period.EmployerNI = prWG.GetDecimalElementByTagFromXml(reportMonth, "EmployerNI");
+                rpP32Period.EmployeeNI = prWG.GetDecimalElementByTagFromXml(reportMonth, "EmployeeNI");
+                rpP32Period.GrossNICs = prWG.GetDecimalElementByTagFromXml(reportMonth, "GrossNICs");
+                rpP32Period.SmpRecovered = prWG.GetDecimalElementByTagFromXml(reportMonth, "SmpRecovered");
+                rpP32Period.SmpComp = prWG.GetDecimalElementByTagFromXml(reportMonth, "SmpComp");
+                rpP32Period.SppRecovered = prWG.GetDecimalElementByTagFromXml(reportMonth, "SppRecovered");
+                rpP32Period.SppComp = prWG.GetDecimalElementByTagFromXml(reportMonth, "SppComp");
+                rpP32Period.ShppRecovered = prWG.GetDecimalElementByTagFromXml(reportMonth, "ShppRecovered");
+                rpP32Period.ShppComp = prWG.GetDecimalElementByTagFromXml(reportMonth, "ShppComp");
+                rpP32Period.SapRecovered = prWG.GetDecimalElementByTagFromXml(reportMonth, "SapRecovered");
+                rpP32Period.SapComp = prWG.GetDecimalElementByTagFromXml(reportMonth, "SapComp");
+                rpP32Period.CisDeducted = prWG.GetDecimalElementByTagFromXml(reportMonth, "CisDeducted");
+                rpP32Period.CisSuffered = prWG.GetDecimalElementByTagFromXml(reportMonth, "CisSuffered");
+                rpP32Period.NetNICs = prWG.GetDecimalElementByTagFromXml(reportMonth, "NetNICs");
+                rpP32Period.EmploymentAllowance = prWG.GetDecimalElementByTagFromXml(reportMonth, "EmploymentAllowance");
+                rpP32Period.AmountDue = prWG.GetDecimalElementByTagFromXml(reportMonth, "AmountDue");
+                rpP32Period.AmountPaid = prWG.GetDecimalElementByTagFromXml(reportMonth, "AmountPaid");
+                rpP32Period.RemainingBalance = prWG.GetDecimalElementByTagFromXml(reportMonth, "RemainingBalance");
+
+                //If any of the values are not zero add the P32 period to the list
+                addToList = CheckIfNotZero(rpP32Period);
+                if(addToList)
+                {
+                    rpP32Periods.Add(rpP32Period);
+                    annualTotalRequired = true;
+                }
+                
+            }
+            if(annualTotalRequired)
+            {
+                foreach (XmlElement annualTotal in p32SumReport.GetElementsByTagName("AnnualTotal"))
+                {
+                    RPP32Period rpP32Period = new RPP32Period();
+                    rpP32Period.PeriodNo = 13;
+                    rpP32Period.PeriodName = "Annual total";
+                    rpP32Period.Tax = prWG.GetDecimalElementByTagFromXml(annualTotal, "Tax");
+                    rpP32Period.StudentLoan = prWG.GetDecimalElementByTagFromXml(annualTotal, "StudentLoan");
+                    rpP32Period.PostGraduateLoan = prWG.GetDecimalElementByTagFromXml(annualTotal, "PostGraduateLoan");
+                    rpP32Period.NetTax = prWG.GetDecimalElementByTagFromXml(annualTotal, "NetTax");
+                    rpP32Period.EmployerNI = prWG.GetDecimalElementByTagFromXml(annualTotal, "EmployerNI");
+                    rpP32Period.EmployeeNI = prWG.GetDecimalElementByTagFromXml(annualTotal, "EmployeeNI");
+                    rpP32Period.GrossNICs = prWG.GetDecimalElementByTagFromXml(annualTotal, "GrossNICs");
+                    rpP32Period.SmpRecovered = prWG.GetDecimalElementByTagFromXml(annualTotal, "SmpRecovered");
+                    rpP32Period.SmpComp = prWG.GetDecimalElementByTagFromXml(annualTotal, "SmpComp");
+                    rpP32Period.SppRecovered = prWG.GetDecimalElementByTagFromXml(annualTotal, "SppRecovered");
+                    rpP32Period.SppComp = prWG.GetDecimalElementByTagFromXml(annualTotal, "SppComp");
+                    rpP32Period.ShppRecovered = prWG.GetDecimalElementByTagFromXml(annualTotal, "ShppRecovered");
+                    rpP32Period.ShppComp = prWG.GetDecimalElementByTagFromXml(annualTotal, "ShppComp");
+                    rpP32Period.SapRecovered = prWG.GetDecimalElementByTagFromXml(annualTotal, "SapRecovered");
+                    rpP32Period.SapComp = prWG.GetDecimalElementByTagFromXml(annualTotal, "SapComp");
+                    rpP32Period.CisDeducted = prWG.GetDecimalElementByTagFromXml(annualTotal, "CisDeducted");
+                    rpP32Period.CisSuffered = prWG.GetDecimalElementByTagFromXml(annualTotal, "CisSuffered");
+                    rpP32Period.NetNICs = prWG.GetDecimalElementByTagFromXml(annualTotal, "NetNICs");
+                    rpP32Period.EmploymentAllowance = prWG.GetDecimalElementByTagFromXml(annualTotal, "EmploymentAllowance");
+                    rpP32Period.AmountDue = prWG.GetDecimalElementByTagFromXml(annualTotal, "AmountDue");
+                    rpP32Period.AmountPaid = prWG.GetDecimalElementByTagFromXml(annualTotal, "AmountPaid");
+                    rpP32Period.RemainingBalance = prWG.GetDecimalElementByTagFromXml(annualTotal, "RemainingBalance");
+                    
+                    rpP32Periods.Add(rpP32Period);
+                    
+                }
+            
+            }
+
+            rpP32SummaryReport.P32Periods = rpP32Periods;
+
+            return rpP32SummaryReport;
+        }
+        private bool CheckIfNotZero(RPP32Period rpP32Period)
+        {
+            //Compare all the decimal fields to see if any are non zero using if
+            //if(rpP32Period.Tax != 0 || rpP32Period.StudentLoan != 0 || rpP32Period.PostGraduateLoan != 0 || rpP32Period.NetTax != 0 || rpP32Period.EmployerNI != 0
+            //    || rpP32Period.EmployeeNI != 0 || rpP32Period.GrossNICs != 0 || rpP32Period.SmpRecovered != 0 || rpP32Period.SmpComp != 0 || rpP32Period.SppRecovered !=0
+            //    || rpP32Period.SppComp != 0 || rpP32Period.ShppRecovered !=0 || rpP32Period.ShppComp != 0 || rpP32Period.SapRecovered != 0 || rpP32Period.SapComp != 0
+            //    || rpP32Period.CisDeducted != 0 | rpP32Period.CisSuffered != 0 || rpP32Period.NetNICs != 0 || rpP32Period.EmploymentAllowance !=0
+            //    || rpP32Period.AmountDue != 0 || rpP32Period.AmountPaid != 0 || rpP32Period.RemainingBalance != 0)
+            //{
+            //    return true;
+            //}
+
+            //Compare all the decimal fields to see if any are non zero using reflection
+            foreach (PropertyInfo pi in rpP32Period.GetType().GetProperties() )
+            {
+                if(pi.PropertyType==typeof(decimal))
+                {
+                    decimal value = (decimal)pi.GetValue(rpP32Period);
+                    if(value != 0)
+                    {
+                       return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+        private void CreatePreSampleXLSX(XDocument xdoc, List<RPEmployeePeriod> rpEmployeePeriodList, RPEmployer rpEmployer, RPParameters rpParameters)
         {
             //Create a list of the required columns.
             List<string> reqCol = new List<string>();
@@ -960,7 +1096,13 @@ namespace PayRunIOProcessReports
             workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.StudentLoan);
             workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.NetPayTP);
             workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.ErNICTP);
-            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.ErPensionTP);
+
+            decimal erPensionTP = 0;
+            foreach(RPPensionPeriod pensionPeriod in rpEmployeePeriod.Pensions)
+            {
+                erPensionTP = erPensionTP + pensionPeriod.ErPensionTaxPeriod;
+            }
+            workbook.CurrentWorksheet.AddNextCell(erPensionTP);
             workbook.CurrentWorksheet.AddNextCell(0.00);//TotalGrossUP
             
             return workbook;

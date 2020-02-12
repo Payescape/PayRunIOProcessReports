@@ -1,0 +1,408 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<XtraReportsLayoutSerializer SerializerVersion="19.2.3.0" Ref="1" ControlType="DevExpress.XtraReports.UI.XtraReport, DevExpress.XtraReports.v19.2, Version=19.2.3.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Name="P32" DisplayName="P32Report" Landscape="true" Margins="15, 15, 0, 1" PaperKind="A4" PageWidth="1169" PageHeight="827" Version="19.2" DataSource="#Ref-0">
+  <Parameters>
+    <Item1 Ref="3" Description="Company name" ValueInfo="Finvoy Filling Station" Name="CmpName" />
+    <Item2 Ref="4" Description="PAYE Reference" ValueInfo="916/C4930" Name="PayeRef" />
+    <Item3 Ref="6" Description="Date" ValueInfo="2020-01-31" Name="Date" Type="#Ref-5" />
+    <Item4 Ref="8" Description="Tax Period" ValueInfo="43" Name="Period" Type="#Ref-7" />
+    <Item5 Ref="9" Description="AnnualEmploymentAllowance" ValueInfo="0" Name="AnnualEmploymentAllowance" Type="#Ref-7" />
+    <Item6 Ref="10" Description="Payment Reference" ValueInfo="916PK00009702" Name="PaymentRef" />
+    <Item7 Ref="11" Description="Tax year start date" ValueInfo="2019-04-06" Name="TaxYearStartDate" Type="#Ref-5" />
+    <Item8 Ref="12" Description="Tax year end date" ValueInfo="2020-04-05" Name="TaxYearEndDate" Type="#Ref-5" />
+    <Item9 Ref="13" Description="Frequency" Name="Freq" />
+  </Parameters>
+  <Bands>
+    <Item1 Ref="14" ControlType="DetailBand" Name="Detail" KeepTogetherWithDetailReports="true" HeightF="17.708334" KeepTogether="true" TextAlignment="TopLeft" Padding="0,0,0,0,100">
+      <SortFields>
+        <Item1 Ref="15" FieldName="Surname" />
+      </SortFields>
+      <Controls>
+        <Item1 Ref="16" ControlType="XRLabel" Name="label11" TextFormatString="{0:0.00}" Text="label30" TextAlignment="MiddleRight" SizeF="52.49994,15.0000257" LocationFloat="294.958557, 0" Font="Arial, 6.75pt, charSet=0" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="17" EventName="BeforePrint" PropertyName="Text" Expression="[TotalPayTP]" />
+          </ExpressionBindings>
+          <StylePriority Ref="18" UseFont="false" UseTextAlignment="false" />
+        </Item1>
+        <Item2 Ref="19" ControlType="XRLabel" Name="label52" TextFormatString="{0:0.00}" Text="label52" TextAlignment="MiddleRight" SizeF="45.708374,15.0000257" LocationFloat="901.2503, 0" Font="Arial, 6.75pt, charSet=0" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="20" EventName="BeforePrint" PropertyName="Text" Expression="[StudentLoan]" />
+          </ExpressionBindings>
+          <StylePriority Ref="21" UseFont="false" UseTextAlignment="false" />
+        </Item2>
+        <Item3 Ref="22" ControlType="XRLabel" Name="label51" TextFormatString="{0:0.00}" Text="label51" TextAlignment="MiddleRight" SizeF="42.708374,15.0000257" LocationFloat="858.541748, 0" Font="Arial, 6.75pt, charSet=0" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="23" EventName="BeforePrint" PropertyName="Text" Expression="[AOE]" />
+          </ExpressionBindings>
+          <StylePriority Ref="24" UseFont="false" UseTextAlignment="false" />
+        </Item3>
+        <Item4 Ref="25" ControlType="XRLabel" Name="label50" TextFormatString="{0:0.00}" Text="label50" TextAlignment="MiddleRight" SizeF="54.166687,15.0000257" LocationFloat="804.375061, 0" Font="Arial, 6.75pt, charSet=0" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="26" EventName="BeforePrint" PropertyName="Text" Expression="[PostTaxPension]" />
+          </ExpressionBindings>
+          <StylePriority Ref="27" UseFont="false" UseTextAlignment="false" />
+        </Item4>
+        <Item5 Ref="28" ControlType="XRLabel" Name="label49" TextFormatString="{0:0.00}" Text="label49" TextAlignment="MiddleRight" SizeF="55.208313,15.0000257" LocationFloat="749.166748, 0" Font="Arial, 6.75pt, charSet=0" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="29" EventName="BeforePrint" PropertyName="Text" Expression="[PostTaxAddDed]" />
+          </ExpressionBindings>
+          <StylePriority Ref="30" UseFont="false" UseTextAlignment="false" />
+        </Item5>
+        <Item6 Ref="31" ControlType="XRLabel" Name="label48" TextFormatString="{0:0.00}" Text="label48" TextAlignment="MiddleRight" SizeF="51.916748,15.0000257" LocationFloat="697.249756, 0" Font="Arial, 6.75pt, charSet=0" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="32" EventName="BeforePrint" PropertyName="Text" Expression="[NetNI]" />
+          </ExpressionBindings>
+          <StylePriority Ref="33" UseFont="false" UseTextAlignment="false" />
+        </Item6>
+        <Item7 Ref="34" ControlType="XRLabel" Name="label47" TextFormatString="{0:0.00}" Text="label47" TextAlignment="MiddleRight" SizeF="49.7084351,15.0000257" LocationFloat="647.5412, 0" Font="Arial, 6.75pt, charSet=0" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="35" EventName="BeforePrint" PropertyName="Text" Expression="[Tax]" />
+          </ExpressionBindings>
+          <StylePriority Ref="36" UseFont="false" UseTextAlignment="false" />
+        </Item7>
+        <Item8 Ref="37" ControlType="XRLabel" Name="label46" TextFormatString="{0:0.00}" Text="label46" TextAlignment="MiddleRight" SizeF="48,15.0000257" LocationFloat="531.9167, 0" Font="Arial, 6.75pt, charSet=0" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="38" EventName="BeforePrint" PropertyName="Text" Expression="[PreTaxPension]" />
+          </ExpressionBindings>
+          <StylePriority Ref="39" UseFont="false" UseTextAlignment="false" />
+        </Item8>
+        <Item9 Ref="40" ControlType="XRLabel" Name="label45" TextFormatString="{0:0.00}" Text="label45" TextAlignment="MiddleRight" SizeF="40.7083435,15.0000257" LocationFloat="489.208344, 0" Font="Arial, 6.75pt, charSet=0" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="41" EventName="BeforePrint" PropertyName="Text" Expression="[HolidayPay]" />
+          </ExpressionBindings>
+          <StylePriority Ref="42" UseFont="false" UseTextAlignment="false" />
+        </Item9>
+        <Item10 Ref="43" ControlType="XRLabel" Name="label44" TextFormatString="{0:0.00}" Text="label44" TextAlignment="MiddleRight" SizeF="44.25,15.0000257" LocationFloat="442.666748, 0" Font="Arial, 6.75pt, charSet=0" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="44" EventName="BeforePrint" PropertyName="Text" Expression="[AbsencePay]" />
+          </ExpressionBindings>
+          <StylePriority Ref="45" UseFont="false" UseTextAlignment="false" />
+        </Item10>
+        <Item11 Ref="46" ControlType="XRLabel" Name="label37" TextFormatString="{0:0.00}" Text="label37" TextAlignment="MiddleRight" SizeF="40.708313,15.0000257" LocationFloat="399.958435, 0" Font="Arial, 6.75pt, charSet=0" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="47" EventName="BeforePrint" PropertyName="Text" Expression="[GUCosts]" />
+          </ExpressionBindings>
+          <StylePriority Ref="48" UseFont="false" UseTextAlignment="false" />
+        </Item11>
+        <Item12 Ref="49" ControlType="XRLabel" Name="label30" TextFormatString="{0:0.00}" Text="label30" TextAlignment="MiddleRight" SizeF="50.49994,15.0000257" LocationFloat="347.458527, 2.000014" Font="Arial, 6.75pt, charSet=0" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="50" EventName="BeforePrint" PropertyName="Text" Expression="[PreTaxAddDed]" />
+          </ExpressionBindings>
+          <StylePriority Ref="51" UseFont="false" UseTextAlignment="false" />
+        </Item12>
+        <Item13 Ref="52" ControlType="XRLabel" Name="label22" TextFormatString="{0:0.00}" Text="label22" TextAlignment="MiddleRight" SizeF="46.0838623,15.0000257" LocationFloat="1025.66589, 0" Font="Arial, 6.75pt, charSet=0" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="53" EventName="BeforePrint" PropertyName="Text" Expression="[ErNICTP]" />
+          </ExpressionBindings>
+          <StylePriority Ref="54" UseFont="false" UseTextAlignment="false" />
+        </Item13>
+        <Item14 Ref="55" ControlType="XRLabel" Name="label21" TextFormatString="{0:0.00}" Text="label21" TextAlignment="MiddleRight" SizeF="43.208252,15.0000257" LocationFloat="1071.74976, 0" Font="Arial, 6.75pt, charSet=0" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="56" EventName="BeforePrint" PropertyName="Text" Expression="[ErPensionTP]" />
+          </ExpressionBindings>
+          <StylePriority Ref="57" UseFont="false" UseTextAlignment="false" />
+        </Item14>
+        <Item15 Ref="58" ControlType="XRLabel" Name="label20" TextFormatString="{0:0.00}" Text="label20" TextAlignment="MiddleRight" SizeF="65.62494,15.0000257" LocationFloat="581.9167, 0" Font="Arial, 6.75pt, charSet=0" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="59" EventName="BeforePrint" PropertyName="Text" Expression="[TaxablePayTP]" />
+          </ExpressionBindings>
+          <StylePriority Ref="60" UseFont="false" UseTextAlignment="false" />
+        </Item15>
+        <Item16 Ref="61" ControlType="XRLabel" Name="label19" Text="label19" TextAlignment="MiddleRight" SizeF="16.166687,15.0000257" LocationFloat="253.25, 0" Font="Arial, 6.75pt, charSet=0" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="62" EventName="BeforePrint" PropertyName="Text" Expression="[NILetter]" />
+          </ExpressionBindings>
+          <StylePriority Ref="63" UseFont="false" UseTextAlignment="false" />
+        </Item16>
+        <Item17 Ref="64" ControlType="XRLabel" Name="label4" Text="label4" TextAlignment="MiddleLeft" SizeF="49.2084045,15.0000257" LocationFloat="204.416779, 0" Font="Arial, 6.75pt, charSet=0" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="65" EventName="BeforePrint" PropertyName="Text" Expression="[TaxCode]" />
+          </ExpressionBindings>
+          <StylePriority Ref="66" UseFont="false" UseTextAlignment="false" />
+        </Item17>
+        <Item18 Ref="67" ControlType="XRLabel" Name="label18" TextFormatString="{0:0.00}" Text="label18" TextAlignment="MiddleRight" SizeF="76.91693,15.0000257" LocationFloat="948.6246, 0" Font="Arial, 6.75pt, charSet=0" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="68" EventName="BeforePrint" PropertyName="Text" Expression="[NetPayTP]" />
+          </ExpressionBindings>
+          <StylePriority Ref="69" UseFont="false" UseTextAlignment="false" />
+        </Item18>
+        <Item19 Ref="70" ControlType="XRLabel" Name="label17" Text="label17" TextAlignment="MiddleLeft" SizeF="152.833313,15.0000257" LocationFloat="51.5832253, 0" Font="Arial, 6.75pt, charSet=0" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="71" EventName="BeforePrint" PropertyName="Text" Expression="[Fullname]" />
+          </ExpressionBindings>
+          <StylePriority Ref="72" UseFont="false" UseTextAlignment="false" />
+        </Item19>
+        <Item20 Ref="73" ControlType="XRLabel" Name="label16" Text="label16" TextAlignment="MiddleLeft" SizeF="36.7916565,15.0000257" LocationFloat="12.79157, 0" Font="Arial, 6.75pt, charSet=0" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="74" EventName="BeforePrint" PropertyName="Text" Expression="[Reference]" />
+          </ExpressionBindings>
+          <StylePriority Ref="75" UseFont="false" UseTextAlignment="false" />
+        </Item20>
+      </Controls>
+    </Item1>
+    <Item2 Ref="76" ControlType="TopMarginBand" Name="TopMargin" HeightF="0" TextAlignment="TopLeft" Padding="0,0,0,0,100" />
+    <Item3 Ref="77" ControlType="BottomMarginBand" Name="BottomMargin" HeightF="0.666666031" TextAlignment="TopLeft" Padding="0,0,0,0,100" />
+    <Item4 Ref="78" ControlType="ReportFooterBand" Name="ReportFooter" HeightF="47.9166679">
+      <Controls>
+        <Item1 Ref="79" ControlType="XRLabel" Name="label66" TextFormatString="{0:0.00}" Text="label30" TextAlignment="MiddleRight" SizeF="52.49994,23" LocationFloat="294.958557, 10.3750229" Font="Arial, 6.75pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
+          <Summary Ref="80" Running="Report" />
+          <ExpressionBindings>
+            <Item1 Ref="81" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([TaxablePayTP])" />
+          </ExpressionBindings>
+          <StylePriority Ref="82" UseFont="false" UseTextAlignment="false" />
+        </Item1>
+        <Item2 Ref="83" ControlType="XRLine" Name="line2" LineStyle="Dash" SizeF="1104.958,2.08333588" LocationFloat="12.0002747, 33.375042" ForeColor="MidnightBlue">
+          <StylePriority Ref="84" UseForeColor="false" />
+        </Item2>
+        <Item3 Ref="85" ControlType="XRLine" Name="line3" LineStyle="Dash" SizeF="1104.958,2.08333588" LocationFloat="12.0002747, 8.29169" ForeColor="MidnightBlue">
+          <StylePriority Ref="86" UseForeColor="false" />
+        </Item3>
+        <Item4 Ref="87" ControlType="XRLabel" Name="label53" TextFormatString="{0:0.00}" Text="label46" TextAlignment="MiddleRight" SizeF="50,23.0000038" LocationFloat="529.9171, 10.3750229" Font="Arial, 6.75pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
+          <Summary Ref="88" Running="Report" />
+          <ExpressionBindings>
+            <Item1 Ref="89" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([PreTaxPension])" />
+          </ExpressionBindings>
+          <StylePriority Ref="90" UseFont="false" UseTextAlignment="false" />
+        </Item4>
+        <Item5 Ref="91" ControlType="XRLabel" Name="label54" TextFormatString="{0:0.00}" Text="label30" TextAlignment="MiddleRight" SizeF="52.49994,23.0000038" LocationFloat="345.458527, 10.3750229" Font="Arial, 6.75pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
+          <Summary Ref="92" Running="Report" />
+          <ExpressionBindings>
+            <Item1 Ref="93" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([PreTaxAddDed])" />
+          </ExpressionBindings>
+          <StylePriority Ref="94" UseFont="false" UseTextAlignment="false" />
+        </Item5>
+        <Item6 Ref="95" ControlType="XRLabel" Name="label55" TextFormatString="{0:0.00}" Text="label37" TextAlignment="MiddleRight" SizeF="42.7083435,23.0000038" LocationFloat="397.9586, 10.3750229" Font="Arial, 6.75pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
+          <Summary Ref="96" Running="Report" />
+          <ExpressionBindings>
+            <Item1 Ref="97" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([GUCosts])" />
+          </ExpressionBindings>
+          <StylePriority Ref="98" UseFont="false" UseTextAlignment="false" />
+        </Item6>
+        <Item7 Ref="99" ControlType="XRLabel" Name="label56" TextFormatString="{0:0.00}" Text="label44" TextAlignment="MiddleRight" SizeF="46.25,23.0000038" LocationFloat="440.666931, 10.3750229" Font="Arial, 6.75pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
+          <Summary Ref="100" Running="Report" />
+          <ExpressionBindings>
+            <Item1 Ref="101" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([AbsencePay])" />
+          </ExpressionBindings>
+          <StylePriority Ref="102" UseFont="false" UseTextAlignment="false" />
+        </Item7>
+        <Item8 Ref="103" ControlType="XRLabel" Name="label57" TextFormatString="{0:0.00}" Text="label45" TextAlignment="MiddleRight" SizeF="42.708313,23.0000038" LocationFloat="487.208771, 10.3750229" Font="Arial, 6.75pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
+          <Summary Ref="104" Running="Report" />
+          <ExpressionBindings>
+            <Item1 Ref="105" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([HolidayPay])" />
+          </ExpressionBindings>
+          <StylePriority Ref="106" UseFont="false" UseTextAlignment="false" />
+        </Item8>
+        <Item9 Ref="107" ControlType="XRLabel" Name="label58" TextFormatString="{0:0.00}" Text="label47" TextAlignment="MiddleRight" SizeF="49.7084351,23.0000038" LocationFloat="647.5421, 10.3750229" Font="Arial, 6.75pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
+          <Summary Ref="108" Running="Report" />
+          <ExpressionBindings>
+            <Item1 Ref="109" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([Tax])" />
+          </ExpressionBindings>
+          <StylePriority Ref="110" UseFont="false" UseTextAlignment="false" />
+        </Item9>
+        <Item10 Ref="111" ControlType="XRLabel" Name="label59" TextFormatString="{0:0.00}" Text="label48" TextAlignment="MiddleRight" SizeF="51.916748,23.0000038" LocationFloat="697.2502, 10.3750229" Font="Arial, 6.75pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
+          <Summary Ref="112" Running="Report" />
+          <ExpressionBindings>
+            <Item1 Ref="113" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([NetNI])" />
+          </ExpressionBindings>
+          <StylePriority Ref="114" UseFont="false" UseTextAlignment="false" />
+        </Item10>
+        <Item11 Ref="115" ControlType="XRLabel" Name="label60" TextFormatString="{0:0.00}" Text="label49" TextAlignment="MiddleRight" SizeF="55.208374,23.0000038" LocationFloat="749.1672, 10.3750229" Font="Arial, 6.75pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
+          <Summary Ref="116" Running="Report" />
+          <ExpressionBindings>
+            <Item1 Ref="117" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([PostTaxAddDed])" />
+          </ExpressionBindings>
+          <StylePriority Ref="118" UseFont="false" UseTextAlignment="false" />
+        </Item11>
+        <Item12 Ref="119" ControlType="XRLabel" Name="label61" TextFormatString="{0:0.00}" Text="label50" TextAlignment="MiddleRight" SizeF="54.166626,23.0000038" LocationFloat="804.3755, 10.3750229" Font="Arial, 6.75pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
+          <Summary Ref="120" Running="Report" />
+          <ExpressionBindings>
+            <Item1 Ref="121" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([PostTaxPension])" />
+          </ExpressionBindings>
+          <StylePriority Ref="122" UseFont="false" UseTextAlignment="false" />
+        </Item12>
+        <Item13 Ref="123" ControlType="XRLabel" Name="label62" TextFormatString="{0:0.00}" Text="label51" TextAlignment="MiddleRight" SizeF="42.7084351,23.0000038" LocationFloat="858.5422, 10.3750229" Font="Arial, 6.75pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
+          <Summary Ref="124" Running="Report" />
+          <ExpressionBindings>
+            <Item1 Ref="125" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([AOE])" />
+          </ExpressionBindings>
+          <StylePriority Ref="126" UseFont="false" UseTextAlignment="false" />
+        </Item13>
+        <Item14 Ref="127" ControlType="XRLabel" Name="label63" TextFormatString="{0:0.00}" Text="label52" TextAlignment="MiddleRight" SizeF="45.708313,23.0000038" LocationFloat="901.2505, 10.3750229" Font="Arial, 6.75pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
+          <Summary Ref="128" Running="Report" />
+          <ExpressionBindings>
+            <Item1 Ref="129" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([StudentLoan])" />
+          </ExpressionBindings>
+          <StylePriority Ref="130" UseFont="false" UseTextAlignment="false" />
+        </Item14>
+        <Item15 Ref="131" ControlType="XRLabel" Name="label29" Text="Totals" TextAlignment="MiddleLeft" SizeF="100,23" LocationFloat="15.1668549, 10.3750229" Font="Arial, 9.75pt, style=Bold, charSet=0" ForeColor="MidnightBlue" Padding="2,2,0,0,100">
+          <StylePriority Ref="132" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+        </Item15>
+        <Item16 Ref="133" ControlType="XRLabel" Name="label28" TextFormatString="{0:0.00}" Text="label21" TextAlignment="MiddleRight" SizeF="43.208252,23" LocationFloat="1071.75012, 10.3750229" Font="Arial, 6.75pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
+          <Summary Ref="134" Running="Report" />
+          <ExpressionBindings>
+            <Item1 Ref="135" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([ErPensionTP])" />
+          </ExpressionBindings>
+          <StylePriority Ref="136" UseFont="false" UseTextAlignment="false" />
+        </Item16>
+        <Item17 Ref="137" ControlType="XRLabel" Name="label25" TextFormatString="{0:0.00}" Text="label22" TextAlignment="MiddleRight" SizeF="46.0838623,23" LocationFloat="1027.66614, 10.3750229" Font="Arial, 6.75pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
+          <Summary Ref="138" Running="Report" />
+          <ExpressionBindings>
+            <Item1 Ref="139" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([ErNICTP])" />
+          </ExpressionBindings>
+          <StylePriority Ref="140" UseFont="false" UseTextAlignment="false" />
+        </Item17>
+        <Item18 Ref="141" ControlType="XRLabel" Name="label24" TextFormatString="{0:0.00}" Text="label18" TextAlignment="MiddleRight" SizeF="76.91693,23" LocationFloat="950.625, 10.3750229" Font="Arial, 6.75pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
+          <Summary Ref="142" Running="Report" />
+          <ExpressionBindings>
+            <Item1 Ref="143" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([NetPayTP])" />
+          </ExpressionBindings>
+          <StylePriority Ref="144" UseFont="false" UseTextAlignment="false" />
+        </Item18>
+        <Item19 Ref="145" ControlType="XRLabel" Name="label23" TextFormatString="{0:0.00}" Text="label20" TextAlignment="MiddleRight" SizeF="65.62494,23.0000038" LocationFloat="581.9171, 10.3750229" Font="Arial, 6.75pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
+          <Summary Ref="146" Running="Report" />
+          <ExpressionBindings>
+            <Item1 Ref="147" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([TaxablePayTP])" />
+          </ExpressionBindings>
+          <StylePriority Ref="148" UseFont="false" UseTextAlignment="false" />
+        </Item19>
+      </Controls>
+    </Item4>
+    <Item5 Ref="149" ControlType="ReportHeaderBand" Name="ReportHeader" PageBreak="BeforeBand" HeightF="10.4168577" />
+    <Item6 Ref="150" ControlType="PageHeaderBand" Name="PageHeader" HeightF="209.458359">
+      <Controls>
+        <Item1 Ref="151" ControlType="XRLabel" Name="label69" SizeF="219.332642,23.0000038" LocationFloat="581.9172, 47.3958321" Font="Arial, 14.25pt, style=Bold, charSet=0" ForeColor="Maroon" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="152" EventName="BeforePrint" PropertyName="Text" Expression="?TaxYearEndDate" />
+          </ExpressionBindings>
+          <StylePriority Ref="153" UseFont="false" UseForeColor="false" />
+        </Item1>
+        <Item2 Ref="154" ControlType="XRLabel" Name="label68" Text=" -" SizeF="28.1245117,23" LocationFloat="553.791931, 46.3958435" Font="Arial, 14.25pt, style=Bold, charSet=0" ForeColor="Maroon" Padding="2,2,0,0,100">
+          <StylePriority Ref="155" UseFont="false" UseForeColor="false" />
+        </Item2>
+        <Item3 Ref="156" ControlType="XRLabel" Name="label67" SizeF="206.3334,23" LocationFloat="347.458527, 46.3958435" Font="Arial, 14.25pt, style=Bold, charSet=0" ForeColor="Maroon" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="157" EventName="BeforePrint" PropertyName="Text" Expression="?TaxYearStartDate" />
+          </ExpressionBindings>
+          <StylePriority Ref="158" UseFont="false" UseForeColor="false" />
+        </Item3>
+        <Item4 Ref="159" ControlType="XRLabel" Name="label10" Multiline="true" Text="Total Additions" TextAlignment="BottomRight" SizeF="52.5,40.2916946" LocationFloat="294.958374, 152.83374" Font="Arial, 6.75pt, charSet=0" ForeColor="MidnightBlue" Padding="2,2,0,0,100">
+          <StylePriority Ref="160" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+        </Item4>
+        <Item5 Ref="161" ControlType="XRLine" Name="line1" LineStyle="Dash" SizeF="1102.16638,2.08332825" LocationFloat="12.79157, 200" ForeColor="MidnightBlue">
+          <StylePriority Ref="162" UseForeColor="false" />
+        </Item5>
+        <Item6 Ref="163" ControlType="XRPageInfo" Name="pageInfo1" PageInfo="DateTime" SizeF="487.5,23" LocationFloat="16.166687, 79.20834" Font="Arial, 9.75pt, charSet=0" Padding="2,2,0,0,100">
+          <StylePriority Ref="164" UseFont="false" />
+        </Item6>
+        <Item7 Ref="165" ControlType="XRLabel" Name="label2" Text="P32 Substitute For The Tax Year " SizeF="331.291962,23" LocationFloat="16.16656, 46.3958435" Font="Arial, 14.25pt, style=Bold, charSet=0" ForeColor="Maroon" Padding="2,2,0,0,100">
+          <StylePriority Ref="166" UseFont="false" UseForeColor="false" />
+        </Item7>
+        <Item8 Ref="167" ControlType="XRLabel" Name="label1" Text="Mr Stephen and Rosemay Taylor" SizeF="487.5,23" LocationFloat="16.166687, 13.5833426" Font="Arial, 14.25pt, style=Bold, charSet=0" ForeColor="Maroon" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="168" EventName="BeforePrint" PropertyName="Text" Expression="[Parameters].[CmpName]" />
+          </ExpressionBindings>
+          <StylePriority Ref="169" UseFont="false" UseForeColor="false" />
+        </Item8>
+        <Item9 Ref="170" ControlType="XRPanel" Name="panel1" SizeF="220.333618,117.708328" LocationFloat="896.6247, 16.0000076" Borders="All" BorderWidth="0.5">
+          <Controls>
+            <Item1 Ref="171" ControlType="XRLabel" Name="label27" Text="7" TextAlignment="MiddleLeft" SizeF="99.20845,22.9999924" LocationFloat="107.083511, 84.70834" Font="Arial, 9.75pt, charSet=0" Padding="2,2,0,0,100" Borders="None">
+              <ExpressionBindings>
+                <Item1 Ref="172" EventName="BeforePrint" PropertyName="Text" Expression="[Parameters].[PAYEMonth]" />
+              </ExpressionBindings>
+              <StylePriority Ref="173" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+            </Item1>
+            <Item2 Ref="174" ControlType="XRLabel" Name="label26" Text="Weekly" TextAlignment="MiddleLeft" SizeF="99.2084,23" LocationFloat="107.083382, 15.625" Font="Arial, 9.75pt, charSet=0" Padding="2,2,0,0,100" Borders="None">
+              <ExpressionBindings>
+                <Item1 Ref="175" EventName="BeforePrint" PropertyName="Text" Expression="[Parameters].[Freq]" />
+              </ExpressionBindings>
+              <StylePriority Ref="176" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+            </Item2>
+            <Item3 Ref="177" ControlType="XRLabel" Name="label15" Text="27" TextAlignment="MiddleLeft" SizeF="99.20839,23.0000153" LocationFloat="107.083511, 38.625" Font="Arial, 9.75pt, charSet=0" Padding="2,2,0,0,100" Borders="None">
+              <ExpressionBindings>
+                <Item1 Ref="178" EventName="BeforePrint" PropertyName="Text" Expression="[Parameters].[Period]" />
+              </ExpressionBindings>
+              <StylePriority Ref="179" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+            </Item3>
+            <Item4 Ref="180" ControlType="XRLabel" Name="label14" TextFormatString="{0:d MMM yyyy}" Text="11 Oct 2019" TextAlignment="MiddleLeft" SizeF="99.20839,22.9999886" LocationFloat="107.083511, 61.6250038" Font="Arial, 9.75pt, charSet=0" Padding="2,2,0,0,100" Borders="None">
+              <ExpressionBindings>
+                <Item1 Ref="181" EventName="BeforePrint" PropertyName="Text" Expression="[Parameters].[Date]" />
+              </ExpressionBindings>
+              <StylePriority Ref="182" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+            </Item4>
+            <Item5 Ref="183" ControlType="XRLabel" Name="label13" Text="PAYE month :" TextAlignment="MiddleRight" SizeF="92.9163,23" LocationFloat="14.1671886, 84.62499" Font="Arial, 9.75pt, charSet=0" ForeColor="Maroon" Padding="2,2,0,0,100" Borders="None">
+              <StylePriority Ref="184" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+            </Item5>
+            <Item6 Ref="185" ControlType="XRLabel" Name="label12" Text="Run date :" TextAlignment="MiddleRight" SizeF="92.9163,23.0000038" LocationFloat="14.1671238, 61.6250038" Font="Arial, 9.75pt, charSet=0" ForeColor="Maroon" Padding="2,2,0,0,100" Borders="None">
+              <StylePriority Ref="186" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+            </Item6>
+            <Item7 Ref="187" ControlType="XRLabel" Name="label65" Text="Pay period : " TextAlignment="MiddleRight" SizeF="92.9163,23.0000076" LocationFloat="14.1670227, 35.9999924" Font="Arial, 9.75pt, charSet=0" ForeColor="Maroon" Padding="2,2,0,0,100" Borders="None">
+              <StylePriority Ref="188" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+            </Item7>
+            <Item8 Ref="189" ControlType="XRLabel" Name="label64" Text="Frequency : " TextAlignment="MiddleRight" SizeF="92.9163,23" LocationFloat="14.1670227, 13.0000067" Font="Arial, 9.75pt, charSet=0" ForeColor="Maroon" Padding="2,2,0,0,100" Borders="None">
+              <StylePriority Ref="190" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+            </Item8>
+          </Controls>
+          <StylePriority Ref="191" UseBorders="false" UseBorderWidth="false" />
+        </Item9>
+        <Item10 Ref="192" ControlType="XRLabel" Name="label3" Text="Ref" TextAlignment="BottomLeft" SizeF="38.79166,40.291626" LocationFloat="12.79157, 151.8336" Font="Arial, 6.75pt, charSet=0" ForeColor="MidnightBlue" Padding="2,2,0,0,100">
+          <StylePriority Ref="193" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+        </Item10>
+        <Item11 Ref="194" ControlType="XRLabel" Name="label5" Text="Employee Name" TextAlignment="BottomLeft" SizeF="152.833313,40.2917175" LocationFloat="51.5832253, 152.458313" Font="Arial, 6.75pt, charSet=0" ForeColor="MidnightBlue" Padding="2,2,0,0,100">
+          <StylePriority Ref="195" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+        </Item11>
+        <Item12 Ref="196" ControlType="XRLabel" Name="label6" Multiline="true" Text="Tax Code &amp;&#xD;&#xA;NI Letter" TextAlignment="BottomLeft" SizeF="67.99979,40.291748" LocationFloat="204.416779, 152.458252" Font="Arial, 6.75pt, charSet=0" ForeColor="MidnightBlue" Padding="2,2,0,0,100">
+          <StylePriority Ref="197" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+        </Item12>
+        <Item13 Ref="198" ControlType="XRLabel" Name="label7" Multiline="true" Text="Pre Tax&#xD;&#xA;Add/Ded" TextAlignment="BottomRight" SizeF="52.49997,40.291687" LocationFloat="347.458435, 152.833527" Font="Arial, 6.75pt, charSet=0" ForeColor="MidnightBlue" Padding="2,2,0,0,100">
+          <StylePriority Ref="199" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+        </Item13>
+        <Item14 Ref="200" ControlType="XRLabel" Name="label8" Multiline="true" Text="GU&#xD;&#xA;Costs" TextAlignment="BottomRight" SizeF="42.708374,40.291687" LocationFloat="399.9583, 152.8336" Font="Arial, 6.75pt, charSet=0" ForeColor="MidnightBlue" Padding="2,2,0,0,100">
+          <StylePriority Ref="201" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+        </Item14>
+        <Item15 Ref="202" ControlType="XRLabel" Name="label31" Multiline="true" Text="Absence&#xD;&#xA;Pay" TextAlignment="BottomRight" SizeF="46.25,40.291687" LocationFloat="442.666656, 152.833527" Font="Arial, 6.75pt, charSet=0" ForeColor="MidnightBlue" Padding="2,2,0,0,100">
+          <StylePriority Ref="203" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+        </Item15>
+        <Item16 Ref="204" ControlType="XRLabel" Name="label32" Multiline="true" Text="Holiday&#xD;&#xA;Pay" TextAlignment="BottomRight" SizeF="42.7083435,40.2916946" LocationFloat="489.208252, 152.8336" Font="Arial, 6.75pt, charSet=0" ForeColor="MidnightBlue" Padding="2,2,0,0,100">
+          <StylePriority Ref="205" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+        </Item16>
+        <Item17 Ref="206" ControlType="XRLabel" Name="label40" Multiline="true" Text="Pre Tax&#xD;&#xA;Pension" TextAlignment="BottomRight" SizeF="49.99997,40.29169" LocationFloat="531.916565, 152.833527" Font="Arial, 6.75pt, charSet=0" ForeColor="MidnightBlue" Padding="2,2,0,0,100">
+          <StylePriority Ref="207" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+        </Item17>
+        <Item18 Ref="208" ControlType="XRLabel" Name="label33" Multiline="true" Text="Taxable&#xD;&#xA;Pay" TextAlignment="BottomRight" SizeF="65.625,40.2916946" LocationFloat="581.916565, 152.8336" Font="Arial, 6.75pt, charSet=0" ForeColor="MidnightBlue" Padding="2,2,0,0,100">
+          <StylePriority Ref="209" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+        </Item18>
+        <Item19 Ref="210" ControlType="XRLabel" Name="label34" Multiline="true" Text="Tax" TextAlignment="BottomRight" SizeF="49.708374,40.29169" LocationFloat="647.541565, 152.833664" Font="Arial, 6.75pt, charSet=0" ForeColor="MidnightBlue" Padding="2,2,0,0,100">
+          <StylePriority Ref="211" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+        </Item19>
+        <Item20 Ref="212" ControlType="XRLabel" Name="label9" Text="Net NI" TextAlignment="BottomRight" SizeF="51.91681,40.291748" LocationFloat="697.2499, 152.833664" Font="Arial, 6.75pt, charSet=0" ForeColor="MidnightBlue" Padding="2,2,0,0,100">
+          <StylePriority Ref="213" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+        </Item20>
+        <Item21 Ref="214" ControlType="XRLabel" Name="label41" Multiline="true" Text="Post Tax&#xD;&#xA;Add/Ded" TextAlignment="BottomRight" SizeF="55.208313,40.29169" LocationFloat="749.1666, 152.833527" Font="Arial, 6.75pt, charSet=0" ForeColor="MidnightBlue" Padding="2,2,0,0,100">
+          <StylePriority Ref="215" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+        </Item21>
+        <Item22 Ref="216" ControlType="XRLabel" Name="label42" Multiline="true" Text="Post Tax&#xD;&#xA;Pension" TextAlignment="BottomRight" SizeF="54.166687,40.29169" LocationFloat="804.375, 152.833527" Font="Arial, 6.75pt, charSet=0" ForeColor="MidnightBlue" Padding="2,2,0,0,100">
+          <StylePriority Ref="217" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+        </Item22>
+        <Item23 Ref="218" ControlType="XRLabel" Name="label43" Multiline="true" Text="AOE" TextAlignment="BottomRight" SizeF="42.708313,40.29169" LocationFloat="858.541931, 152.833664" Font="Arial, 6.75pt, charSet=0" ForeColor="MidnightBlue" Padding="2,2,0,0,100">
+          <StylePriority Ref="219" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+        </Item23>
+        <Item24 Ref="220" ControlType="XRLabel" Name="label35" Multiline="true" Text="Student&#xD;&#xA;Loan" TextAlignment="BottomRight" SizeF="45.708374,40.2916946" LocationFloat="901.250244, 152.833527" Font="Arial, 6.75pt, charSet=0" ForeColor="MidnightBlue" Padding="2,2,0,0,100">
+          <StylePriority Ref="221" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+        </Item24>
+        <Item25 Ref="222" ControlType="XRLabel" Name="label39" Multiline="true" Text="Net&#xD;&#xA;Pay" TextAlignment="BottomRight" SizeF="76.91681,40.291687" LocationFloat="948.6247, 152.833527" Font="Arial, 6.75pt, charSet=0" ForeColor="MidnightBlue" Padding="2,2,0,0,100">
+          <StylePriority Ref="223" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+        </Item25>
+        <Item26 Ref="224" ControlType="XRLabel" Name="label38" Multiline="true" Text="Net Er NI&#xD;&#xA;Including Class 1A" TextAlignment="BottomRight" SizeF="46.0838,40.291687" LocationFloat="1025.66614, 152.833527" Font="Arial, 6.75pt, charSet=0" ForeColor="MidnightBlue" Padding="2,2,0,0,100">
+          <StylePriority Ref="225" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+        </Item26>
+        <Item27 Ref="226" ControlType="XRLabel" Name="label36" Multiline="true" Text="Er&#xD;&#xA;Pension" TextAlignment="BottomRight" SizeF="43.208252,40.291687" LocationFloat="1071.74976, 152.458313" Font="Arial, 6.75pt, charSet=0" ForeColor="MidnightBlue" Padding="2,2,0,0,100">
+          <StylePriority Ref="227" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+        </Item27>
+      </Controls>
+    </Item6>
+  </Bands>
+  <ObjectStorage>
+    <Item1 ObjectType="DevExpress.XtraReports.Serialization.ObjectStorageInfo, DevExpress.XtraReports.v19.2" Ref="5" Content="System.DateTime" Type="System.Type" />
+    <Item2 ObjectType="DevExpress.XtraReports.Serialization.ObjectStorageInfo, DevExpress.XtraReports.v19.2" Ref="7" Content="System.Int32" Type="System.Type" />
+    <Item3 ObjectType="DevExpress.XtraReports.Serialization.ObjectStorageInfo, DevExpress.XtraReports.v19.2" Ref="0" Content="~Xtra#NULL" Type="System.Collections.Generic.List`1[[PayRunIOClassLibrary.RPP32Period, PayRunIOClassLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]" />
+  </ObjectStorage>
+</XtraReportsLayoutSerializer>
