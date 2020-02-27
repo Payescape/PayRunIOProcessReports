@@ -46,10 +46,6 @@
       <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="PayRunIO.Core.Enums, Version=19.20.3.323, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\PayRunIO.Core.Enums.19.20.3.323\lib\net452\PayRunIO.Core.Enums.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="PayRunIO.CSharp.SDK, Version=19.20.3.213, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\PayRunIO.CSharp.SDK.19.20.3.213\lib\net452\PayRunIO.CSharp.SDK.dll</HintPath>
       <Private>True</Private>
