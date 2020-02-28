@@ -122,7 +122,7 @@ namespace PayRunIOProcessReports
             //Produce bank files if necessary
             try
             {
-                prWG.ProcessBankReports(xdoc, rpEmployeePeriodList, rpEmployer, rpParameters);
+                prWG.ProcessBankAndPensionFiles(xdoc, rpEmployeePeriodList, rpEmployer, rpParameters);
             }
             catch(Exception ex)
             {

@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <XtraReportsLayoutSerializer SerializerVersion="19.2.3.0" Ref="1" ControlType="DevExpress.XtraReports.UI.XtraReport, DevExpress.XtraReports.v19.2, Version=19.2.3.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Name="PensionContributionsReport" DisplayName="PensionContributionsReport" Margins="15, 15, 0, 23" PaperKind="A4" PageWidth="827" PageHeight="1169" Version="19.2" DataSource="#Ref-0" Font="Arial, 9.75pt, charSet=0">
   <Parameters>
-    <Item1 Ref="3" Description="Company name" ValueInfo="Watson Gas Services" Name="CmpName" />
-    <Item2 Ref="4" Description="PAYE Reference" ValueInfo="916/KA16786" Name="PayeRef" />
+    <Item1 Ref="3" Description="Company name" ValueInfo="Hugh Burns" Name="CmpName" />
+    <Item2 Ref="4" Description="PAYE Reference" ValueInfo="925/TZ78628" Name="PayeRef" />
     <Item3 Ref="6" Description="Date" ValueInfo="2020-02-28" Name="Date" Type="#Ref-5" />
     <Item4 Ref="8" Description="Tax Period" ValueInfo="47" Name="Period" Type="#Ref-7" />
     <Item5 Ref="9" Description="Frequency" ValueInfo="Weekly" Name="Freq" />
@@ -155,93 +155,83 @@
       </GroupFields>
       <Controls>
         <Item1 Ref="89" ControlType="XRLine" Name="line11" SizeF="786.9999,2.083334" LocationFloat="0, 22.833252" />
-        <Item2 Ref="90" ControlType="XRLabel" Name="label28" Multiline="true" Text="label28" TextAlignment="MiddleLeft" SizeF="147.916656,23" LocationFloat="55.08334, 0" Font="Arial, 9.75pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
+        <Item2 Ref="90" ControlType="XRLabel" Name="label28" Multiline="true" Text="label28" TextAlignment="MiddleLeft" SizeF="147.916656,23" LocationFloat="3.00013232, 0" Font="Arial, 9.75pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
           <ExpressionBindings>
             <Item1 Ref="91" EventName="BeforePrint" PropertyName="Text" Expression="[RPPensionPeriod].[SchemeName]" />
           </ExpressionBindings>
           <StylePriority Ref="92" UseFont="false" UseTextAlignment="false" />
         </Item2>
-        <Item3 Ref="93" ControlType="XRLabel" Name="label25" Multiline="true" Text="label25" TextAlignment="MiddleLeft" SizeF="55.08334,23" LocationFloat="0, 0" Font="Arial, 9.75pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
-          <ExpressionBindings>
-            <Item1 Ref="94" EventName="BeforePrint" PropertyName="Text" Expression="[RPPensionPeriod].[Code]" />
-          </ExpressionBindings>
-          <StylePriority Ref="95" UseFont="false" UseTextAlignment="false" />
-        </Item3>
       </Controls>
     </Item6>
-    <Item7 Ref="96" ControlType="GroupFooterBand" Name="GroupFooter1" HeightF="50.24999">
+    <Item7 Ref="93" ControlType="GroupFooterBand" Name="GroupFooter1" HeightF="50.24999">
       <Controls>
-        <Item1 Ref="97" ControlType="XRLabel" Name="label39" Multiline="true" Text="label25" TextAlignment="MiddleLeft" SizeF="66.66669,23.0000038" LocationFloat="159.916809, 16" Font="Arial, 9.75pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
+        <Item1 Ref="94" ControlType="XRLabel" Name="label40" Multiline="true" Text="label28" TextAlignment="MiddleLeft" SizeF="226.291626,23.0000038" LocationFloat="159.916809, 15.9999847" Font="Arial, 9.75pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
           <ExpressionBindings>
-            <Item1 Ref="98" EventName="BeforePrint" PropertyName="Text" Expression="[RPPensionPeriod].[Code]" />
+            <Item1 Ref="95" EventName="BeforePrint" PropertyName="Text" Expression="[RPPensionPeriod].[SchemeName]" />
           </ExpressionBindings>
-          <StylePriority Ref="99" UseFont="false" UseTextAlignment="false" />
+          <StylePriority Ref="96" UseFont="false" UseTextAlignment="false" />
         </Item1>
-        <Item2 Ref="100" ControlType="XRLabel" Name="label40" Multiline="true" Text="label28" TextAlignment="MiddleLeft" SizeF="226.291626,23.0000038" LocationFloat="226.5835, 16" Font="Arial, 9.75pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
-          <ExpressionBindings>
-            <Item1 Ref="101" EventName="BeforePrint" PropertyName="Text" Expression="[RPPensionPeriod].[SchemeName]" />
-          </ExpressionBindings>
-          <StylePriority Ref="102" UseFont="false" UseTextAlignment="false" />
+        <Item2 Ref="97" ControlType="XRLabel" Name="label38" Multiline="true" Text="Total for " TextAlignment="MiddleRight" SizeF="65.29184,23.0000019" LocationFloat="94.62497, 16" Font="Arial, 9.75pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
+          <StylePriority Ref="98" UseFont="false" UseTextAlignment="false" />
         </Item2>
-        <Item3 Ref="103" ControlType="XRLabel" Name="label38" Multiline="true" Text="Total for " TextAlignment="MiddleRight" SizeF="65.29184,23.0000019" LocationFloat="94.62497, 16" Font="Arial, 9.75pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
-          <StylePriority Ref="104" UseFont="false" UseTextAlignment="false" />
-        </Item3>
-        <Item4 Ref="105" ControlType="XRLine" Name="line8" SizeF="90.08331,2.08333325" LocationFloat="485.9585, 12.0000839" />
-        <Item5 Ref="106" ControlType="XRLine" Name="line5" SizeF="95.12506,2.083335" LocationFloat="685.167053, 12.0000839" />
-        <Item6 Ref="107" ControlType="XRLine" Name="line2" SizeF="87.8334351,2.083333" LocationFloat="583.7912, 12.0000839" />
-        <Item7 Ref="108" ControlType="XRLabel" Name="label23" Multiline="true" Text="label23" TextAlignment="MiddleRight" SizeF="76.54187,23" LocationFloat="595.083252, 14.0000038" Font="Arial, 9.75pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
-          <Summary Ref="109" Running="Group" />
+        <Item3 Ref="99" ControlType="XRLine" Name="line8" SizeF="90.08331,2.08333325" LocationFloat="485.9585, 12.0000839" />
+        <Item4 Ref="100" ControlType="XRLine" Name="line5" SizeF="95.12506,2.083335" LocationFloat="685.167053, 12.0000839" />
+        <Item5 Ref="101" ControlType="XRLine" Name="line2" SizeF="87.8334351,2.083333" LocationFloat="583.7912, 12.0000839" />
+        <Item6 Ref="102" ControlType="XRLabel" Name="label23" Multiline="true" Text="label23" TextAlignment="MiddleRight" SizeF="76.54187,23" LocationFloat="595.083252, 14.0000038" Font="Arial, 9.75pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
+          <Summary Ref="103" Running="Group" />
           <ExpressionBindings>
-            <Item1 Ref="110" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([RPPensionPeriod].[EePensionTaxPeriod])" />
+            <Item1 Ref="104" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([RPPensionPeriod].[EePensionTaxPeriod])" />
           </ExpressionBindings>
-          <StylePriority Ref="111" UseFont="false" UseTextAlignment="false" />
+          <StylePriority Ref="105" UseFont="false" UseTextAlignment="false" />
+        </Item6>
+        <Item7 Ref="106" ControlType="XRLabel" Name="label33" Multiline="true" Text="label33" TextAlignment="MiddleRight" SizeF="90.08331,23" LocationFloat="485.9585, 14.0000029" Font="Arial, 9.75pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
+          <Summary Ref="107" Running="Group" />
+          <ExpressionBindings>
+            <Item1 Ref="108" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([RPPensionPeriod].[PensionablePayTaxPeriod])" />
+          </ExpressionBindings>
+          <StylePriority Ref="109" UseFont="false" UseTextAlignment="false" />
         </Item7>
-        <Item8 Ref="112" ControlType="XRLabel" Name="label33" Multiline="true" Text="label33" TextAlignment="MiddleRight" SizeF="90.08331,23" LocationFloat="485.9585, 14.0000029" Font="Arial, 9.75pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
+        <Item8 Ref="110" ControlType="XRLabel" Name="label34" Multiline="true" Text="label34" TextAlignment="MiddleRight" SizeF="80.87561,22.9999962" LocationFloat="699.4165, 14.0000076" Font="Arial, 9.75pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
+          <Summary Ref="111" Running="Group" />
           <ExpressionBindings>
-            <Item1 Ref="113" EventName="BeforePrint" PropertyName="Text" Expression="[RPPensionPeriod].[PensionablePayTaxPeriod]" />
+            <Item1 Ref="112" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([RPPensionPeriod].[ErPensionTaxPeriod])" />
           </ExpressionBindings>
-          <StylePriority Ref="114" UseFont="false" UseTextAlignment="false" />
+          <StylePriority Ref="113" UseFont="false" UseTextAlignment="false" />
         </Item8>
-        <Item9 Ref="115" ControlType="XRLabel" Name="label34" Multiline="true" Text="label34" TextAlignment="MiddleRight" SizeF="80.87561,22.9999962" LocationFloat="699.4165, 14.0000076" Font="Arial, 9.75pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
-          <ExpressionBindings>
-            <Item1 Ref="116" EventName="BeforePrint" PropertyName="Text" Expression="[RPPensionPeriod].[ErPensionTaxPeriod]" />
-          </ExpressionBindings>
-          <StylePriority Ref="117" UseFont="false" UseTextAlignment="false" />
-        </Item9>
       </Controls>
     </Item7>
-    <Item8 Ref="118" ControlType="ReportFooterBand" Name="ReportFooter" HeightF="60.4167938">
+    <Item8 Ref="114" ControlType="ReportFooterBand" Name="ReportFooter" HeightF="60.4167938">
       <Controls>
-        <Item1 Ref="119" ControlType="XRLabel" Name="label37" Multiline="true" Text="Total for report" TextAlignment="MiddleLeft" SizeF="143.750031,23.0000019" LocationFloat="309.125122, 24.29161" Font="Arial, 9.75pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
-          <StylePriority Ref="120" UseFont="false" UseTextAlignment="false" />
+        <Item1 Ref="115" ControlType="XRLabel" Name="label37" Multiline="true" Text="Total for report" TextAlignment="MiddleLeft" SizeF="143.750031,23.0000019" LocationFloat="309.125122, 24.29161" Font="Arial, 9.75pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
+          <StylePriority Ref="116" UseFont="false" UseTextAlignment="false" />
         </Item1>
-        <Item2 Ref="121" ControlType="XRLine" Name="line9" SizeF="95.12506,2.08334923" LocationFloat="685.167053, 24.29161" />
-        <Item3 Ref="122" ControlType="XRLine" Name="line10" SizeF="95.12506,2.08334732" LocationFloat="685.167053, 47.29169" />
-        <Item4 Ref="123" ControlType="XRLine" Name="line1" SizeF="90.08331,2.083334" LocationFloat="485.9585, 24.29161" />
-        <Item5 Ref="124" ControlType="XRLine" Name="line6" SizeF="90.08331,2.08333588" LocationFloat="485.9585, 47.29169" />
-        <Item6 Ref="125" ControlType="XRLabel" Name="label36" Multiline="true" Text="label36" TextAlignment="MiddleRight" SizeF="80.87561,23.0000172" LocationFloat="699.4165, 26.3749447" Font="Arial, 9.75pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
+        <Item2 Ref="117" ControlType="XRLine" Name="line9" SizeF="95.12506,2.08334923" LocationFloat="685.167053, 24.29161" />
+        <Item3 Ref="118" ControlType="XRLine" Name="line10" SizeF="95.12506,2.08334732" LocationFloat="685.167053, 47.29169" />
+        <Item4 Ref="119" ControlType="XRLine" Name="line1" SizeF="90.08331,2.083334" LocationFloat="485.9585, 24.29161" />
+        <Item5 Ref="120" ControlType="XRLine" Name="line6" SizeF="90.08331,2.08333588" LocationFloat="485.9585, 47.29169" />
+        <Item6 Ref="121" ControlType="XRLabel" Name="label36" Multiline="true" Text="label36" TextAlignment="MiddleRight" SizeF="80.87561,23.0000172" LocationFloat="699.4165, 26.3749447" Font="Arial, 9.75pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
+          <Summary Ref="122" Running="Report" />
+          <ExpressionBindings>
+            <Item1 Ref="123" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([RPPensionPeriod].[ErPensionTaxPeriod])" />
+          </ExpressionBindings>
+          <StylePriority Ref="124" UseFont="false" UseTextAlignment="false" />
+        </Item6>
+        <Item7 Ref="125" ControlType="XRLabel" Name="label35" Multiline="true" Text="label35" TextAlignment="MiddleRight" SizeF="92.3718262,23" LocationFloat="483.669922, 24.29161" Font="Arial, 9.75pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
           <Summary Ref="126" Running="Report" />
           <ExpressionBindings>
-            <Item1 Ref="127" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([RPPensionPeriod].[ErPensionTaxPeriod])" />
+            <Item1 Ref="127" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([RPPensionPeriod].[PensionablePayTaxPeriod])" />
           </ExpressionBindings>
           <StylePriority Ref="128" UseFont="false" UseTextAlignment="false" />
-        </Item6>
-        <Item7 Ref="129" ControlType="XRLabel" Name="label35" Multiline="true" Text="label35" TextAlignment="MiddleRight" SizeF="92.3718262,23" LocationFloat="483.669922, 24.29161" Font="Arial, 9.75pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
-          <Summary Ref="130" Running="Report" />
-          <ExpressionBindings>
-            <Item1 Ref="131" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([RPPensionPeriod].[PensionablePayTaxPeriod])" />
-          </ExpressionBindings>
-          <StylePriority Ref="132" UseFont="false" UseTextAlignment="false" />
         </Item7>
-        <Item8 Ref="133" ControlType="XRLine" Name="line3" SizeF="87.83362,2.08333588" LocationFloat="583.791748, 47.29169" />
-        <Item9 Ref="134" ControlType="XRLabel" Name="label24" Multiline="true" Text="label23" TextAlignment="MiddleRight" SizeF="76.5421143,23.0000172" LocationFloat="595.083252, 26.3749447" Font="Arial, 9.75pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
-          <Summary Ref="135" Running="Report" />
+        <Item8 Ref="129" ControlType="XRLine" Name="line3" SizeF="87.83362,2.08333588" LocationFloat="583.791748, 47.29169" />
+        <Item9 Ref="130" ControlType="XRLabel" Name="label24" Multiline="true" Text="label23" TextAlignment="MiddleRight" SizeF="76.5421143,23.0000172" LocationFloat="595.083252, 26.3749447" Font="Arial, 9.75pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
+          <Summary Ref="131" Running="Report" />
           <ExpressionBindings>
-            <Item1 Ref="136" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([RPPensionPeriod].[EePensionTaxPeriod])" />
+            <Item1 Ref="132" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([RPPensionPeriod].[EePensionTaxPeriod])" />
           </ExpressionBindings>
-          <StylePriority Ref="137" UseFont="false" UseTextAlignment="false" />
+          <StylePriority Ref="133" UseFont="false" UseTextAlignment="false" />
         </Item9>
-        <Item10 Ref="138" ControlType="XRLine" Name="line4" SizeF="87.83362,2.083334" LocationFloat="583.791748, 24.29161" />
+        <Item10 Ref="134" ControlType="XRLine" Name="line4" SizeF="87.83362,2.083334" LocationFloat="583.791748, 24.29161" />
       </Controls>
     </Item8>
   </Bands>
