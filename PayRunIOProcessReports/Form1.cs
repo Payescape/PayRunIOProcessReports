@@ -289,6 +289,8 @@ namespace PayRunIOProcessReports
                         rpEmployeePeriod.TaxablePayTP = prWG.GetDecimalElementByTagFromXml(employee, "TaxablePayThisPeriod");
                         rpEmployeePeriod.HolidayAccruedTd = prWG.GetDecimalElementByTagFromXml(employee, "HolidayAccruedTd");
 
+                        rpEmployeePeriod.ErPensionTotalTP = 0;
+                        rpEmployeePeriod.ErPensionTotalYtd = 0;
                         List<RPPensionPeriod> rpPensionPeriods = new List<RPPensionPeriod>();
                         foreach (XmlElement pension in employee.GetElementsByTagName("Pension"))
                         {
@@ -305,8 +307,8 @@ namespace PayRunIOProcessReports
                             rpPensionPeriod.EePensionPayRunDate = prWG.GetDecimalElementByTagFromXml(pension, "EePensionPayRunDate");
                             rpPensionPeriod.ErPensionPayRunDate = prWG.GetDecimalElementByTagFromXml(pension, "ErPensionPayRunDate");
                             rpPensionPeriod.PensionablePayPayRunDate = prWG.GetDecimalElementByTagFromXml(pension, "PensionablePayDate");
-                            rpPensionPeriod.EeContibutionPercent = prWG.GetDecimalElementByTagFromXml(pension, "EeContributionPercent");
-                            rpPensionPeriod.ErContributionPercent = prWG.GetDecimalElementByTagFromXml(pension, "ErContributionPercent");
+                            rpPensionPeriod.EeContibutionPercent = prWG.GetDecimalElementByTagFromXml(pension, "EeContributionPercent") * 100;
+                            rpPensionPeriod.ErContributionPercent = prWG.GetDecimalElementByTagFromXml(pension, "ErContributionPercent") * 100;
 
                             rpPensionPeriods.Add(rpPensionPeriod);
 
@@ -319,6 +321,8 @@ namespace PayRunIOProcessReports
 
                             rpPensionContributions.Add(rpPensionContribution);
 
+                            rpEmployeePeriod.ErPensionTotalTP = rpEmployeePeriod.ErPensionTotalTP + rpPensionPeriod.ErPensionTaxPeriod;
+                            rpEmployeePeriod.ErPensionTotalYtd = rpEmployeePeriod.ErPensionTotalYtd + rpPensionPeriod.ErPensionYtd;
                         }
                         rpEmployeePeriod.Pensions = rpPensionPeriods;
 
@@ -738,11 +742,11 @@ namespace PayRunIOProcessReports
                         textLine = string.Format("Error producing the employee period reports for file {0}.\r\n{1}.\r\n", file, ex);
                         prWG.update_Progress(textLine, configDirName, logOneIn);
                     }
-                    //if (rpEmployer.P32Required)
-                    //{
-                    //    RPP32Report rpP32Report = CreateP32Report(xdoc, rpEmployer, rpParameters);
-                    //    prWG.PrintP32Report(xdoc, rpP32Report, rpParameters);
-                    //}
+                    if (rpEmployer.P32Required)
+                    {
+                        RPP32Report rpP32Report = CreateP32Report(xdoc, rpEmployer, rpParameters);
+                        prWG.PrintP32Report(xdoc, rpP32Report, rpParameters);
+                    }
                 }
                 else if (file.FullName.Contains("EmployeeYtd"))
                 {
@@ -831,6 +835,7 @@ namespace PayRunIOProcessReports
                 rpP32ReportMonth.PeriodName = reportMonth.GetAttribute("RootNodeName");
 
                 RPP32Breakdown rpP32Breakdown = new RPP32Breakdown();
+                List<RPP32Schedule> rpP32Schedules = new List<RPP32Schedule>();
 
                 foreach (XmlElement paySchedule in reportMonth.GetElementsByTagName("PaySchedule"))
                 {
@@ -850,18 +855,41 @@ namespace PayRunIOProcessReports
 
                         rpP32PayRuns.Add(rpP32PayRun);
                     }
-                    rpP32Schedule.RPP32PayRuns = rpP32PayRuns;
+                    if(rpP32PayRuns.Count > 0)
+                    {
+                        rpP32Schedule.RPP32PayRuns = rpP32PayRuns;
 
-                    rpP32Breakdown.RPP32Schedules.Add(rpP32Schedule);
+                        
+                    }
+                    try
+                    {
+                        rpP32Schedules.Add(rpP32Schedule);
+                        
+                    }
+                    catch(Exception ex)
+                    {
+
+                    }
+                    
+                }
+                try
+                {
+                    rpP32Breakdown.RPP32Schedules = rpP32Schedules;
+
+                    rpP32ReportMonth.RPP32Breakdown = rpP32Breakdown;
+                }
+                catch(Exception ex)
+                {
+
                 }
                 
-                rpP32ReportMonth.RPP32Breakdown = rpP32Breakdown;
 
                 RPP32Summary rpP32Summary = new RPP32Summary();
 
                 foreach(XmlElement summary in reportMonth.GetElementsByTagName("Summary"))
                 {
                     rpP32Summary.Tax = prWG.GetDecimalElementByTagFromXml(summary, "Tax");
+                    rpP32Summary.StudentLoan= prWG.GetDecimalElementByTagFromXml(summary, "StudentLoan");
                     rpP32Summary.PostGraduateLoan = prWG.GetDecimalElementByTagFromXml(summary, "PostGraduateLoan");
                     rpP32Summary.NetTax = prWG.GetDecimalElementByTagFromXml(summary, "NetTax");
                     rpP32Summary.EmployerNI = prWG.GetDecimalElementByTagFromXml(summary, "EmployerNI");
@@ -891,12 +919,14 @@ namespace PayRunIOProcessReports
 
                 if (addToList)
                 {
-                    rpP32Report.RPP32ReportMonths.Add(rpP32ReportMonth);
+                    rpP32ReportMonths.Add(rpP32ReportMonth);
                     annualTotalRequired = true;
                 }
                 
             }
-            if(annualTotalRequired)
+            rpP32Report.RPP32ReportMonths = rpP32ReportMonths;
+
+            if (annualTotalRequired)
             {
                 RPP32ReportMonth rpP32ReportMonth = new RPP32ReportMonth();
                 rpP32ReportMonth.PeriodNo = 13;
@@ -954,14 +984,26 @@ namespace PayRunIOProcessReports
             //}
 
             //Compare all the decimal fields to see if any are non zero using reflection
-            foreach (PropertyInfo pi in rpP32ReportMonth.GetType().GetProperties() )
+            //foreach (PropertyInfo pi in rpP32ReportMonth.GetType().GetProperties() )
+            //{
+            //    if(pi.PropertyType==typeof(decimal))
+            //    {
+            //        decimal value = (decimal)pi.GetValue(rpP32ReportMonth);
+            //        if(value != 0)
+            //        {
+            //           return true;
+            //        }
+            //    }
+            //}
+            //Compare all the decimal fields (in the Summary) to see if any are non zero using reflection
+            foreach (PropertyInfo pi in rpP32ReportMonth.RPP32Summary.GetType().GetProperties())
             {
-                if(pi.PropertyType==typeof(decimal))
+                if (pi.PropertyType == typeof(decimal))
                 {
-                    decimal value = (decimal)pi.GetValue(rpP32ReportMonth);
-                    if(value != 0)
+                    decimal value = (decimal)pi.GetValue(rpP32ReportMonth.RPP32Summary);
+                    if (value != 0)
                     {
-                       return true;
+                        return true;
                     }
                 }
             }

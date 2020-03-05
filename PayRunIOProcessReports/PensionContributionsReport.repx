@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <XtraReportsLayoutSerializer SerializerVersion="19.2.3.0" Ref="1" ControlType="DevExpress.XtraReports.UI.XtraReport, DevExpress.XtraReports.v19.2, Version=19.2.3.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Name="PensionContributionsReport" DisplayName="PensionContributionsReport" Margins="15, 15, 0, 23" PaperKind="A4" PageWidth="827" PageHeight="1169" Version="19.2" DataSource="#Ref-0" Font="Arial, 9.75pt, charSet=0">
   <Parameters>
-    <Item1 Ref="3" Description="Company name" ValueInfo="Hugh Burns" Name="CmpName" />
-    <Item2 Ref="4" Description="PAYE Reference" ValueInfo="925/TZ78628" Name="PayeRef" />
+    <Item1 Ref="3" Description="Company name" ValueInfo="Watson Gas Services" Name="CmpName" />
+    <Item2 Ref="4" Description="PAYE Reference" ValueInfo="916/KA16786" Name="PayeRef" />
     <Item3 Ref="6" Description="Date" ValueInfo="2020-02-28" Name="Date" Type="#Ref-5" />
     <Item4 Ref="8" Description="Tax Period" ValueInfo="47" Name="Period" Type="#Ref-7" />
     <Item5 Ref="9" Description="Frequency" ValueInfo="Weekly" Name="Freq" />
@@ -155,7 +155,7 @@
       </GroupFields>
       <Controls>
         <Item1 Ref="89" ControlType="XRLine" Name="line11" SizeF="786.9999,2.083334" LocationFloat="0, 22.833252" />
-        <Item2 Ref="90" ControlType="XRLabel" Name="label28" Multiline="true" Text="label28" TextAlignment="MiddleLeft" SizeF="147.916656,23" LocationFloat="3.00013232, 0" Font="Arial, 9.75pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
+        <Item2 Ref="90" ControlType="XRLabel" Name="label28" Multiline="true" Text="label28" TextAlignment="MiddleLeft" SizeF="379.1668,23" LocationFloat="3.00013232, 0" Font="Arial, 9.75pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
           <ExpressionBindings>
             <Item1 Ref="91" EventName="BeforePrint" PropertyName="Text" Expression="[RPPensionPeriod].[SchemeName]" />
           </ExpressionBindings>
@@ -165,13 +165,13 @@
     </Item6>
     <Item7 Ref="93" ControlType="GroupFooterBand" Name="GroupFooter1" HeightF="50.24999">
       <Controls>
-        <Item1 Ref="94" ControlType="XRLabel" Name="label40" Multiline="true" Text="label28" TextAlignment="MiddleLeft" SizeF="226.291626,23.0000038" LocationFloat="159.916809, 15.9999847" Font="Arial, 9.75pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
+        <Item1 Ref="94" ControlType="XRLabel" Name="label40" Multiline="true" Text="label28" TextAlignment="MiddleLeft" SizeF="226.291626,23.0000038" LocationFloat="226.583481, 17.2499981" Font="Arial, 9.75pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
           <ExpressionBindings>
             <Item1 Ref="95" EventName="BeforePrint" PropertyName="Text" Expression="[RPPensionPeriod].[SchemeName]" />
           </ExpressionBindings>
           <StylePriority Ref="96" UseFont="false" UseTextAlignment="false" />
         </Item1>
-        <Item2 Ref="97" ControlType="XRLabel" Name="label38" Multiline="true" Text="Total for " TextAlignment="MiddleRight" SizeF="65.29184,23.0000019" LocationFloat="94.62497, 16" Font="Arial, 9.75pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
+        <Item2 Ref="97" ControlType="XRLabel" Name="label38" Multiline="true" Text="Total for " TextAlignment="MiddleLeft" SizeF="59.29184,23.0000019" LocationFloat="165.291626, 17.2499981" Font="Arial, 9.75pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
           <StylePriority Ref="98" UseFont="false" UseTextAlignment="false" />
         </Item2>
         <Item3 Ref="99" ControlType="XRLine" Name="line8" SizeF="90.08331,2.08333325" LocationFloat="485.9585, 12.0000839" />
@@ -202,7 +202,7 @@
     </Item7>
     <Item8 Ref="114" ControlType="ReportFooterBand" Name="ReportFooter" HeightF="60.4167938">
       <Controls>
-        <Item1 Ref="115" ControlType="XRLabel" Name="label37" Multiline="true" Text="Total for report" TextAlignment="MiddleLeft" SizeF="143.750031,23.0000019" LocationFloat="309.125122, 24.29161" Font="Arial, 9.75pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
+        <Item1 Ref="115" ControlType="XRLabel" Name="label37" Multiline="true" Text="Total for report" TextAlignment="MiddleLeft" SizeF="143.750031,23.0000019" LocationFloat="165.291718, 24.29161" Font="Arial, 9.75pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
           <StylePriority Ref="116" UseFont="false" UseTextAlignment="false" />
         </Item1>
         <Item2 Ref="117" ControlType="XRLine" Name="line9" SizeF="95.12506,2.08334923" LocationFloat="685.167053, 24.29161" />
