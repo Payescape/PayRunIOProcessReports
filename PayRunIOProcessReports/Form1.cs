@@ -113,12 +113,18 @@ namespace PayRunIOProcessReports
             try
             {
                 prWG.PrintStandardReports(xdoc, rpEmployeePeriodList, rpEmployer, rpParameters, p45s, rpPayComponents, rpPensionContributions);
+                if (rpEmployer.P32Required)
+                {
+                    RPP32Report rpP32Report = CreateP32Report(xdoc, rpEmployer, rpParameters);
+                    prWG.PrintP32Report(xdoc, rpP32Report, rpParameters);
+                }
             }
             catch(Exception ex)
             {
                 textLine = string.Format("Error printing standard reports.\r\n", ex);
                 prWG.update_Progress(textLine, softwareHomeFolder, logOneIn);
             }
+            
             //Produce bank files if necessary
             try
             {
@@ -742,11 +748,7 @@ namespace PayRunIOProcessReports
                         textLine = string.Format("Error producing the employee period reports for file {0}.\r\n{1}.\r\n", file, ex);
                         prWG.update_Progress(textLine, configDirName, logOneIn);
                     }
-                    if (rpEmployer.P32Required)
-                    {
-                        RPP32Report rpP32Report = CreateP32Report(xdoc, rpEmployer, rpParameters);
-                        prWG.PrintP32Report(xdoc, rpP32Report, rpParameters);
-                    }
+                   
                 }
                 else if (file.FullName.Contains("EmployeeYtd"))
                 {
@@ -807,7 +809,18 @@ namespace PayRunIOProcessReports
             RPP32Report rpP32Report = null;
             PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
 
-            XmlDocument p32ReportXml = prWG.GetP32Report(rpParameters);
+            XmlDocument p32ReportXml = new XmlDocument();
+
+            bool test = false;
+            if(test)
+            {
+                p32ReportXml.Load("C:\\Payescape\\Data\\Save\\P32.xml");
+            }
+            else
+            {
+                p32ReportXml = prWG.GetP32Report(rpParameters);
+            }
+
             rpP32Report = PrepareP32SummaryReport(xdoc, p32ReportXml, rpParameters, prWG);
 
             return rpP32Report;
@@ -832,6 +845,8 @@ namespace PayRunIOProcessReports
             {
                 RPP32ReportMonth rpP32ReportMonth = new RPP32ReportMonth();
                 rpP32ReportMonth.PeriodNo = Convert.ToInt32(reportMonth.GetAttribute("Period"));
+                rpP32ReportMonth.RPPeriodNo = rpP32ReportMonth.PeriodNo.ToString();
+                rpP32ReportMonth.RPPeriodText = "Month " + rpP32ReportMonth.PeriodNo.ToString();
                 rpP32ReportMonth.PeriodName = reportMonth.GetAttribute("RootNodeName");
 
                 RPP32Breakdown rpP32Breakdown = new RPP32Breakdown();
@@ -903,6 +918,10 @@ namespace PayRunIOProcessReports
                     rpP32Summary.ShppComp = prWG.GetDecimalElementByTagFromXml(summary, "ShppComp");
                     rpP32Summary.SapRecovered = prWG.GetDecimalElementByTagFromXml(summary, "SapRecovered");
                     rpP32Summary.SapComp = prWG.GetDecimalElementByTagFromXml(summary, "SapComp");
+                    rpP32Summary.TotalDeductions = rpP32Summary.EmploymentAllowance + rpP32Summary.SmpComp + rpP32Summary.SmpRecovered + rpP32Summary.SppComp + 
+                                                   rpP32Summary.SppRecovered + rpP32Summary.SapComp + rpP32Summary.SapRecovered + rpP32Summary.ShppComp + 
+                                                   rpP32Summary.ShppRecovered;
+                    rpP32Summary.AppLevy = 0;
                     rpP32Summary.CisDeducted = prWG.GetDecimalElementByTagFromXml(summary, "CisDeducted");
                     rpP32Summary.CisSuffered = prWG.GetDecimalElementByTagFromXml(summary, "CisSuffered");
                     rpP32Summary.NetNICs = prWG.GetDecimalElementByTagFromXml(summary, "NetNICs");
@@ -930,6 +949,8 @@ namespace PayRunIOProcessReports
             {
                 RPP32ReportMonth rpP32ReportMonth = new RPP32ReportMonth();
                 rpP32ReportMonth.PeriodNo = 13;
+                rpP32ReportMonth.RPPeriodNo = "";
+                rpP32ReportMonth.RPPeriodText = "Year " + rpP32Report.TaxYear.ToString();
                 rpP32ReportMonth.PeriodName = "Annual total";
 
                 //There is no breakdown for the annual total so just add a null one.
