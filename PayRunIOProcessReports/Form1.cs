@@ -304,6 +304,7 @@ namespace PayRunIOProcessReports
                             rpPensionPeriod.Key = Convert.ToInt32(pension.GetAttribute("Key"));
                             rpPensionPeriod.Code = prWG.GetElementByTagFromXml(pension, "Code");
                             rpPensionPeriod.SchemeName = prWG.GetElementByTagFromXml(pension, "SchemeName");
+                            rpPensionPeriod.ProviderEmployerReference = prWG.GetElementByTagFromXml(pension, "ProviderEmployerRef");
                             rpPensionPeriod.EePensionYtd = prWG.GetDecimalElementByTagFromXml(pension, "EePensionYtd");
                             rpPensionPeriod.ErPensionYtd = prWG.GetDecimalElementByTagFromXml(pension, "ErPensionYtd");
                             rpPensionPeriod.PensionablePayYtd = prWG.GetDecimalElementByTagFromXml(pension, "PensionablePayYtd");
@@ -367,6 +368,7 @@ namespace PayRunIOProcessReports
 
                         List<RPAddition> rpAdditions = new List<RPAddition>();
                         List<RPDeduction> rpDeductions = new List<RPDeduction>();
+                        List<RPPayslipDeduction> rpPayslipDeductions = new List<RPPayslipDeduction>();
                         foreach (XmlElement payCodes in employee.GetElementsByTagName("PayCodes"))
                         {
                             foreach (XmlElement payCode in payCodes.GetElementsByTagName("PayCode"))
@@ -508,6 +510,8 @@ namespace PayRunIOProcessReports
                                 }
                                 else
                                 {
+                                    //We now need a list of deductions for the PayHistory.csv file and a different one for the payslips.
+                                    //Deductions used to create the PayHistory.csv file will use the PayCodes provided in the PR xml file for pensions, for the payslip use the pension list from PR.
                                     RPDeduction rpDeduction = new RPDeduction();
                                     rpDeduction.EeRef = rpEmployeePeriod.Reference;
                                     rpDeduction.Code = prWG.GetElementByTagFromXml(payCode, "Code");
@@ -544,32 +548,85 @@ namespace PayRunIOProcessReports
                                     if (rpDeduction.AmountTP != 0)
                                     {
                                         rpDeductions.Add(rpDeduction);
-                                        
+
                                     }
                                     rpEmployeePeriod.TotalDedTP = rpEmployeePeriod.TotalDedTP + rpDeduction.AmountTP;
                                     rpEmployeePeriod.TotalDedYTD = rpEmployeePeriod.TotalDedYTD + rpDeduction.AmountYTD;
+
+
+                                    //We now need a list of deductions for the PayHistory.csv file and a different one for the payslips.
+                                    //Deductions used to create the PayHistory.csv file will use the PayCodes provided in the PR xml file for pensions, for the payslip use the pension list from PR.
+                                    if(!rpDeduction.Code.Contains("PENSION"))
+                                    {
+                                        RPPayslipDeduction rpPayslipDeduction = new RPPayslipDeduction();
+                                        rpPayslipDeduction.EeRef = rpEmployeePeriod.Reference;
+                                        rpPayslipDeduction.Code = rpDeduction.Code;
+                                        rpPayslipDeduction.Description = rpDeduction.Description;
+                                        rpPayslipDeduction.AmountTP = rpDeduction.AmountTP;
+                                        rpPayslipDeduction.AmountYTD = rpDeduction.AmountYTD;
+                                        //if (rpDeduction.AmountTP != 0 || rpDeduction.AmountYTD != 0)
+                                        if (rpPayslipDeduction.AmountTP != 0)
+                                        {
+                                            rpPayslipDeductions.Add(rpPayslipDeduction);
+
+                                        }
+                                    }
+                                    
+
                                 }
-                                //Sort the list of additions into Code sequence before returning them.
-                                rpAdditions.Sort(delegate (RPAddition x, RPAddition y)
-                                {
-                                    if (x.Code == null && y.Code == null) return 0;
-                                    else if (x.Code == null) return -1;
-                                    else if (y.Code == null) return 1;
-                                    else return x.Code.CompareTo(y.Code);
-                                });
-                                //Sort the list of deductions into Code sequence before returning them.
-                                rpDeductions.Sort(delegate (RPDeduction x, RPDeduction y)
-                                {
-                                    if (x.Code == null && y.Code == null) return 0;
-                                    else if (x.Code == null) return -1;
-                                    else if (y.Code == null) return 1;
-                                    else return x.Code.CompareTo(y.Code);
-                                });
-                                rpEmployeePeriod.Additions = rpAdditions;
-                                rpEmployeePeriod.Deductions = rpDeductions;
+                                
                             }//End of for each payCode
                             preSamplePayCodes = true;
                         }//End of for each payCodes
+                        //
+                        //Deductions are only used for the payslip. It's possible that we should using the pension list for the pension elements,
+                        //in which case we shouldn't use these pension pay codes but use the rpPensionPeriods list we created above instead
+                        //
+                        foreach (RPPensionPeriod rpPensionPeriod in rpPensionPeriods)
+                        {
+                            RPPayslipDeduction rpPayslipDeduction = new RPPayslipDeduction();
+                            rpPayslipDeduction.EeRef = rpEmployeePeriod.Reference;
+                            rpPayslipDeduction.Code = "PENSION" + rpPensionPeriod.Code;
+                            rpPayslipDeduction.Description = rpPensionPeriod.SchemeName;
+                            rpPayslipDeduction.AmountTP = rpPensionPeriod.EePensionTaxPeriod;
+                            rpPayslipDeduction.AmountYTD = rpPensionPeriod.EePensionYtd;
+                            //if (rpPayslipDeduction.AmountTP != 0 || rpPayslipDeduction.AmountYTD != 0)
+                            if (rpPayslipDeduction.AmountTP != 0)
+                            {
+                                rpPayslipDeductions.Add(rpPayslipDeduction);
+
+                            }
+                            
+                        }
+                        
+                        //Sort the list of additions into Code sequence before returning them.
+                        rpAdditions.Sort(delegate (RPAddition x, RPAddition y)
+                        {
+                            if (x.Code == null && y.Code == null) return 0;
+                            else if (x.Code == null) return -1;
+                            else if (y.Code == null) return 1;
+                            else return x.Code.CompareTo(y.Code);
+                        });
+                        //Sort the list of deductions into Code sequence before returning them.
+                        rpDeductions.Sort(delegate (RPDeduction x, RPDeduction y)
+                        {
+                            if (x.Code == null && y.Code == null) return 0;
+                            else if (x.Code == null) return -1;
+                            else if (y.Code == null) return 1;
+                            else return x.Code.CompareTo(y.Code);
+                        });
+                        //Sort the list of payslip deductions into Code sequence before returning them.
+                        rpPayslipDeductions.Sort(delegate (RPPayslipDeduction x, RPPayslipDeduction y)
+                        {
+                            if (x.Code == null && y.Code == null) return 0;
+                            else if (x.Code == null) return -1;
+                            else if (y.Code == null) return 1;
+                            else return x.Code.CompareTo(y.Code);
+                        });
+                        rpEmployeePeriod.Additions = rpAdditions;
+                        rpEmployeePeriod.Deductions = rpDeductions;
+                        rpEmployeePeriod.PayslipDeductions = rpPayslipDeductions;
+
                         //Multiple Tax and NI by -1 to make them positive
                         rpEmployeePeriod.Tax = rpEmployeePeriod.Tax * -1;
                         rpEmployeePeriod.NetNI = rpEmployeePeriod.NetNI * -1;
