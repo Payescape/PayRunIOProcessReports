@@ -398,6 +398,9 @@ namespace PayRunIOProcessReports
                                 rpPayComponent.AmountTP = prWG.GetDecimalElementByTagFromXml(payCode, "Amount");
                                 rpPayComponent.UnitsYTD = prWG.GetDecimalElementByTagFromXml(payCode, "PayeYearUnits");
                                 rpPayComponent.AmountYTD = prWG.GetDecimalElementByTagFromXml(payCode, "PayeYearBalance");
+                                rpPayComponent.AccountsYearBalance = prWG.GetDecimalElementByTagFromXml(payCode, "AccountsYearBalance");
+                                rpPayComponent.AccountsYearUnits = prWG.GetDecimalElementByTagFromXml(payCode, "AccountsYearUnits");
+                                rpPayComponent.PayrollAccrued = prWG.GetDecimalElementByTagFromXml(payCode, "PayrollAccrued");
                                 rpPayComponent.IsTaxable = prWG.GetBooleanElementByTagFromXml(payCode, "IsTaxable");
                                 rpPayComponent.IsPayCode = prWG.GetBooleanElementByTagFromXml(payCode, "IsPayCode");
                                 rpPayComponent.EarningOrDeduction = prWG.GetElementByTagFromXml(payCode, "EarningOrDeduction");
@@ -422,26 +425,19 @@ namespace PayRunIOProcessReports
                                     }
 
                                     //Check for the different pay codes and add to the appropriate total.
-                                    string swPayCode = rpPayComponent.PayCode;
-                                    if (swPayCode.StartsWith("PENSION"))
-                                    {
-                                        swPayCode = "PENSION";
-                                    }
-                                    switch (swPayCode)
+                                    switch (rpPayComponent.PayCode)
                                     {
                                         case "HOLPY":
                                         case "HOLIDAY":
                                             rpEmployeePeriod.HolidayPay = rpEmployeePeriod.HolidayPay + rpPayComponent.AmountTP;
                                             break;
+                                        case "PENSIONRAS":
+                                        case "PENSIONTAXEX":
+                                            rpEmployeePeriod.PostTaxPension = rpEmployeePeriod.PostTaxPension + rpPayComponent.AmountTP;
+                                            break;
                                         case "PENSION":
-                                            if(rpPayComponent.IsTaxable)
-                                            {
-                                                rpEmployeePeriod.PostTaxPension = rpEmployeePeriod.PostTaxPension + rpPayComponent.AmountTP;
-                                            }
-                                            else
-                                            {
-                                                rpEmployeePeriod.PreTaxPension = rpEmployeePeriod.PreTaxPension + rpPayComponent.AmountTP;
-                                            }
+                                        case "PENSIONSS":
+                                            rpEmployeePeriod.PreTaxPension = rpEmployeePeriod.PreTaxPension + rpPayComponent.AmountTP;
                                             break;
                                         case "AOE":
                                             rpEmployeePeriod.AOE = rpEmployeePeriod.AOE + rpPayComponent.AmountTP;
@@ -469,11 +465,12 @@ namespace PayRunIOProcessReports
                                 }
 
 
-                                if (prWG.GetElementByTagFromXml(payCode, "EarningOrDeduction") == "E")
+                                //if (prWG.GetElementByTagFromXml(payCode, "EarningOrDeduction") == "E")
+                                if (rpPayComponent.EarningOrDeduction == "E" && rpPayComponent.PayCode != "PENSIONSS")
                                 {
                                     RPAddition rpAddition = new RPAddition();
                                     rpAddition.EeRef = rpEmployeePeriod.Reference;
-                                    rpAddition.Code = prWG.GetElementByTagFromXml(payCode, "Code");
+                                    rpAddition.Code = rpPayComponent.PayCode;//prWG.GetElementByTagFromXml(payCode, "Code");
                                     //They want Basic pay and Salary to come first. This will only work if they use the following codes!
                                     switch(rpAddition.Code)
                                     {
@@ -490,16 +487,16 @@ namespace PayRunIOProcessReports
                                             rpAddition.Code = " SALARY";
                                             break;
                                     }
-                                   
-                                    rpAddition.Description = prWG.GetElementByTagFromXml(payCode, "Description");
-                                    rpAddition.Rate = prWG.GetDecimalElementByTagFromXml(payCode, "Rate");
-                                    rpAddition.Units = prWG.GetDecimalElementByTagFromXml(payCode, "Units");
-                                    rpAddition.AmountTP = prWG.GetDecimalElementByTagFromXml(payCode, "Amount");
-                                    rpAddition.AmountYTD = prWG.GetDecimalElementByTagFromXml(payCode, "PayeYearBalance");
-                                    rpAddition.AccountsYearBalance = prWG.GetDecimalElementByTagFromXml(payCode, "AccountsYearBalance");
-                                    rpAddition.AccountsYearUnits = prWG.GetDecimalElementByTagFromXml(payCode, "AccountsYearUnits");
-                                    rpAddition.PayeYearUnits = prWG.GetDecimalElementByTagFromXml(payCode, "PayeYearUnits");
-                                    rpAddition.PayrollAccrued = prWG.GetDecimalElementByTagFromXml(payCode, "PayrollAccrued");
+
+                                    rpAddition.Description = rpPayComponent.Description;//prWG.GetElementByTagFromXml(payCode, "Description");
+                                    rpAddition.Rate = rpPayComponent.Rate;//prWG.GetDecimalElementByTagFromXml(payCode, "Rate");
+                                    rpAddition.Units = rpPayComponent.UnitsTP;//prWG.GetDecimalElementByTagFromXml(payCode, "Units");
+                                    rpAddition.AmountTP = rpPayComponent.AmountTP;//prWG.GetDecimalElementByTagFromXml(payCode, "Amount");
+                                    rpAddition.AmountYTD = rpPayComponent.AmountYTD;//prWG.GetDecimalElementByTagFromXml(payCode, "PayeYearBalance");
+                                    rpAddition.AccountsYearBalance = rpPayComponent.AccountsYearBalance;//prWG.GetDecimalElementByTagFromXml(payCode, "AccountsYearBalance");
+                                    rpAddition.AccountsYearUnits = rpPayComponent.AccountsYearUnits;//prWG.GetDecimalElementByTagFromXml(payCode, "AccountsYearUnits");
+                                    rpAddition.PayeYearUnits = rpPayComponent.UnitsYTD;//prWG.GetDecimalElementByTagFromXml(payCode, "PayeYearUnits");
+                                    rpAddition.PayrollAccrued = rpPayComponent.PayrollAccrued;//prWG.GetDecimalElementByTagFromXml(payCode, "PayrollAccrued");
                                     if (rpAddition.AmountTP != 0)
                                     {
                                         rpAdditions.Add(rpAddition);
@@ -514,36 +511,35 @@ namespace PayRunIOProcessReports
                                     //Deductions used to create the PayHistory.csv file will use the PayCodes provided in the PR xml file for pensions, for the payslip use the pension list from PR.
                                     RPDeduction rpDeduction = new RPDeduction();
                                     rpDeduction.EeRef = rpEmployeePeriod.Reference;
-                                    rpDeduction.Code = prWG.GetElementByTagFromXml(payCode, "Code");
+                                    rpDeduction.Code = rpPayComponent.PayCode;//prWG.GetElementByTagFromXml(payCode, "Code");
                                     //They want Tax then NI, then Pension to come first, then the rest in alphabetical order. This will only work if they use the following codes!
                                     switch (rpDeduction.Code)
                                     {
                                         case "TAX":
-                                            rpDeduction.Code = "   TAX";
+                                            rpDeduction.Seq = "00" + rpDeduction.Code;
                                             break;
                                         case "NI":
-                                            rpDeduction.Code = "  NI";
+                                            rpDeduction.Seq = "01" + rpDeduction.Code;
                                             break;
                                         case "PENSION":
-                                            rpDeduction.Code = " PENSION";
-                                            break;
                                         case "PENSIONRAS":
-                                            rpDeduction.Code = " PENSIONRAS";
-                                            break;
                                         case "PENSIONSS":
-                                            rpDeduction.Code = " PENSIONSS";
-                                            break;
                                         case "PENSIONTAXEX":
-                                            rpDeduction.Code = " PENSIONTAXEX";
+                                            rpDeduction.Seq = "02" + rpDeduction.Code;
                                             break;
+                                        default:
+                                            rpDeduction.Seq = "99" + rpDeduction.Code;
+                                            break;
+
                                     }
-                                    rpDeduction.Description = prWG.GetElementByTagFromXml(payCode, "Description");
-                                    rpDeduction.AmountTP = prWG.GetDecimalElementByTagFromXml(payCode, "Amount") * -1;
-                                    rpDeduction.AmountYTD = prWG.GetDecimalElementByTagFromXml(payCode, "PayeYearBalance") * -1;
-                                    rpDeduction.AccountsYearBalance = prWG.GetDecimalElementByTagFromXml(payCode, "AccountsYearBalance") * -1;
-                                    rpDeduction.AccountsYearUnits = prWG.GetDecimalElementByTagFromXml(payCode, "AccountsYearUnits") * -1;
-                                    rpDeduction.PayeYearUnits = prWG.GetDecimalElementByTagFromXml(payCode, "PayeYearUnits") * -1;
-                                    rpDeduction.PayrollAccrued = prWG.GetDecimalElementByTagFromXml(payCode, "PayrollAccrued") * -1;
+                                    rpDeduction.Description = rpPayComponent.Description;//prWG.GetElementByTagFromXml(payCode, "Description");
+                                    rpDeduction.IsTaxable = rpPayComponent.IsTaxable;
+                                    rpDeduction.AmountTP = rpPayComponent.AmountTP * -1;//prWG.GetDecimalElementByTagFromXml(payCode, "Amount") * -1;
+                                    rpDeduction.AmountYTD = rpPayComponent.AmountYTD * -1;//prWG.GetDecimalElementByTagFromXml(payCode, "PayeYearBalance") * -1;
+                                    rpDeduction.AccountsYearBalance = rpPayComponent.AccountsYearBalance * -1;//prWG.GetDecimalElementByTagFromXml(payCode, "AccountsYearBalance") * -1;
+                                    rpDeduction.AccountsYearUnits = rpPayComponent.AccountsYearUnits * -1;//prWG.GetDecimalElementByTagFromXml(payCode, "AccountsYearUnits") * -1;
+                                    rpDeduction.PayeYearUnits = rpPayComponent.UnitsYTD * -1;//prWG.GetDecimalElementByTagFromXml(payCode, "PayeYearUnits") * -1;
+                                    rpDeduction.PayrollAccrued = rpPayComponent.PayrollAccrued * -1;//prWG.GetDecimalElementByTagFromXml(payCode, "PayrollAccrued") * -1;
                                     //if (rpDeduction.AmountTP != 0 || rpDeduction.AmountYTD != 0)
                                     if (rpDeduction.AmountTP != 0)
                                     {
@@ -561,6 +557,7 @@ namespace PayRunIOProcessReports
                                         RPPayslipDeduction rpPayslipDeduction = new RPPayslipDeduction();
                                         rpPayslipDeduction.EeRef = rpEmployeePeriod.Reference;
                                         rpPayslipDeduction.Code = rpDeduction.Code;
+                                        rpPayslipDeduction.Seq = rpDeduction.Seq;
                                         rpPayslipDeduction.Description = rpDeduction.Description;
                                         rpPayslipDeduction.AmountTP = rpDeduction.AmountTP;
                                         rpPayslipDeduction.AmountYTD = rpDeduction.AmountYTD;
@@ -586,6 +583,7 @@ namespace PayRunIOProcessReports
                         {
                             RPPayslipDeduction rpPayslipDeduction = new RPPayslipDeduction();
                             rpPayslipDeduction.EeRef = rpEmployeePeriod.Reference;
+                            rpPayslipDeduction.Seq = "02PENSION";
                             rpPayslipDeduction.Code = "PENSION" + rpPensionPeriod.Code;
                             rpPayslipDeduction.Description = rpPensionPeriod.SchemeName;
                             rpPayslipDeduction.AmountTP = rpPensionPeriod.EePensionTaxPeriod;
@@ -610,18 +608,18 @@ namespace PayRunIOProcessReports
                         //Sort the list of deductions into Code sequence before returning them.
                         rpDeductions.Sort(delegate (RPDeduction x, RPDeduction y)
                         {
-                            if (x.Code == null && y.Code == null) return 0;
-                            else if (x.Code == null) return -1;
-                            else if (y.Code == null) return 1;
-                            else return x.Code.CompareTo(y.Code);
+                            if (x.Seq == null && y.Seq == null) return 0;
+                            else if (x.Seq == null) return -1;
+                            else if (y.Seq == null) return 1;
+                            else return x.Seq.CompareTo(y.Seq);
                         });
                         //Sort the list of payslip deductions into Code sequence before returning them.
                         rpPayslipDeductions.Sort(delegate (RPPayslipDeduction x, RPPayslipDeduction y)
                         {
-                            if (x.Code == null && y.Code == null) return 0;
-                            else if (x.Code == null) return -1;
-                            else if (y.Code == null) return 1;
-                            else return x.Code.CompareTo(y.Code);
+                            if (x.Seq == null && y.Seq == null) return 0;
+                            else if (x.Seq == null) return -1;
+                            else if (y.Seq == null) return 1;
+                            else return x.Seq.CompareTo(y.Seq);
                         });
                         rpEmployeePeriod.Additions = rpAdditions;
                         rpEmployeePeriod.Deductions = rpDeductions;
