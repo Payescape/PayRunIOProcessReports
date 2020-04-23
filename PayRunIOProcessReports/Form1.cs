@@ -318,7 +318,9 @@ namespace PayRunIOProcessReports
                             gotPayRunDate = true;
                             
                         }
-                        //If the employee is a leaver before the start date then don't include.
+                        decimal gross = prWG.GetDecimalElementByTagFromXml(employee, "Gross");
+                        decimal net = prWG.GetDecimalElementByTagFromXml(employee, "Net");
+                        //If the employee is a leaver before the start date then don't include unless they have a gross or net.
                         string leaver = prWG.GetElementByTagFromXml(employee, "Leaver");
                         DateTime leavingDate = new DateTime();
                         if (prWG.GetElementByTagFromXml(employee, "LeavingDate") != "")
@@ -335,6 +337,11 @@ namespace PayRunIOProcessReports
                         {
                             include = true;
                         }
+                        else if(gross != 0 || net != 0)
+                        {
+                            include = true;
+                        }
+
                     }
 
                     if (include)
