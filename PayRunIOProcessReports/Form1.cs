@@ -8,6 +8,8 @@ using PicoXLSX;
 using PayRunIOClassLibrary;
 using System.Globalization;
 using System.Reflection;
+using WinSCP;
+using System.Text.RegularExpressions;
 
 namespace PayRunIOProcessReports
 {
@@ -47,6 +49,7 @@ namespace PayRunIOProcessReports
             //Now process the reports
             ProcessReportsFromPayRunIO(xdoc);
 
+
             Close();
 
         }
@@ -68,8 +71,10 @@ namespace PayRunIOProcessReports
 
             textLine = string.Format("Start processing the reports.");
             prWG.update_Progress(textLine, softwareHomeFolder, logOneIn);
+            string originalDirName = "Outputs";
+            string archiveDirName = "PE-ArchivedOutputs";
+            string[] directories = prWG.GetAListOfDirectories(xdoc, "Outputs");
 
-            string[] directories = prWG.GetAListOfDirectories(xdoc);
             for (int i = 0; i < directories.Count(); i++)
             {
                 try
@@ -77,7 +82,7 @@ namespace PayRunIOProcessReports
                     bool success = ProduceReports(xdoc, directories[i]);
                     if (success)
                     {
-                        prWG.ArchiveDirectory(xdoc, directories[i]);
+                        prWG.ArchiveDirectory(xdoc, directories[i], originalDirName, archiveDirName);
                     }
 
 
@@ -92,6 +97,123 @@ namespace PayRunIOProcessReports
 
             textLine = string.Format("Finished processing the reports.");
             prWG.update_Progress(textLine, softwareHomeFolder, logOneIn);
+
+            //Transfer the contents of PE-Outgoing up to the Blue Marble SFTP server
+            //Each company has it's own folder beneath PE-Outgoing which is just named with their company number.
+            textLine = string.Format("Start processing the PE-Outgoing directory.");
+            prWG.update_Progress(textLine, softwareHomeFolder, logOneIn);
+
+            originalDirName = "PE-Outgoing";
+            archiveDirName = "PE-Outgoing\\Archive";
+            directories = prWG.GetAListOfDirectories(xdoc, "PE-Outgoing");
+
+            for (int i = 0; i < directories.Count(); i++)
+            {
+                if(!directories[i].Contains("Archive"))
+                {
+                    try
+                    {
+                        bool success = TransferToBlueMarbleSFTPServer(xdoc, directories[i]);            // Transfer contents of the folder up to Blue Marble SFTP server.//ProduceReports(xdoc, directories[i]);
+                        if (success)
+                        {
+                            try
+                            {
+                                textLine = string.Format("Trying to archive directory {0}.", directories[i]);
+                                prWG.update_Progress(textLine, softwareHomeFolder, logOneIn);
+
+                                prWG.ArchiveDirectory(xdoc, directories[i], originalDirName, archiveDirName);
+                            }
+                            catch(Exception ex)
+                            {
+                                textLine = string.Format("Error archiving directory {0}.\r\n{1}.\r\n", directories[i], ex);
+                                prWG.update_Progress(textLine, softwareHomeFolder, logOneIn);
+                            }
+                            
+                        }
+
+
+                    }
+                    catch (Exception ex)
+                    {
+                        textLine = string.Format("Error processing PE-Outgoing folder for directory {0}.\r\n{1}.\r\n", directories[i], ex);
+                        prWG.update_Progress(textLine, softwareHomeFolder, logOneIn);
+                    }
+
+                }
+
+            }
+
+        }
+        private bool TransferToBlueMarbleSFTPServer(XDocument xdoc, string directory)
+        {
+            string softwareHomeFolder = xdoc.Root.Element("SoftwareHomeFolder").Value;
+            string dataHomeFolder = xdoc.Root.Element("DataHomeFolder").Value;
+            bool archive = Convert.ToBoolean(xdoc.Root.Element("Archive").Value);
+            string sftpHostName = xdoc.Root.Element("SFTPHostName").Value;
+            string user = xdoc.Root.Element("User").Value;
+            user = "payruntest123";//For testing purposes
+            string passwordFile = softwareHomeFolder + "Programs\\" +xdoc.Root.Element("PasswordFile").Value;
+            string filePrefix = xdoc.Root.Element("FilePrefix").Value;
+            int interval = Convert.ToInt32(xdoc.Root.Element("Interval").Value);
+            int logOneIn = Convert.ToInt32(xdoc.Root.Element("LogOneIn").Value);
+
+            string textLine = null;
+
+            PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
+
+            textLine = string.Format("Start processing the reports.");
+            prWG.update_Progress(textLine, softwareHomeFolder, logOneIn);
+
+            string peOutgoingDirName = dataHomeFolder + "\\PE-Outgoing";
+            bool success = true;
+
+            //
+            // Don't think Blue Marble can cope with a directory so go through each file individually
+            //
+            bool isUnity = true;
+
+            string dataSource = xdoc.Root.Element("DataSource").Value;            //"APPSERVER1\\MSSQL";  //"13.69.154.210\\MSSQL";  
+            string dataBase = xdoc.Root.Element("Database").Value;
+            string userID = xdoc.Root.Element("Username").Value;
+            string password = xdoc.Root.Element("Password").Value;
+            string sqlConnectionString = "Server=" + dataSource + ";Database=" + dataBase + ";User ID=" + userID + ";Password=" + password + ";";
+            int x = directory.LastIndexOf('\\') + 1;
+            int companyNo = Convert.ToInt32(directory.Substring(x, 4));
+            //isUnity = prWG.GetIsUnity(xdoc, sqlConnectionString, companyNo);
+            //I can't create the payescape folder on the UAT server so I'm setting isUnity to true for now JCBJCBTODO
+            //isUnity = true;
+            foreach (var csvFile in Directory.GetFiles(directory))
+            {
+                // Use SFTP to send the file automatically.
+                try
+                {
+                    PutToSFTP PutToSFTP = new PutToSFTP();
+
+                    string[] sftpReturn = PutToSFTP.SFTPTransfer(csvFile, sftpHostName, user, passwordFile, isUnity);
+                    if (sftpReturn[0] == "Success")
+                    {
+                        textLine = string.Format("Successfully uploaded csv file {0} for client reference : {1}", csvFile, companyNo);
+                        prWG.update_Progress(textLine, softwareHomeFolder, logOneIn);
+                    }
+                    else
+                    {
+                        //
+                        // SFTP failed
+                        //
+                        textLine = sftpReturn[1];
+                        prWG.update_Progress(textLine, softwareHomeFolder, logOneIn);
+                        success = false;
+                    }
+
+                }
+                catch
+                {
+                    textLine = string.Format("Failed to upload zipped csv file {0} for client reference : {1}", csvFile, companyNo);
+                    prWG.update_Progress(textLine, softwareHomeFolder, logOneIn);
+                    success = false;
+                }
+            }
+            return success;
         }
        
         
@@ -128,7 +250,7 @@ namespace PayRunIOProcessReports
             //Produce bank files if necessary
             try
             {
-                prWG.ProcessBankAndPensionFiles(xdoc, rpEmployeePeriodList, rpEmployer, rpParameters);
+                prWG.ProcessBankAndPensionFiles(xdoc, rpEmployeePeriodList, rpPensionContributions, rpEmployer, rpParameters);
             }
             catch(Exception ex)
             {
@@ -181,17 +303,20 @@ namespace PayRunIOProcessReports
 
             try
             {
-                bool payRunDate = false;
+                bool gotPayRunDate = false;
                 foreach (XmlElement employee in xmlReport.GetElementsByTagName("Employee"))
                 {
                     bool include = false;
 
-                    if (prWG.GetElementByTagFromXml(employee, "PayRunDate") != "No Pay Run Data Found")
+                    string payRunDate = prWG.GetElementByTagFromXml(employee, "PayRunDate");
+
+                    if (payRunDate != "No Pay Run Data Found" && payRunDate != null)
                     {
-                        if (!payRunDate)
+                        if (!gotPayRunDate)
                         {
                             rpParameters.PayRunDate = Convert.ToDateTime(prWG.GetDateElementByTagFromXml(employee, "PayRunDate"));
-                            payRunDate = true;
+                            gotPayRunDate = true;
+                            
                         }
                         //If the employee is a leaver before the start date then don't include.
                         string leaver = prWG.GetElementByTagFromXml(employee, "Leaver");
@@ -294,6 +419,34 @@ namespace PayRunIOProcessReports
                         rpEmployeePeriod.TaxablePayYTD = prWG.GetDecimalElementByTagFromXml(employee, "TaxablePayThisYTD") + prWG.GetDecimalElementByTagFromXml(employee, "TaxablePayPrevious");
                         rpEmployeePeriod.TaxablePayTP = prWG.GetDecimalElementByTagFromXml(employee, "TaxablePayThisPeriod");
                         rpEmployeePeriod.HolidayAccruedTd = prWG.GetDecimalElementByTagFromXml(employee, "HolidayAccruedTd");
+                        //
+                        //AE Assessment
+                        //
+                        RPAEAssessment rpAEAssessment = new RPAEAssessment();
+                        foreach(XmlElement aeAssessment in employee.GetElementsByTagName("AEAssessment"))
+                        {
+                            rpAEAssessment.Age = prWG.GetIntElementByTagFromXml(aeAssessment, "Age");
+                            rpAEAssessment.StatePensionAge = prWG.GetIntElementByTagFromXml(aeAssessment, "StatePensionAge");
+                            rpAEAssessment.StatePensionDate = prWG.GetDateElementByTagFromXml(aeAssessment, "StatePensionDate");
+                            rpAEAssessment.AssessmentDate = prWG.GetDateElementByTagFromXml(aeAssessment, "AssessmentDate");
+                            rpAEAssessment.QualifyingEarnings = prWG.GetDecimalElementByTagFromXml(aeAssessment, "QualifyingEarnings");
+                            rpAEAssessment.AssessmentCode = prWG.GetElementByTagFromXml(aeAssessment, "AssessmentCode");
+                            rpAEAssessment.AssessmentEvent = prWG.GetElementByTagFromXml(aeAssessment, "AssessmentEvent");
+                            rpAEAssessment.AssessmentResult = prWG.GetElementByTagFromXml(aeAssessment, "AssessmentResult");
+                            rpAEAssessment.AssessmentOverride = prWG.GetElementByTagFromXml(aeAssessment, "AssessmentOverride");
+                            rpAEAssessment.OptOutWindowEndDate = prWG.GetDateElementByTagFromXml(aeAssessment, "OptOutWindowEndDate");
+                            rpAEAssessment.ReenrolmentDate = prWG.GetDateElementByTagFromXml(aeAssessment, "ReenrolmentDate");
+                            rpAEAssessment.IsMemberOfAlternativePensionScheme = prWG.GetBooleanElementByTagFromXml(aeAssessment, "IsMemberOfAlternativePensionScheme");
+                            rpAEAssessment.TaxYear = prWG.GetIntElementByTagFromXml(aeAssessment, "TaxYear");
+                            rpAEAssessment.TaxPeriod = prWG.GetIntElementByTagFromXml(aeAssessment, "TaxPeriod");
+                        }
+                        //Split these strings on capital letters by inserting a space before each capital letter.
+                        rpAEAssessment.AssessmentCode = SplitStringOnCapitalLetters(rpAEAssessment.AssessmentCode);
+                        rpAEAssessment.AssessmentEvent = SplitStringOnCapitalLetters(rpAEAssessment.AssessmentEvent);
+                        rpAEAssessment.AssessmentResult = SplitStringOnCapitalLetters(rpAEAssessment.AssessmentResult);
+                        rpAEAssessment.AssessmentOverride = SplitStringOnCapitalLetters(rpAEAssessment.AssessmentOverride);
+
+                        rpEmployeePeriod.AEAssessment = rpAEAssessment;
 
                         rpEmployeePeriod.ErPensionTotalTP = 0;
                         rpEmployeePeriod.ErPensionTotalYtd = 0;
@@ -316,14 +469,21 @@ namespace PayRunIOProcessReports
                             rpPensionPeriod.PensionablePayPayRunDate = prWG.GetDecimalElementByTagFromXml(pension, "PensionablePayDate");
                             rpPensionPeriod.EeContibutionPercent = prWG.GetDecimalElementByTagFromXml(pension, "EeContributionPercent") * 100;
                             rpPensionPeriod.ErContributionPercent = prWG.GetDecimalElementByTagFromXml(pension, "ErContributionPercent") * 100;
+                            rpEmployeePeriod.Frequency = rpParameters.PaySchedule;
 
                             rpPensionPeriods.Add(rpPensionPeriod);
 
                             RPPensionContribution rpPensionContribution = new RPPensionContribution();
                             rpPensionContribution.EeRef = rpEmployeePeriod.Reference;
+                            rpPensionContribution.Surname = rpEmployeePeriod.Surname;
                             rpPensionContribution.Fullname = rpEmployeePeriod.Fullname;
                             rpPensionContribution.SurnameForename = rpEmployeePeriod.SurnameForename;
+                            rpPensionContribution.ForenameSurname = rpEmployeePeriod.Forename + " " + rpEmployeePeriod.Surname;
                             rpPensionContribution.NINumber = rpEmployeePeriod.NINumber;
+                            rpPensionContribution.Freq = rpEmployeePeriod.Frequency;
+                            rpPensionContribution.PayRunDate = rpEmployeePeriod.PayRunDate;
+                            rpPensionContribution.StartDate = rpEmployeePeriod.PeriodStartDate;
+                            rpPensionContribution.EndDate = rpEmployeePeriod.PeriodEndDate;
                             rpPensionContribution.RPPensionPeriod = rpPensionPeriod;
 
                             rpPensionContributions.Add(rpPensionContribution);
@@ -338,7 +498,6 @@ namespace PayRunIOProcessReports
                         rpEmployeePeriod.EeContributionsTaxPeriodPt1 = prWG.GetDecimalElementByTagFromXml(employee, "EeContributionTaxPeriodPt1");
                         rpEmployeePeriod.EeContributionsTaxPeriodPt2 = prWG.GetDecimalElementByTagFromXml(employee, "EeContributionTaxPeriodPt2");
                         rpEmployeePeriod.ErNICTP = prWG.GetDecimalElementByTagFromXml(employee, "ErContributionTaxPeriod");
-                        rpEmployeePeriod.Frequency = rpParameters.PaySchedule;
                         rpEmployeePeriod.NetPayYTD = 0;
                         rpEmployeePeriod.TotalPayTP = 0;
                         rpEmployeePeriod.TotalPayYTD = 0;
@@ -717,6 +876,14 @@ namespace PayRunIOProcessReports
                     else if (y.Reference == null) return 1;
                     else return x.Reference.CompareTo(y.Reference);
                 });
+                //Sort the list of pension contributions into Scheme Name,EeRef sequence before returning them.
+                rpPensionContributions.Sort(delegate (RPPensionContribution x, RPPensionContribution y)
+                {
+                    if ((x.RPPensionPeriod.SchemeName + x.EeRef) == null && (y.RPPensionPeriod.SchemeName + y.EeRef) == null) return 0;
+                    else if ((x.RPPensionPeriod.SchemeName + x.EeRef) == null) return -1;
+                    else if ((y.RPPensionPeriod.SchemeName + y.EeRef) == null) return 1;
+                    else return (x.RPPensionPeriod.SchemeName + x.EeRef).CompareTo(y.RPPensionPeriod.SchemeName + y.EeRef);
+                });
 
             }
             catch (Exception ex)
@@ -728,6 +895,22 @@ namespace PayRunIOProcessReports
                                   List<RPPensionContribution>, RPEmployer, RPParameters>
                                   (rpEmployeePeriodList, rpPayComponents, p45s, rpPreSamplePayCodes, rpPensionContributions, rpEmployer, rpParameters);
 
+        }
+        private string SplitStringOnCapitalLetters(string input)
+        {
+            string output = null;
+            if(input != null)
+            {
+                var r = new Regex(@"
+                                        (?<=[A-Z])(?=[A-Z][a-z]) |
+                                         (?<=[^A-Z])(?=[A-Z]) |
+                                         (?<=[A-Za-z])(?=[^A-Za-z])", RegexOptions.IgnorePatternWhitespace);
+
+
+                output = r.Replace(input, " ");
+            }
+            
+            return output;
         }
         
         private List<RPPreSamplePayCode> MarkPreSampleCodeAsInUse(string payCode, List<RPPreSamplePayCode> rpPreSamplePayCodes)
@@ -1333,6 +1516,96 @@ namespace PayRunIOProcessReports
         private void Form1_Load(object sender, EventArgs e)
         {
             btnProduceReports.PerformClick();
+        }
+        class PutToSFTP
+        {
+            public static string[] SFTPTransfer(string dataAddress, string strHostName, string strUserName, string strSSHPrivateKeyPath, bool isUnity)
+            {
+                //For locking of files transfer them up with a suffix of _filepart and when the transfer is complete remove the suffix.
+                //I'll only set this to true if we start having problems with files being processed before they are fully uploaded.
+                bool lockFiles = false;
+                string suffix = "_filepart";
+                string[] sftpReturn = new string[2];
+                try
+                {
+                    // Setup session options
+                    SessionOptions sessionOptions = new SessionOptions
+                    {
+                        Protocol = Protocol.Sftp,
+                        HostName = strHostName,    //"trans.bluemarblepayroll.com",
+                        UserName = strUserName,    //"payescapetest",
+                        Password = null,
+                        PortNumber = 22,
+                        SshHostKeyFingerprint = "ssh-rsa 2048 22:5f:d5:de:80:1d:52:69:72:55:3d:38:17:53:24:aa", //Old server  SshHostKeyFingerprint = "ssh-rsa 2048 f9:9e:38:ae:8d:55:d6:5d:f2:b3:63:67:e1:e4:d1:e1",
+                        //JCBJCB
+                        SshPrivateKeyPath = strSSHPrivateKeyPath    //"X:/jim/Documents/Payescape/Contracts/SFTP Private Key File/payescape.ppk"
+                    };
+                    //JCB TODO
+                    using (Session session = new Session())
+                    {
+                        // Connect
+                        session.Open(sessionOptions);
+
+                        // Upload files
+                        TransferOptions transferOptions = new TransferOptions();
+                        transferOptions.TransferMode = TransferMode.Binary;
+                        transferOptions.ResumeSupport.State = TransferResumeSupportState.Off;
+                        transferOptions.PreserveTimestamp = false;
+                        transferOptions.FilePermissions = null; //This is the default
+
+                        TransferOperationResult transferResult;
+                        string outPath = dataAddress;
+
+                        string destPath;
+                        if (isUnity)
+                        {
+                            destPath = "../incoming/";
+                        }
+                        else
+                        {
+                            destPath = "../payescape/";
+                        }
+
+                        if (lockFiles)
+                        {
+                            transferResult = session.PutFiles(outPath, (destPath + "*.*" + suffix), false, transferOptions);
+
+                        }
+                        else
+                        {
+                            transferResult = session.PutFiles(outPath, destPath, false, transferOptions);
+
+                        }
+
+
+                        // Throw on any error
+                        transferResult.Check();
+
+                        //Rename uploaded files
+                        if (lockFiles)
+                        {
+                            foreach (TransferEventArgs transfer in transferResult.Transfers)
+                            {
+                                string finalName = transfer.Destination.Substring(0, transfer.Destination.Length - suffix.Length);
+                                session.MoveFile(transfer.Destination, finalName);
+                            }
+
+                        }
+
+                    }
+
+                    sftpReturn[0] = "Success";
+                    sftpReturn[1] = "Upload to SFTP Server successful.";
+                    return sftpReturn;
+                }
+                catch (Exception ex)
+                {
+
+                    sftpReturn[0] = "Failure";
+                    sftpReturn[1] = "Upload to SFTP Server Failed" + ex;
+                    return sftpReturn;
+                }
+            }
         }
     }
     
