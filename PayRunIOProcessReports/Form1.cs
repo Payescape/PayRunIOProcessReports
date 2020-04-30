@@ -179,9 +179,7 @@ namespace PayRunIOProcessReports
             string sqlConnectionString = "Server=" + dataSource + ";Database=" + dataBase + ";User ID=" + userID + ";Password=" + password + ";";
             int x = directory.LastIndexOf('\\') + 1;
             int companyNo = Convert.ToInt32(directory.Substring(x, 4));
-            //isUnity = prWG.GetIsUnity(xdoc, sqlConnectionString, companyNo);
-            //I can't create the payescape folder on the UAT server so I'm setting isUnity to true for now JCBJCBTODO
-            //isUnity = true;
+
             foreach (var csvFile in Directory.GetFiles(directory))
             {
                 // Use SFTP to send the file automatically.
@@ -227,9 +225,7 @@ namespace PayRunIOProcessReports
             string textLine = null;
 
             PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
-            //Get the total payable to hmrc, I'm going use it in the zipped file name(possibly!).
-            decimal hmrcTotal = prWG.CalculateHMRCTotal(rpEmployeePeriodList);
-            rpEmployer.HMRCDesc = "[" + hmrcTotal.ToString() + "]";
+            
             //I now have a list of employee with their total for this period & ytd plus addition & deductions
             //I can print payslips and standard reports from here.
             try
@@ -239,6 +235,17 @@ namespace PayRunIOProcessReports
                 {
                     RPP32Report rpP32Report = CreateP32Report(xdoc, rpEmployer, rpParameters);
                     prWG.PrintP32Report(xdoc, rpP32Report, rpParameters);
+
+                    //var payeMonth = rpParameters.AccYearEnd.Day < 6 ? rpParameters.AccYearEnd.Month - 4 : rpParameters.AccYearEnd.Month - 3;
+                    int payeMonth = rpParameters.PayRunDate.Day < 6 ? rpParameters.PayRunDate.Month - 4 : rpParameters.PayRunDate.Month - 3;
+                    if (payeMonth <= 0)
+                    {
+                        payeMonth += 12;
+                    }
+
+                    //Get the total payable to hmrc, I'm going use it in the zipped file name(possibly!).
+                    decimal hmrcTotal = prWG.CalculateHMRCTotal(rpP32Report, payeMonth);
+                    rpEmployer.HMRCDesc = "[" + hmrcTotal.ToString() + "]";
                 }
             }
             catch(Exception ex)
@@ -464,6 +471,8 @@ namespace PayRunIOProcessReports
                             rpPensionPeriod.Key = Convert.ToInt32(pension.GetAttribute("Key"));
                             rpPensionPeriod.Code = prWG.GetElementByTagFromXml(pension, "Code");
                             rpPensionPeriod.SchemeName = prWG.GetElementByTagFromXml(pension, "SchemeName");
+                            rpPensionPeriod.StartJoinDate = prWG.GetDateElementByTagFromXml(pension, "StartJoinDate");
+                            rpPensionPeriod.IsJoiner = prWG.GetBooleanElementByTagFromXml(pension, "IsJoiner");
                             rpPensionPeriod.ProviderEmployerReference = prWG.GetElementByTagFromXml(pension, "ProviderEmployerRef");
                             rpPensionPeriod.EePensionYtd = prWG.GetDecimalElementByTagFromXml(pension, "EePensionYtd");
                             rpPensionPeriod.ErPensionYtd = prWG.GetDecimalElementByTagFromXml(pension, "ErPensionYtd");
@@ -1079,7 +1088,7 @@ namespace PayRunIOProcessReports
                 rpP32Report.EmployerPayeRef = prWG.GetElementByTagFromXml(header, "EmployerPayeRef");
                 rpP32Report.PaymentRef = prWG.GetElementByTagFromXml(header, "PaymentRef");
                 rpP32Report.TaxYear = prWG.GetIntElementByTagFromXml(header, "TaxYear");
-                rpP32Report.TaxYearStartDate = Convert.ToDateTime(prWG.GetDateElementByTagFromXml(header, "TaxYearStartDate"));
+                rpP32Report.TaxYearStartDate = Convert.ToDateTime(prWG.GetDateElementByTagFromXml(header, "TaxYearStart"));
                 rpP32Report.TaxYearEndDate = Convert.ToDateTime(prWG.GetDateElementByTagFromXml(header, "TaxYearEndDate"));
                 rpP32Report.AnnualEmploymentAllowance = prWG.GetIntElementByTagFromXml(header, "AnnualEmploymentAllowance");
             }
