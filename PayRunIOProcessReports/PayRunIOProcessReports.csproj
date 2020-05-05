@@ -76,9 +76,9 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
-    <Reference Include="WinSCPnet, Version=1.2.10.6257, Culture=neutral, PublicKeyToken=2271ec4a3c56d0bf, processorArchitecture=MSIL">
+    <Reference Include="WinSCPnet, Version=1.7.2.10278, Culture=neutral, PublicKeyToken=2271ec4a3c56d0bf, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\JBSoft\C## Projects\Visual Studio 2013\WinSCP\Winscp5.17.2.0\WinSCPnet.dll</HintPath>
+      <HintPath>..\..\..\..\JBSoft\C## Projects\Visual Studio 2013\WinSCP\WinSCPnet.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

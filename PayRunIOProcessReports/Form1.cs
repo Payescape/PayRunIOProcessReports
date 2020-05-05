@@ -151,7 +151,12 @@ namespace PayRunIOProcessReports
             bool archive = Convert.ToBoolean(xdoc.Root.Element("Archive").Value);
             string sftpHostName = xdoc.Root.Element("SFTPHostName").Value;
             string user = xdoc.Root.Element("User").Value;
-            user = "payruntest123";//For testing purposes
+            bool live = Convert.ToBoolean(xdoc.Root.Element("Live").Value);
+            if(!live)
+            {
+                user = "payruntest123";//For testing purposes
+            }
+            
             string passwordFile = softwareHomeFolder + "Programs\\" +xdoc.Root.Element("PasswordFile").Value;
             string filePrefix = xdoc.Root.Element("FilePrefix").Value;
             int interval = Convert.ToInt32(xdoc.Root.Element("Interval").Value);
@@ -280,13 +285,22 @@ namespace PayRunIOProcessReports
             try
             {
                 prWG.EmailZippedReports(xdoc, rpEmployer, rpParameters);
+                
             }
             catch(Exception ex)
             {
                 textLine = string.Format("Error emailing zipped reports.\r\n", ex);
                 prWG.update_Progress(textLine, softwareHomeFolder, logOneIn);
             }
-            
+            try
+            {
+                prWG.UploadZippedReportsToAmazonS3(xdoc, rpEmployer, rpParameters);
+            }
+            catch(Exception ex)
+            {
+                textLine = string.Format("Error uploading zipped reports to Amazon S3.\r\n", ex);
+                prWG.update_Progress(textLine, softwareHomeFolder, logOneIn);
+            }
 
         }
         private Tuple<List<RPEmployeePeriod>, List<RPPayComponent>, List<P45>, List<RPPreSamplePayCode>,
@@ -491,10 +505,25 @@ namespace PayRunIOProcessReports
 
                             RPPensionContribution rpPensionContribution = new RPPensionContribution();
                             rpPensionContribution.EeRef = rpEmployeePeriod.Reference;
+                            rpPensionContribution.Title = rpEmployeePeriod.Title;
+                            rpPensionContribution.Forename = rpEmployeePeriod.Forename;
                             rpPensionContribution.Surname = rpEmployeePeriod.Surname;
                             rpPensionContribution.Fullname = rpEmployeePeriod.Fullname;
                             rpPensionContribution.SurnameForename = rpEmployeePeriod.SurnameForename;
                             rpPensionContribution.ForenameSurname = rpEmployeePeriod.Forename + " " + rpEmployeePeriod.Surname;
+                            rpPensionContribution.DOB = rpEmployeePeriod.DateOfBirth;
+
+                            RPAddress rpAddress = new RPAddress();
+                            rpAddress.Line1 = rpEmployeePeriod.Address1;
+                            rpAddress.Line2 = rpEmployeePeriod.Address2;
+                            rpAddress.Line3 = rpEmployeePeriod.Address3;
+                            rpAddress.Line4 = rpEmployeePeriod.Address4;
+                            rpAddress.Postcode = rpEmployeePeriod.Postcode;
+                            rpAddress.Country = rpEmployeePeriod.Country;
+
+                            rpPensionContribution.RPAddress = rpAddress;
+                            rpPensionContribution.EmailAddress = "";
+                            rpPensionContribution.Gender = rpEmployeePeriod.Gender;
                             rpPensionContribution.NINumber = rpEmployeePeriod.NINumber;
                             rpPensionContribution.Freq = rpEmployeePeriod.Frequency;
                             rpPensionContribution.PayRunDate = rpEmployeePeriod.PayRunDate;
