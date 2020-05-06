@@ -513,13 +513,14 @@ namespace PayRunIOProcessReports
                             rpPensionContribution.ForenameSurname = rpEmployeePeriod.Forename + " " + rpEmployeePeriod.Surname;
                             rpPensionContribution.DOB = rpEmployeePeriod.DateOfBirth;
 
+                            //The address gets re-arranged later so that there are no blank lines shown. There address as provided by PR is in this address array.
                             RPAddress rpAddress = new RPAddress();
-                            rpAddress.Line1 = rpEmployeePeriod.Address1;
-                            rpAddress.Line2 = rpEmployeePeriod.Address2;
-                            rpAddress.Line3 = rpEmployeePeriod.Address3;
-                            rpAddress.Line4 = rpEmployeePeriod.Address4;
-                            rpAddress.Postcode = rpEmployeePeriod.Postcode;
-                            rpAddress.Country = rpEmployeePeriod.Country;
+                            rpAddress.Line1 = address[0];
+                            rpAddress.Line2 = address[1];
+                            rpAddress.Line3 = address[2];
+                            rpAddress.Line4 = address[3];
+                            rpAddress.Postcode = address[4];
+                            rpAddress.Country = address[5];
 
                             rpPensionContribution.RPAddress = rpAddress;
                             rpPensionContribution.EmailAddress = "";
@@ -889,11 +890,11 @@ namespace PayRunIOProcessReports
                             p45.Postcode = address[4];
                             p45.Country = address[5];
                             p45.ErName = rpEmployer.Name;
-                            p45.ErAddress1 = "19 Island Hill";// rpEmployer.Address1;
-                            p45.ErAddress2 = "Dromara Road";// rpEmployer.Address2;
-                            p45.ErAddress3 = "Dromore";// rpEmployer.Address3;
-                            p45.ErAddress4 = "Co. Down";// rpEmployer.Address4;
-                            p45.ErPostcode = "BT25 1HA";// rpEmployer.Postcode;
+                            p45.ErAddress1 = "Address Linel";// rpEmployer.Address1;
+                            p45.ErAddress2 = "Address Line2";// rpEmployer.Address2;
+                            p45.ErAddress3 = "Address Line3";// rpEmployer.Address3;
+                            p45.ErAddress4 = "Address Line4";// rpEmployer.Address4;
+                            p45.ErPostcode = "Postcode";// rpEmployer.Postcode;
                             p45.ErCountry = "United Kingdom";// rpEmployer.Country;
                             p45.Now = DateTime.Now;
 
