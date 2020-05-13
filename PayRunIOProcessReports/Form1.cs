@@ -1397,8 +1397,8 @@ namespace PayRunIOProcessReports
             varCol = CreateListOfVariableColumns(rpPreSamplePayCodes);
 
             //Create a workbook.
-            string workBookName = outgoingFolder + "\\" + coNo + "\\PreSample.xlsx";
-            Workbook workbook = new Workbook(workBookName, "Pre Sample");
+            string workBookName = outgoingFolder + "\\" + coNo + "\\Pre.xlsx";
+            Workbook workbook = new Workbook(workBookName, "Pre");
             foreach (string col in fixCol)
             {
                 workbook.CurrentWorksheet.AddNextCell(col);
@@ -1653,6 +1653,7 @@ namespace PayRunIOProcessReports
                 }
             }
         }
+       
     }
     
 }
