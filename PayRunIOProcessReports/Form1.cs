@@ -316,7 +316,7 @@ namespace PayRunIOProcessReports
             List<P45> p45s = new List<P45>();
             //Create a list of Pay Code totals for the Payroll Component Analysis report
             List<RPPayComponent> rpPayComponents = new List<RPPayComponent>();
-            RPEmployer rpEmployer = prWG.GetRPEmployer(xmlReport);
+            RPEmployer rpEmployer = prWG.GetRPEmployer(xdoc, xmlReport, rpParameters);
             //Create a list of all possible Pay Codes just from the first employee
             bool preSamplePayCodes = false;
             List<RPPreSamplePayCode> rpPreSamplePayCodes = new List<RPPreSamplePayCode>();
@@ -386,6 +386,7 @@ namespace PayRunIOProcessReports
                         rpEmployeePeriod.SortCode = prWG.GetElementByTagFromXml(employee, "SortCode");
                         rpEmployeePeriod.BankAccNo = prWG.GetElementByTagFromXml(employee, "BankAccNo");
                         rpEmployeePeriod.DateOfBirth = Convert.ToDateTime(prWG.GetDateElementByTagFromXml(employee, "DateOfBirth"));
+                        rpEmployeePeriod.StartingDate = Convert.ToDateTime(prWG.GetDateElementByTagFromXml(employee, "StartingDate"));
                         rpEmployeePeriod.Gender = prWG.GetElementByTagFromXml(employee, "Gender");
                         rpEmployeePeriod.BuildingSocRef = prWG.GetElementByTagFromXml(employee, "BuildingSocRef");
                         rpEmployeePeriod.NINumber = prWG.GetElementByTagFromXml(employee, "NiNumber");
@@ -467,6 +468,28 @@ namespace PayRunIOProcessReports
                             rpAEAssessment.IsMemberOfAlternativePensionScheme = prWG.GetBooleanElementByTagFromXml(aeAssessment, "IsMemberOfAlternativePensionScheme");
                             rpAEAssessment.TaxYear = prWG.GetIntElementByTagFromXml(aeAssessment, "TaxYear");
                             rpAEAssessment.TaxPeriod = prWG.GetIntElementByTagFromXml(aeAssessment, "TaxPeriod");
+                            rpAEAssessment.WorkersGroup = prWG.GetElementByTagFromXml(aeAssessment, "WorkersGroup");
+                            if(rpAEAssessment.WorkersGroup==null)
+                            {
+                                rpAEAssessment.WorkersGroup = rpEmployer.PensionReportAEWorkersGroup;
+                            }
+                            if (rpAEAssessment.AssessmentCode.ToUpper().Contains("NONELIGIBLE"))
+                            {
+                                rpAEAssessment.Status = "NonEligible";
+                            }
+                            else if (rpAEAssessment.AssessmentCode.ToUpper().Contains("ELIGIBLE"))
+                            {
+                                rpAEAssessment.Status = "Eligible";
+                            }
+                            else if (rpAEAssessment.AssessmentCode.ToUpper().Contains("EXCLUDED"))
+                            {
+                                rpAEAssessment.Status = "Excluded";
+                            }
+                            else if (rpAEAssessment.AssessmentCode.ToUpper().Contains("ENTITLED"))
+                            {
+                                rpAEAssessment.Status = "Entitled";
+                            }
+
                         }
                         //Split these strings on capital letters by inserting a space before each capital letter.
                         rpAEAssessment.AssessmentCode = SplitStringOnCapitalLetters(rpAEAssessment.AssessmentCode);
@@ -499,6 +522,10 @@ namespace PayRunIOProcessReports
                             rpPensionPeriod.PensionablePayPayRunDate = prWG.GetDecimalElementByTagFromXml(pension, "PensionablePayDate");
                             rpPensionPeriod.EeContibutionPercent = prWG.GetDecimalElementByTagFromXml(pension, "EeContributionPercent") * 100;
                             rpPensionPeriod.ErContributionPercent = prWG.GetDecimalElementByTagFromXml(pension, "ErContributionPercent") * 100;
+                            rpPensionPeriod.AEAssessmentDate = rpEmployeePeriod.AEAssessment.AssessmentDate;
+                            rpPensionPeriod.AEWorkerGroup = rpEmployeePeriod.AEAssessment.WorkersGroup;
+                            rpPensionPeriod.AEStatus = rpEmployeePeriod.AEAssessment.Status;
+                            rpPensionPeriod.TotalPayTaxPeriod = rpEmployeePeriod.Gross;
                             rpEmployeePeriod.Frequency = rpParameters.PaySchedule;
 
                             rpPensionPeriods.Add(rpPensionPeriod);
@@ -512,7 +539,9 @@ namespace PayRunIOProcessReports
                             rpPensionContribution.SurnameForename = rpEmployeePeriod.SurnameForename;
                             rpPensionContribution.ForenameSurname = rpEmployeePeriod.Forename + " " + rpEmployeePeriod.Surname;
                             rpPensionContribution.DOB = rpEmployeePeriod.DateOfBirth;
-
+                            rpPensionContribution.StartingDate = rpEmployeePeriod.StartingDate;
+                            rpPensionContribution.LeavingDate = rpEmployeePeriod.LeavingDate;
+                            
                             //The address gets re-arranged later so that there are no blank lines shown. There address as provided by PR is in this address array.
                             RPAddress rpAddress = new RPAddress();
                             rpAddress.Line1 = address[0];
@@ -527,9 +556,10 @@ namespace PayRunIOProcessReports
                             rpPensionContribution.Gender = rpEmployeePeriod.Gender;
                             rpPensionContribution.NINumber = rpEmployeePeriod.NINumber;
                             rpPensionContribution.Freq = rpEmployeePeriod.Frequency;
-                            rpPensionContribution.PayRunDate = rpEmployeePeriod.PayRunDate;
                             rpPensionContribution.StartDate = rpEmployeePeriod.PeriodStartDate;
                             rpPensionContribution.EndDate = rpEmployeePeriod.PeriodEndDate;
+                            rpPensionContribution.PayRunDate = rpEmployeePeriod.PayRunDate;
+                            rpPensionContribution.SchemeFileType = "SchemeFileType";
                             rpPensionContribution.RPPensionPeriod = rpPensionPeriod;
 
                             rpPensionContributions.Add(rpPensionContribution);
