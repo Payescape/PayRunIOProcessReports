@@ -469,26 +469,12 @@ namespace PayRunIOProcessReports
                             rpAEAssessment.TaxYear = prWG.GetIntElementByTagFromXml(aeAssessment, "TaxYear");
                             rpAEAssessment.TaxPeriod = prWG.GetIntElementByTagFromXml(aeAssessment, "TaxPeriod");
                             rpAEAssessment.WorkersGroup = prWG.GetElementByTagFromXml(aeAssessment, "WorkersGroup");
-                            if(rpAEAssessment.WorkersGroup==null)
+                            if(rpAEAssessment.WorkersGroup == null)
                             {
                                 rpAEAssessment.WorkersGroup = rpEmployer.PensionReportAEWorkersGroup;
                             }
-                            if (rpAEAssessment.AssessmentCode.ToUpper().Contains("NONELIGIBLE"))
-                            {
-                                rpAEAssessment.Status = "NonEligible";
-                            }
-                            else if (rpAEAssessment.AssessmentCode.ToUpper().Contains("ELIGIBLE"))
-                            {
-                                rpAEAssessment.Status = "Eligible";
-                            }
-                            else if (rpAEAssessment.AssessmentCode.ToUpper().Contains("EXCLUDED"))
-                            {
-                                rpAEAssessment.Status = "Excluded";
-                            }
-                            else if (rpAEAssessment.AssessmentCode.ToUpper().Contains("ENTITLED"))
-                            {
-                                rpAEAssessment.Status = "Entitled";
-                            }
+                            rpAEAssessment.Status = GetAEAssessmentStatus(rpAEAssessment.AssessmentCode);
+                            
 
                         }
                         //Split these strings on capital letters by inserting a space before each capital letter.
@@ -501,6 +487,8 @@ namespace PayRunIOProcessReports
 
                         rpEmployeePeriod.ErPensionTotalTP = 0;
                         rpEmployeePeriod.ErPensionTotalYtd = 0;
+                        rpEmployeePeriod.Frequency = rpParameters.PaySchedule;
+
                         List<RPPensionPeriod> rpPensionPeriods = new List<RPPensionPeriod>();
                         foreach (XmlElement pension in employee.GetElementsByTagName("Pension"))
                         {
@@ -526,7 +514,9 @@ namespace PayRunIOProcessReports
                             rpPensionPeriod.AEWorkerGroup = rpEmployeePeriod.AEAssessment.WorkersGroup;
                             rpPensionPeriod.AEStatus = rpEmployeePeriod.AEAssessment.Status;
                             rpPensionPeriod.TotalPayTaxPeriod = rpEmployeePeriod.Gross;
-                            rpEmployeePeriod.Frequency = rpParameters.PaySchedule;
+                            rpPensionPeriod.StatePensionAge = rpEmployeePeriod.AEAssessment.StatePensionAge;
+                            
+                            
 
                             rpPensionPeriods.Add(rpPensionPeriod);
 
@@ -678,7 +668,8 @@ namespace PayRunIOProcessReports
                                             rpEmployeePeriod.AOE = rpEmployeePeriod.AOE + rpPayComponent.AmountTP;
                                             break;
                                         case "SLOAN":
-                                            rpEmployeePeriod.StudentLoan = rpEmployeePeriod.StudentLoan + rpPayComponent.AmountTP;
+                                            rpEmployeePeriod.StudentLoan = rpEmployeePeriod.StudentLoan + (rpPayComponent.AmountTP * -1);
+                                            rpEmployeePeriod.StudentLoanYTD = rpEmployeePeriod.StudentLoanYTD + (rpPayComponent.AmountYTD * -1);
                                             break;
                                         case "TAX":
                                             rpEmployeePeriod.Tax = rpEmployeePeriod.Tax + rpPayComponent.AmountTP;
@@ -767,16 +758,24 @@ namespace PayRunIOProcessReports
                                             break;
 
                                     }
-                                    rpDeduction.Description = rpPayComponent.Description;//prWG.GetElementByTagFromXml(payCode, "Description");
+                                    rpDeduction.Description = rpPayComponent.Description;
                                     rpDeduction.IsTaxable = rpPayComponent.IsTaxable;
-                                    rpDeduction.AmountTP = rpPayComponent.AmountTP * -1;//prWG.GetDecimalElementByTagFromXml(payCode, "Amount") * -1;
-                                    rpDeduction.AmountYTD = rpPayComponent.AmountYTD * -1;//prWG.GetDecimalElementByTagFromXml(payCode, "PayeYearBalance") * -1;
-                                    rpDeduction.AccountsYearBalance = rpPayComponent.AccountsYearBalance * -1;//prWG.GetDecimalElementByTagFromXml(payCode, "AccountsYearBalance") * -1;
-                                    rpDeduction.AccountsYearUnits = rpPayComponent.AccountsYearUnits * -1;//prWG.GetDecimalElementByTagFromXml(payCode, "AccountsYearUnits") * -1;
-                                    rpDeduction.PayeYearUnits = rpPayComponent.UnitsYTD * -1;//prWG.GetDecimalElementByTagFromXml(payCode, "PayeYearUnits") * -1;
-                                    rpDeduction.PayrollAccrued = rpPayComponent.PayrollAccrued * -1;//prWG.GetDecimalElementByTagFromXml(payCode, "PayrollAccrued") * -1;
-                                    //if (rpDeduction.AmountTP != 0 || rpDeduction.AmountYTD != 0)
-                                    if (rpDeduction.AmountTP != 0)
+                                    rpDeduction.AmountTP = rpPayComponent.AmountTP * -1;
+                                    //If it's not a pay component (eg Student Loan) don't bring the YTD details
+                                    if(rpPayComponent.IsPayCode)
+                                    {
+                                        rpDeduction.AmountYTD = rpPayComponent.AmountYTD * -1;
+                                        rpDeduction.AccountsYearBalance = rpPayComponent.AccountsYearBalance * -1;
+                                    }
+                                    else
+                                    {
+                                        rpDeduction.AmountYTD = 0;
+                                        rpDeduction.AccountsYearBalance = 0;
+                                    }
+                                    rpDeduction.AccountsYearUnits = rpPayComponent.AccountsYearUnits * -1;
+                                    rpDeduction.PayeYearUnits = rpPayComponent.UnitsYTD * -1;
+                                    rpDeduction.PayrollAccrued = rpPayComponent.PayrollAccrued * -1;
+                                    if (rpDeduction.AmountTP != 0 || rpDeduction.Code.Contains("PENSION"))  //Adding pension in even if they are zero because several can be added together
                                     {
                                         rpDeductions.Add(rpDeduction);
 
@@ -971,6 +970,29 @@ namespace PayRunIOProcessReports
                                   List<RPPensionContribution>, RPEmployer, RPParameters>
                                   (rpEmployeePeriodList, rpPayComponents, p45s, rpPreSamplePayCodes, rpPensionContributions, rpEmployer, rpParameters);
 
+        }
+        private string GetAEAssessmentStatus(string assessmentCode)
+        {
+            if (assessmentCode != null)
+            {
+                if (assessmentCode.ToUpper().Contains("NONELIGIBLE"))
+                {
+                    assessmentCode = "NonEligible";
+                }
+                else if (assessmentCode.ToUpper().Contains("ELIGIBLE"))
+                {
+                    assessmentCode = "Eligible";
+                }
+                else if (assessmentCode.ToUpper().Contains("EXCLUDED"))
+                {
+                    assessmentCode = "Excluded";
+                }
+                else if (assessmentCode.ToUpper().Contains("ENTITLED"))
+                {
+                    assessmentCode = "Entitled";
+                }
+            }
+            return assessmentCode;
         }
         private string SplitStringOnCapitalLetters(string input)
         {

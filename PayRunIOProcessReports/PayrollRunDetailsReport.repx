@@ -1,12 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <XtraReportsLayoutSerializer SerializerVersion="19.2.3.0" Ref="1" ControlType="DevExpress.XtraReports.UI.XtraReport, DevExpress.XtraReports.v19.2, Version=19.2.3.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Name="PayrollRunDetails" DisplayName="PayrollRunDetailsReport" Landscape="true" Margins="15, 15, 0, 1" PaperKind="A4" PageWidth="1169" PageHeight="827" Version="19.2" DataSource="#Ref-0">
   <Parameters>
-    <Item1 Ref="3" Description="Company name" ValueInfo="Dundonald Auto Engineering" Name="CmpName" />
-    <Item2 Ref="4" Description="PAYE Reference" ValueInfo="925/RA01937" Name="PayeRef" />
-    <Item3 Ref="6" Description="Date" ValueInfo="2020-03-19" Name="Date" Type="#Ref-5" />
-    <Item4 Ref="8" Description="Tax Period" ValueInfo="50" Name="Period" Type="#Ref-7" />
-    <Item5 Ref="9" Description="Frequency" ValueInfo="Weekly" Name="Freq" />
-    <Item6 Ref="10" Description="PAYE Month" ValueInfo="12" Name="PAYEMonth" Type="#Ref-7" />
+    <Item1 Ref="3" Description="Company name" ValueInfo="Hastings Solicitors" Name="CmpName" />
+    <Item2 Ref="4" Description="PAYE Reference" ValueInfo="475/XB70283" Name="PayeRef" />
+    <Item3 Ref="6" Description="Date" ValueInfo="2020-05-28" Name="Date" Type="#Ref-5" />
+    <Item4 Ref="8" Description="Tax Period" ValueInfo="2" Name="Period" Type="#Ref-7" />
+    <Item5 Ref="9" Description="Frequency" ValueInfo="Monthly" Name="Freq" />
+    <Item6 Ref="10" Description="PAYE Month" ValueInfo="2" Name="PAYEMonth" Type="#Ref-7" />
   </Parameters>
   <Bands>
     <Item1 Ref="11" ControlType="DetailBand" Name="Detail" KeepTogetherWithDetailReports="true" HeightF="17.708334" KeepTogether="true" TextAlignment="TopLeft" Padding="0,0,0,0,100">
@@ -364,7 +364,7 @@
         <Item19 Ref="205" ControlType="XRLabel" Name="label42" Multiline="true" Text="Post Tax&#xD;&#xA;Pension" TextAlignment="BottomRight" SizeF="54.166687,40.29169" LocationFloat="804.375, 152.833527" Font="Arial, 6.75pt, charSet=0" ForeColor="MidnightBlue" Padding="2,2,0,0,100">
           <StylePriority Ref="206" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
         </Item19>
-        <Item20 Ref="207" ControlType="XRLabel" Name="label43" Multiline="true" Text="AOE" TextAlignment="BottomRight" SizeF="42.708313,40.29169" LocationFloat="858.541931, 152.833664" Font="Arial, 6.75pt, charSet=0" ForeColor="MidnightBlue" Padding="2,2,0,0,100">
+        <Item20 Ref="207" ControlType="XRLabel" Name="label43" Multiline="true" Text="AEO" TextAlignment="BottomRight" SizeF="42.708313,40.29169" LocationFloat="858.541931, 152.833664" Font="Arial, 6.75pt, charSet=0" ForeColor="MidnightBlue" Padding="2,2,0,0,100">
           <StylePriority Ref="208" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
         </Item20>
         <Item21 Ref="209" ControlType="XRLabel" Name="label35" Multiline="true" Text="Student&#xD;&#xA;Loan" TextAlignment="BottomRight" SizeF="45.708374,40.2916946" LocationFloat="901.250244, 152.833527" Font="Arial, 6.75pt, charSet=0" ForeColor="MidnightBlue" Padding="2,2,0,0,100">
