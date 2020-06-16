@@ -38,7 +38,7 @@ namespace PayRunIOProcessReports
             PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
 
             
-            // Scan the folder and upload file waiting there.
+            // Scan the folder and upload files waiting there.
             string textLine = string.Format("Starting from called program (PayRunIOProcessReports).");
             prWG.update_Progress(textLine, configDirName, 1);
             
@@ -69,7 +69,7 @@ namespace PayRunIOProcessReports
 
             PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
 
-            textLine = string.Format("Start processing the reports.");
+            textLine = string.Format("Start processing the Outputs folder.");
             prWG.update_Progress(textLine, softwareHomeFolder, logOneIn);
             string originalDirName = "Outputs";
             string archiveDirName = "PE-ArchivedOutputs";
@@ -79,7 +79,7 @@ namespace PayRunIOProcessReports
             {
                 try
                 {
-                    bool success = ProduceReports(xdoc, directories[i]);
+                    bool success = ProcessOutputFiles(xdoc, directories[i]);
                     if (success)
                     {
                         prWG.ArchiveDirectory(xdoc, directories[i], originalDirName, archiveDirName);
@@ -761,17 +761,21 @@ namespace PayRunIOProcessReports
                                     rpDeduction.Description = rpPayComponent.Description;
                                     rpDeduction.IsTaxable = rpPayComponent.IsTaxable;
                                     rpDeduction.AmountTP = rpPayComponent.AmountTP * -1;
+                                    rpDeduction.AmountYTD = rpPayComponent.AmountYTD * -1;
+                                    rpDeduction.AccountsYearBalance = rpPayComponent.AccountsYearBalance * -1;
+                                    //JCBJCB Check this later
+
                                     //If it's not a pay component (eg Student Loan) don't bring the YTD details
-                                    if(rpPayComponent.IsPayCode)
-                                    {
-                                        rpDeduction.AmountYTD = rpPayComponent.AmountYTD * -1;
-                                        rpDeduction.AccountsYearBalance = rpPayComponent.AccountsYearBalance * -1;
-                                    }
-                                    else
-                                    {
-                                        rpDeduction.AmountYTD = 0;
-                                        rpDeduction.AccountsYearBalance = 0;
-                                    }
+                                    //if(rpPayComponent.IsPayCode)
+                                    //{
+                                    //    rpDeduction.AmountYTD = rpPayComponent.AmountYTD * -1;
+                                    //    rpDeduction.AccountsYearBalance = rpPayComponent.AccountsYearBalance * -1;
+                                    //}
+                                    //else
+                                    //{
+                                    //    rpDeduction.AmountYTD = 0;
+                                    //    rpDeduction.AccountsYearBalance = 0;
+                                    //}
                                     rpDeduction.AccountsYearUnits = rpPayComponent.AccountsYearUnits * -1;
                                     rpDeduction.PayeYearUnits = rpPayComponent.UnitsYTD * -1;
                                     rpDeduction.PayrollAccrued = rpPayComponent.PayrollAccrued * -1;
@@ -1022,7 +1026,7 @@ namespace PayRunIOProcessReports
             }
             return rpPreSamplePayCodes;
         }
-        public bool ProduceReports(XDocument xdoc, string directory)
+        public bool ProcessOutputFiles(XDocument xdoc, string directory)
         {
             //Old method going through directories created by PR
             string textLine = null;
@@ -1103,7 +1107,25 @@ namespace PayRunIOProcessReports
                         prWG.update_Progress(textLine, configDirName, logOneIn);
                     }
                 }
-
+                else if(file.Name.StartsWith("RTI-Re"))
+                {
+                    try
+                    {
+                        prWG.ArchiveRTIOutputs(directory, file);
+                        textLine = string.Format("Successfully archived RTI for file {0}.", file);
+                        prWG.update_Progress(textLine, configDirName, logOneIn);
+                    }
+                    catch(Exception ex)
+                    {
+                        textLine = string.Format("Error archiving RTI for file {0}.\r\n{1}.\r\n", file, ex);
+                        prWG.update_Progress(textLine, configDirName, logOneIn);
+                    }
+                }
+            }
+            files = dirInfo.GetFiles();
+            if(files.Count() == 0)
+            {
+                dirInfo.Delete();
             }
             if (eePeriodProcessed && eeYtdProcessed)
             {
