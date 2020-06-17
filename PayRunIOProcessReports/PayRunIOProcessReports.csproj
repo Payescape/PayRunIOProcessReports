@@ -37,159 +37,20 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="DevExpress.BonusSkins.v20.1, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
-      <HintPath>..\..\Payescape.PayRunIO.ReportTransforms\packages\DevExpress.Win.BonusSkins.20.1.4\lib\net452\DevExpress.BonusSkins.v20.1.dll</HintPath>
-    </Reference>
-    <Reference Include="DevExpress.Charts.v20.1.Core, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
-      <HintPath>..\..\Payescape.PayRunIO.ReportTransforms\packages\DevExpress.Charts.Core.20.1.4\lib\net452\DevExpress.Charts.v20.1.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="DevExpress.CodeParser.v20.1, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
-      <HintPath>..\..\Payescape.PayRunIO.ReportTransforms\packages\DevExpress.CodeParser.20.1.4\lib\net452\DevExpress.CodeParser.v20.1.dll</HintPath>
-    </Reference>
-    <Reference Include="DevExpress.Data.Desktop.v20.1, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
-      <HintPath>..\..\Payescape.PayRunIO.ReportTransforms\packages\DevExpress.Data.Desktop.20.1.4\lib\net452\DevExpress.Data.Desktop.v20.1.dll</HintPath>
-    </Reference>
-    <Reference Include="DevExpress.Data.v20.1, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
-      <HintPath>..\..\Payescape.PayRunIO.ReportTransforms\packages\DevExpress.Data.20.1.4\lib\net452\DevExpress.Data.v20.1.dll</HintPath>
-    </Reference>
-    <Reference Include="DevExpress.DataAccess.v20.1, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
-      <HintPath>..\..\Payescape.PayRunIO.ReportTransforms\packages\DevExpress.DataAccess.20.1.4\lib\net452\DevExpress.DataAccess.v20.1.dll</HintPath>
-    </Reference>
-    <Reference Include="DevExpress.DataAccess.v20.1.UI, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
-      <HintPath>..\..\Payescape.PayRunIO.ReportTransforms\packages\DevExpress.DataAccess.UI.20.1.4\lib\net452\DevExpress.DataAccess.v20.1.UI.dll</HintPath>
-    </Reference>
-    <Reference Include="DevExpress.Diagram.v20.1.Core, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
-      <HintPath>..\..\Payescape.PayRunIO.ReportTransforms\packages\DevExpress.Diagram.Core.20.1.4\lib\net452\DevExpress.Diagram.v20.1.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="DevExpress.Images.v20.1, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
-      <HintPath>..\..\Payescape.PayRunIO.ReportTransforms\packages\DevExpress.Images.20.1.4\lib\net452\DevExpress.Images.v20.1.dll</HintPath>
-    </Reference>
-    <Reference Include="DevExpress.Office.v20.1.Core, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
-      <HintPath>..\..\Payescape.PayRunIO.ReportTransforms\packages\DevExpress.Office.Core.20.1.4\lib\net452\DevExpress.Office.v20.1.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="DevExpress.Pdf.v20.1.Core, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
-      <HintPath>..\..\Payescape.PayRunIO.ReportTransforms\packages\DevExpress.Pdf.Core.20.1.4\lib\net452\DevExpress.Pdf.v20.1.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="DevExpress.Pdf.v20.1.Drawing, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
-      <HintPath>..\..\Payescape.PayRunIO.ReportTransforms\packages\DevExpress.Pdf.Drawing.20.1.4\lib\net452\DevExpress.Pdf.v20.1.Drawing.dll</HintPath>
-    </Reference>
-    <Reference Include="DevExpress.PivotGrid.v20.1.Core, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
-      <HintPath>..\..\Payescape.PayRunIO.ReportTransforms\packages\DevExpress.PivotGrid.Core.20.1.4\lib\net452\DevExpress.PivotGrid.v20.1.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="DevExpress.Printing.v20.1.Core, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
-      <HintPath>..\..\Payescape.PayRunIO.ReportTransforms\packages\DevExpress.Printing.Core.20.1.4\lib\net452\DevExpress.Printing.v20.1.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="DevExpress.RichEdit.v20.1.Core, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
-      <HintPath>..\..\Payescape.PayRunIO.ReportTransforms\packages\DevExpress.RichEdit.Core.20.1.4\lib\net452\DevExpress.RichEdit.v20.1.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="DevExpress.RichEdit.v20.1.Export, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
-      <HintPath>..\..\Payescape.PayRunIO.ReportTransforms\packages\DevExpress.RichEdit.Export.20.1.4\lib\net452\DevExpress.RichEdit.v20.1.Export.dll</HintPath>
-    </Reference>
-    <Reference Include="DevExpress.Sparkline.v20.1.Core, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
-      <HintPath>..\..\Payescape.PayRunIO.ReportTransforms\packages\DevExpress.Sparkline.Core.20.1.4\lib\net452\DevExpress.Sparkline.v20.1.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="DevExpress.Utils.v20.1, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
-      <HintPath>..\..\Payescape.PayRunIO.ReportTransforms\packages\DevExpress.Utils.20.1.4\lib\net452\DevExpress.Utils.v20.1.dll</HintPath>
-    </Reference>
-    <Reference Include="DevExpress.Utils.v20.1.UI, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
-      <HintPath>..\..\Payescape.PayRunIO.ReportTransforms\packages\DevExpress.Utils.UI.20.1.4\lib\net452\DevExpress.Utils.v20.1.UI.dll</HintPath>
-    </Reference>
-    <Reference Include="DevExpress.Xpo.v20.1, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
-      <HintPath>..\..\Payescape.PayRunIO.ReportTransforms\packages\DevExpress.Xpo.20.1.4\lib\net452\DevExpress.Xpo.v20.1.dll</HintPath>
-    </Reference>
-    <Reference Include="DevExpress.XtraBars.v20.1, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
-      <HintPath>..\..\Payescape.PayRunIO.ReportTransforms\packages\DevExpress.Win.Navigation.20.1.4\lib\net452\DevExpress.XtraBars.v20.1.dll</HintPath>
-    </Reference>
-    <Reference Include="DevExpress.XtraCharts.v20.1, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
-      <HintPath>..\..\Payescape.PayRunIO.ReportTransforms\packages\DevExpress.Charts.20.1.4\lib\net452\DevExpress.XtraCharts.v20.1.dll</HintPath>
-    </Reference>
-    <Reference Include="DevExpress.XtraCharts.v20.1.Extensions, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
-      <HintPath>..\..\Payescape.PayRunIO.ReportTransforms\packages\DevExpress.Win.Charts.20.1.4\lib\net452\DevExpress.XtraCharts.v20.1.Extensions.dll</HintPath>
-    </Reference>
-    <Reference Include="DevExpress.XtraCharts.v20.1.UI, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
-      <HintPath>..\..\Payescape.PayRunIO.ReportTransforms\packages\DevExpress.Win.Charts.20.1.4\lib\net452\DevExpress.XtraCharts.v20.1.UI.dll</HintPath>
-    </Reference>
-    <Reference Include="DevExpress.XtraCharts.v20.1.Wizard, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
-      <HintPath>..\..\Payescape.PayRunIO.ReportTransforms\packages\DevExpress.Win.Charts.20.1.4\lib\net452\DevExpress.XtraCharts.v20.1.Wizard.dll</HintPath>
-    </Reference>
-    <Reference Include="DevExpress.XtraDiagram.v20.1, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
-      <HintPath>..\..\Payescape.PayRunIO.ReportTransforms\packages\DevExpress.Win.Diagram.20.1.4\lib\net452\DevExpress.XtraDiagram.v20.1.dll</HintPath>
-    </Reference>
-    <Reference Include="DevExpress.XtraEditors.v20.1, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
-      <HintPath>..\..\Payescape.PayRunIO.ReportTransforms\packages\DevExpress.Win.Navigation.20.1.4\lib\net452\DevExpress.XtraEditors.v20.1.dll</HintPath>
-    </Reference>
-    <Reference Include="DevExpress.XtraGauges.v20.1.Core, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
-      <HintPath>..\..\Payescape.PayRunIO.ReportTransforms\packages\DevExpress.Gauges.Core.20.1.4\lib\net452\DevExpress.XtraGauges.v20.1.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="DevExpress.XtraGrid.v20.1, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
-      <HintPath>..\..\Payescape.PayRunIO.ReportTransforms\packages\DevExpress.Win.Grid.20.1.4\lib\net452\DevExpress.XtraGrid.v20.1.dll</HintPath>
-    </Reference>
-    <Reference Include="DevExpress.XtraLayout.v20.1, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
-      <HintPath>..\..\Payescape.PayRunIO.ReportTransforms\packages\DevExpress.Win.Navigation.20.1.4\lib\net452\DevExpress.XtraLayout.v20.1.dll</HintPath>
-    </Reference>
-    <Reference Include="DevExpress.XtraNavBar.v20.1, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
-      <HintPath>..\..\Payescape.PayRunIO.ReportTransforms\packages\DevExpress.Win.20.1.4\lib\net452\DevExpress.XtraNavBar.v20.1.dll</HintPath>
-    </Reference>
-    <Reference Include="DevExpress.XtraPivotGrid.v20.1, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
-      <HintPath>..\..\Payescape.PayRunIO.ReportTransforms\packages\DevExpress.Win.PivotGrid.20.1.4\lib\net452\DevExpress.XtraPivotGrid.v20.1.dll</HintPath>
-    </Reference>
-    <Reference Include="DevExpress.XtraPrinting.v20.1, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
-      <HintPath>..\..\Payescape.PayRunIO.ReportTransforms\packages\DevExpress.Win.Printing.20.1.4\lib\net452\DevExpress.XtraPrinting.v20.1.dll</HintPath>
-    </Reference>
-    <Reference Include="DevExpress.XtraReports.v20.1, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
-      <HintPath>..\..\Payescape.PayRunIO.ReportTransforms\packages\DevExpress.Reporting.Core.20.1.4\lib\net452\DevExpress.XtraReports.v20.1.dll</HintPath>
-    </Reference>
-    <Reference Include="DevExpress.XtraReports.v20.1.Extensions, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
-      <HintPath>..\..\Payescape.PayRunIO.ReportTransforms\packages\DevExpress.Win.Reporting.20.1.4\lib\net452\DevExpress.XtraReports.v20.1.Extensions.dll</HintPath>
-    </Reference>
-    <Reference Include="DevExpress.XtraRichEdit.v20.1, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
-      <HintPath>..\..\Payescape.PayRunIO.ReportTransforms\packages\DevExpress.Win.RichEdit.20.1.4\lib\net452\DevExpress.XtraRichEdit.v20.1.dll</HintPath>
-    </Reference>
-    <Reference Include="DevExpress.XtraTreeList.v20.1, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
-      <HintPath>..\..\Payescape.PayRunIO.ReportTransforms\packages\DevExpress.Win.TreeList.20.1.4\lib\net452\DevExpress.XtraTreeList.v20.1.dll</HintPath>
-    </Reference>
-    <Reference Include="DevExpress.XtraVerticalGrid.v20.1, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
-      <HintPath>..\..\Payescape.PayRunIO.ReportTransforms\packages\DevExpress.Win.VerticalGrid.20.1.4\lib\net452\DevExpress.XtraVerticalGrid.v20.1.dll</HintPath>
-    </Reference>
-    <Reference Include="DevExpress.XtraWizard.v20.1, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
-      <HintPath>..\..\Payescape.PayRunIO.ReportTransforms\packages\DevExpress.Win.20.1.4\lib\net452\DevExpress.XtraWizard.v20.1.dll</HintPath>
-    </Reference>
-    <Reference Include="DotNetZip, Version=1.13.8.0, Culture=neutral, PublicKeyToken=6583c7c814667745, processorArchitecture=MSIL">
-      <HintPath>..\packages\DotNetZip.1.13.8\lib\net40\DotNetZip.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="PayRunIO.Core.Enums, Version=20.21.3.8, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\Payescape.PayRunIO.ReportTransforms\packages\PayRunIO.Core.Enums.20.21.3.8\lib\net452\PayRunIO.Core.Enums.dll</HintPath>
-    </Reference>
-    <Reference Include="PayRunIO.CSharp.SDK, Version=20.21.3.8, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\Payescape.PayRunIO.ReportTransforms\packages\PayRunIO.CSharp.SDK.20.21.3.8\lib\net452\PayRunIO.CSharp.SDK.dll</HintPath>
-    </Reference>
-    <Reference Include="PayRunIO.Models, Version=20.21.3.8, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\Payescape.PayRunIO.ReportTransforms\packages\PayRunIO.Models.20.21.3.8\lib\net452\PayRunIO.Models.dll</HintPath>
-    </Reference>
-    <Reference Include="PayRunIO.OAuth1, Version=20.21.3.8, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\Payescape.PayRunIO.ReportTransforms\packages\PayRunIO.OAuth1.20.21.3.8\lib\net452\PayRunIO.OAuth1.dll</HintPath>
-    </Reference>
-    <Reference Include="PayRunIO.Utilities, Version=20.21.3.8, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\Payescape.PayRunIO.ReportTransforms\packages\PayRunIO.Utilities.20.21.3.8\lib\net452\PayRunIO.Utilities.dll</HintPath>
-    </Reference>
-    <Reference Include="PicoXLSX, Version=2.6.5.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\PicoXLSX.2.6.5\lib\net45\PicoXLSX.dll</HintPath>
+      <HintPath>..\packages\DevExpress.Win.BonusSkins.20.1.4\lib\net452\DevExpress.BonusSkins.v20.1.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Net.Http" />
+    <Reference Include="System.XML">
+      <HintPath>C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5.2\System.XML.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml" />
-    <Reference Include="WinSCPnet, Version=1.7.2.10516, Culture=neutral, PublicKeyToken=2271ec4a3c56d0bf, processorArchitecture=MSIL">
-      <HintPath>..\packages\WinSCP.5.17.6\lib\net40\WinSCPnet.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Form1.cs">
@@ -216,7 +77,6 @@
     <EmbeddedResource Include="ComponentAnalysisReport.repx" />
     <EmbeddedResource Include="P32.repx" />
     <EmbeddedResource Include="P32Report.repx" />
-    <None Include="packages.config" />
     <EmbeddedResource Include="PaymentsDueByMethodsReport.repx" />
     <EmbeddedResource Include="PayrollNewReport.repx" />
     <EmbeddedResource Include="PayrollRunDetailsReport.repx" />
@@ -240,14 +100,27 @@
       <Name>PayRunIOClassLibrary</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="AWSSDK.S3">
+      <Version>3.3.111.11</Version>
+    </PackageReference>
+    <PackageReference Include="DevExpress.Win.Reporting">
+      <Version>20.1.4</Version>
+    </PackageReference>
+    <PackageReference Include="DotNetZip">
+      <Version>1.13.8</Version>
+    </PackageReference>
+    <PackageReference Include="PayRunIO.CSharp.SDK">
+      <Version>20.21.3.8</Version>
+    </PackageReference>
+    <PackageReference Include="PicoXLSX">
+      <Version>2.6.5</Version>
+    </PackageReference>
+    <PackageReference Include="WinSCP">
+      <Version>5.17.6</Version>
+    </PackageReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="..\packages\WinSCP.5.17.6\build\WinSCP.targets" Condition="Exists('..\packages\WinSCP.5.17.6\build\WinSCP.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\packages\WinSCP.5.17.6\build\WinSCP.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\WinSCP.5.17.6\build\WinSCP.targets'))" />
-  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
