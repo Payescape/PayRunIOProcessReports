@@ -36,9 +36,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="DevExpress.BonusSkins.v20.1, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
-      <HintPath>..\packages\DevExpress.Win.BonusSkins.20.1.4\lib\net452\DevExpress.BonusSkins.v20.1.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -103,6 +100,9 @@
   <ItemGroup>
     <PackageReference Include="AWSSDK.S3">
       <Version>3.3.111.11</Version>
+    </PackageReference>
+    <PackageReference Include="DevExpress.Win.BonusSkins">
+      <Version>20.1.4</Version>
     </PackageReference>
     <PackageReference Include="DevExpress.Win.Reporting">
       <Version>20.1.4</Version>
