@@ -11,6 +11,7 @@ using System.Reflection;
 using WinSCP;
 using System.Text.RegularExpressions;
 
+
 namespace PayRunIOProcessReports
 {
     public partial class Form1 : DevExpress.XtraEditors.XtraForm
@@ -187,6 +188,8 @@ namespace PayRunIOProcessReports
 
             foreach (var csvFile in Directory.GetFiles(directory))
             {
+                //Emer wants to delay the upload of the pay history and ytd files until the pay date has been reached.
+                //I'm going to use the pay date in the file name and then I can compare for it.
                 // Use SFTP to send the file automatically.
                 try
                 {
@@ -308,8 +311,8 @@ namespace PayRunIOProcessReports
                            PrepareStandardReports(XDocument xdoc, XmlDocument xmlReport, RPParameters rpParameters)
         {
             string textLine = null;
-            int logOneIn = Convert.ToInt32(xdoc.Root.Element("LogOneIn").Value);
-            string configDirName = xdoc.Root.Element("SoftwareHomeFolder").Value;
+            int logOneIn = Convert.ToInt32(xdoc?.Root?.Element("LogOneIn")?.Value);
+            string configDirName = xdoc?.Root?.Element("SoftwareHomeFolder")?.Value;
             PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
             
             List<RPEmployeePeriod> rpEmployeePeriodList = new List<RPEmployeePeriod>();
@@ -411,7 +414,7 @@ namespace PayRunIOProcessReports
                         rpEmployeePeriod.EarningsToUEL = prWG.GetDecimalElementByTagFromXml(employee, "EarningsToUEL");
                         rpEmployeePeriod.EarningsAboveUEL = prWG.GetDecimalElementByTagFromXml(employee, "EarningsAboveUEL");
                         rpEmployeePeriod.EeContributionsPt1 = prWG.GetDecimalElementByTagFromXml(employee, "EeContributionsPt1");
-                        rpEmployeePeriod.EeContributionsPt2 = prWG.GetDecimalElementByTagFromXml(employee, "EeContributions2");
+                        rpEmployeePeriod.EeContributionsPt2 = prWG.GetDecimalElementByTagFromXml(employee, "EeContributionsPt2");
                         rpEmployeePeriod.ErNICYTD = prWG.GetDecimalElementByTagFromXml(employee, "ErContributions");
                         rpEmployeePeriod.EeRebate = prWG.GetDecimalElementByTagFromXml(employee, "EeRabate");
                         rpEmployeePeriod.ErRebate = prWG.GetDecimalElementByTagFromXml(employee, "ErRebate");
@@ -1015,7 +1018,7 @@ namespace PayRunIOProcessReports
             return output;
         }
         
-        private List<RPPreSamplePayCode> MarkPreSampleCodeAsInUse(string payCode, List<RPPreSamplePayCode> rpPreSamplePayCodes)
+        private static List<RPPreSamplePayCode> MarkPreSampleCodeAsInUse(string payCode, List<RPPreSamplePayCode> rpPreSamplePayCodes)
         {
             foreach(RPPreSamplePayCode rpPreSamplePayCode in rpPreSamplePayCodes)
             {
