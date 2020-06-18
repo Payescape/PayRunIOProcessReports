@@ -306,7 +306,7 @@ namespace PayRunIOProcessReports
             }
 
         }
-        private Tuple<List<RPEmployeePeriod>, List<RPPayComponent>, List<P45>, List<RPPreSamplePayCode>,
+        private static Tuple<List<RPEmployeePeriod>, List<RPPayComponent>, List<P45>, List<RPPreSamplePayCode>,
                            List<RPPensionContribution>, RPEmployer, RPParameters> 
                            PrepareStandardReports(XDocument xdoc, XmlDocument xmlReport, RPParameters rpParameters)
         {
@@ -978,7 +978,7 @@ namespace PayRunIOProcessReports
                                   (rpEmployeePeriodList, rpPayComponents, p45s, rpPreSamplePayCodes, rpPensionContributions, rpEmployer, rpParameters);
 
         }
-        private string GetAEAssessmentStatus(string assessmentCode)
+        private static string GetAEAssessmentStatus(string assessmentCode)
         {
             if (assessmentCode != null)
             {
@@ -1001,7 +1001,7 @@ namespace PayRunIOProcessReports
             }
             return assessmentCode;
         }
-        private string SplitStringOnCapitalLetters(string input)
+        private static string SplitStringOnCapitalLetters(string input)
         {
             string output = null;
             if(input != null)
@@ -1139,12 +1139,11 @@ namespace PayRunIOProcessReports
                 return false;
             }
         }
-        private Tuple<List<RPEmployeePeriod>, List<RPPayComponent>, List<P45>, List<RPPreSamplePayCode>,
-                           List<RPPensionContribution>, RPEmployer, RPParameters> 
-                           PreparePeriodReport(XDocument xdoc, FileInfo file)
+
+        public static Tuple<List<RPEmployeePeriod>, List<RPPayComponent>, List<P45>, List<RPPreSamplePayCode>,
+                List<RPPensionContribution>, RPEmployer, RPParameters>
+            PreparePeriodReport(XDocument xdoc, XmlDocument xmlPeriodReport)
         {
-            XmlDocument xmlPeriodReport = new XmlDocument();
-            xmlPeriodReport.Load(file.FullName);
             PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
             //Now extract the necessary data and produce the required reports.
 
@@ -1159,12 +1158,22 @@ namespace PayRunIOProcessReports
             List<RPPensionContribution> rpPensionContributions = tuple.Item5;
             RPEmployer rpEmployer = tuple.Item6;
             rpParameters = tuple.Item7;
-            
-            return new Tuple<List<RPEmployeePeriod>, List<RPPayComponent>, List<P45>, List<RPPreSamplePayCode>,
-                                  List<RPPensionContribution>, RPEmployer, RPParameters>
-                                  (rpEmployeePeriodList, rpPayComponents, p45s, rpPreSamplePayCodes, rpPensionContributions, rpEmployer, rpParameters);
 
+            return new Tuple<List<RPEmployeePeriod>, List<RPPayComponent>, List<P45>, List<RPPreSamplePayCode>,
+                    List<RPPensionContribution>, RPEmployer, RPParameters>
+                (rpEmployeePeriodList, rpPayComponents, p45s, rpPreSamplePayCodes, rpPensionContributions, rpEmployer, rpParameters);
         }
+
+        public static Tuple<List<RPEmployeePeriod>, List<RPPayComponent>, List<P45>, List<RPPreSamplePayCode>,
+                           List<RPPensionContribution>, RPEmployer, RPParameters> 
+                           PreparePeriodReport(XDocument xdoc, FileInfo file)
+        {
+            XmlDocument xmlPeriodReport = new XmlDocument();
+            xmlPeriodReport.Load(file.FullName);
+
+            return PreparePeriodReport(xdoc, xmlPeriodReport);
+        }
+
         private RPP32Report CreateP32Report(XDocument xdoc, RPEmployer rpEmplopyer, RPParameters rpParameters)
         {
             RPP32Report rpP32Report = null;

@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30011.22
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PayRunIOProcessReports", "PayRunIOProcessReports\PayRunIOProcessReports.csproj", "{6DCFEA7F-1A08-4F72-A50F-1EA2CA1BA986}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PayRunIOClassLibrary", "..\PayRunIOClassLibrary\PayRunIOClassLibrary\PayRunIOClassLibrary.csproj", "{4492A2DC-9458-4256-A313-DBE5621098C2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,8 +17,15 @@ Global
 		{6DCFEA7F-1A08-4F72-A50F-1EA2CA1BA986}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6DCFEA7F-1A08-4F72-A50F-1EA2CA1BA986}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6DCFEA7F-1A08-4F72-A50F-1EA2CA1BA986}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4492A2DC-9458-4256-A313-DBE5621098C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4492A2DC-9458-4256-A313-DBE5621098C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4492A2DC-9458-4256-A313-DBE5621098C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4492A2DC-9458-4256-A313-DBE5621098C2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B7AD8B3A-DF02-4EB8-B413-722BF52198E5}
 	EndGlobalSection
 EndGlobal
