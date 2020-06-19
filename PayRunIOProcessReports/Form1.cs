@@ -727,6 +727,7 @@ namespace PayRunIOProcessReports
                                     rpAddition.AccountsYearUnits = rpPayComponent.AccountsYearUnits;//prWG.GetDecimalElementByTagFromXml(payCode, "AccountsYearUnits");
                                     rpAddition.PayeYearUnits = rpPayComponent.UnitsYTD;//prWG.GetDecimalElementByTagFromXml(payCode, "PayeYearUnits");
                                     rpAddition.PayrollAccrued = rpPayComponent.PayrollAccrued;//prWG.GetDecimalElementByTagFromXml(payCode, "PayrollAccrued");
+                                    rpAddition.IsPayCode = rpPayComponent.IsPayCode;
                                     if (rpAddition.AmountTP != 0)
                                     {
                                         rpAdditions.Add(rpAddition);
@@ -783,6 +784,7 @@ namespace PayRunIOProcessReports
                                     rpDeduction.AccountsYearUnits = rpPayComponent.AccountsYearUnits * -1;
                                     rpDeduction.PayeYearUnits = rpPayComponent.UnitsYTD * -1;
                                     rpDeduction.PayrollAccrued = rpPayComponent.PayrollAccrued * -1;
+                                    rpDeduction.IsPayCode = rpPayComponent.IsPayCode;
                                     if (rpDeduction.AmountTP != 0 || rpDeduction.Code.Contains("PENSION"))  //Adding pension in even if they are zero because several can be added together
                                     {
                                         rpDeductions.Add(rpDeduction);
@@ -899,13 +901,13 @@ namespace PayRunIOProcessReports
                             p45.Week1Month1 = rpEmployeePeriod.Week1Month1;
                             if (rpParameters.PaySchedule == "Monthly")
                             {
-                                p45.MonthNo = rpParameters.TaxPeriod;
+                                p45.MonthNo = rpParameters.PeriodNo;
                                 p45.WeekNo = 0;
                             }
                             else
                             {
                                 p45.MonthNo = 0;
-                                p45.WeekNo = rpParameters.TaxPeriod;
+                                p45.WeekNo = rpParameters.PeriodNo;
                             }
                             p45.PayToDate = rpEmployeePeriod.TotalPayYTD; //rpEmployeePeriod.TaxablePayYTD + rpEmployeePeriod.TaxablePayPrevious;
                             p45.TaxToDate = rpEmployeePeriod.TaxThis + rpEmployeePeriod.TaxPrev;
