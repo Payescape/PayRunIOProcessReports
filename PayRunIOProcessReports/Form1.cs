@@ -101,7 +101,7 @@ namespace PayRunIOProcessReports
             prWG.update_Progress(textLine, softwareHomeFolder, logOneIn);
 
             //Transfer the contents of PE-Outgoing up to the Blue Marble SFTP server
-            //Each company has it's own folder beneath PE-Outgoing which is just named with their company number.
+            //Each company has it's own folder beneath PE-Outgoing which is just named with their company number "_" pay date.
             textLine = string.Format("Start processing the PE-Outgoing directory.");
             prWG.update_Progress(textLine, softwareHomeFolder, logOneIn);
 
@@ -109,38 +109,60 @@ namespace PayRunIOProcessReports
             archiveDirName = "PE-Outgoing\\Archive";
             directories = prWG.GetAListOfDirectories(xdoc, "PE-Outgoing");
 
+
+
+            int nowDate = Convert.ToInt32(DateTime.Now.ToString("yyyyMMdd"));
+            int payDate = 0;
+            int start = 0, length = 0, diff = 0;
+
             for (int i = 0; i < directories.Count(); i++)
             {
                 if(!directories[i].Contains("Archive"))
                 {
-                    try
+                    bool upload = true;
+                    //The directory name contains the pay date in the form yyyMMdd. It's coNo_PayDate e.g. 1880_20200528
+                    //Because of a bug in Blue Marble I'm not uploading the files until it's within 1 day
+                    //Emer wants to delay the upload of the pay history and ytd files until the pay date has been reached. This is from the folder PE-Outgoing
+                    //I'm going to use the pay date in the file name and then I can compare for it.
+
+                    start = directories[i].LastIndexOf("PE-Outgoing\\") + 17;
+                    length = 8;
+                    payDate = Convert.ToInt32(directories[i].Substring(start, length));
+                    diff = payDate - nowDate;
+                    if (diff > 1)
                     {
-                        bool success = TransferToBlueMarbleSFTPServer(xdoc, directories[i]);            // Transfer contents of the folder up to Blue Marble SFTP server.//ProduceReports(xdoc, directories[i]);
-                        if (success)
+                        upload = false;
+                    }
+                    if(upload)
+                    {
+                        try
                         {
-                            try
+                            bool success = TransferToBlueMarbleSFTPServer(xdoc, directories[i]);            // Transfer contents of the folder up to Blue Marble SFTP server.//ProduceReports(xdoc, directories[i]);
+                            if (success)
                             {
-                                textLine = string.Format("Trying to archive directory {0}.", directories[i]);
-                                prWG.update_Progress(textLine, softwareHomeFolder, logOneIn);
+                                try
+                                {
+                                    textLine = string.Format("Trying to archive directory {0}.", directories[i]);
+                                    prWG.update_Progress(textLine, softwareHomeFolder, logOneIn);
 
-                                prWG.ArchiveDirectory(xdoc, directories[i], originalDirName, archiveDirName);
+                                    prWG.ArchiveDirectory(xdoc, directories[i], originalDirName, archiveDirName);
+                                }
+                                catch (Exception ex)
+                                {
+                                    textLine = string.Format("Error archiving directory {0}.\r\n{1}.\r\n", directories[i], ex);
+                                    prWG.update_Progress(textLine, softwareHomeFolder, logOneIn);
+                                }
+
                             }
-                            catch(Exception ex)
-                            {
-                                textLine = string.Format("Error archiving directory {0}.\r\n{1}.\r\n", directories[i], ex);
-                                prWG.update_Progress(textLine, softwareHomeFolder, logOneIn);
-                            }
-                            
+
+
                         }
-
-
+                        catch (Exception ex)
+                        {
+                            textLine = string.Format("Error processing PE-Outgoing folder for directory {0}.\r\n{1}.\r\n", directories[i], ex);
+                            prWG.update_Progress(textLine, softwareHomeFolder, logOneIn);
+                        }
                     }
-                    catch (Exception ex)
-                    {
-                        textLine = string.Format("Error processing PE-Outgoing folder for directory {0}.\r\n{1}.\r\n", directories[i], ex);
-                        prWG.update_Progress(textLine, softwareHomeFolder, logOneIn);
-                    }
-
                 }
 
             }
@@ -171,7 +193,6 @@ namespace PayRunIOProcessReports
             textLine = string.Format("Start processing the reports.");
             prWG.update_Progress(textLine, softwareHomeFolder, logOneIn);
 
-            string peOutgoingDirName = dataHomeFolder + "\\PE-Outgoing";
             bool success = true;
 
             //
@@ -189,9 +210,8 @@ namespace PayRunIOProcessReports
 
             foreach (var csvFile in Directory.GetFiles(directory))
             {
-                //Emer wants to delay the upload of the pay history and ytd files until the pay date has been reached.
-                //I'm going to use the pay date in the file name and then I can compare for it.
                 // Use SFTP to send the file automatically.
+                
                 try
                 {
                     PutToSFTP PutToSFTP = new PutToSFTP();
@@ -219,6 +239,7 @@ namespace PayRunIOProcessReports
                     prWG.update_Progress(textLine, softwareHomeFolder, logOneIn);
                     success = false;
                 }
+                
             }
             return success;
         }
@@ -328,7 +349,7 @@ namespace PayRunIOProcessReports
 
             try
             {
-                bool gotPayRunDate = false;
+                //bool gotPayRunDate = false;
                 foreach (XmlElement employee in xmlReport.GetElementsByTagName("Employee"))
                 {
                     bool include = false;
@@ -337,12 +358,12 @@ namespace PayRunIOProcessReports
 
                     if (payRunDate != "No Pay Run Data Found" && payRunDate != null)
                     {
-                        if (!gotPayRunDate)
-                        {
-                            rpParameters.PayRunDate = Convert.ToDateTime(prWG.GetDateElementByTagFromXml(employee, "PayRunDate"));
-                            gotPayRunDate = true;
+                        //if (!gotPayRunDate)
+                        //{
+                        //    rpParameters.PayRunDate = Convert.ToDateTime(prWG.GetDateElementByTagFromXml(employee, "PayRunDate"));
+                        //    gotPayRunDate = true;
                             
-                        }
+                        //}
                         decimal gross = prWG.GetDecimalElementByTagFromXml(employee, "Gross");
                         decimal net = prWG.GetDecimalElementByTagFromXml(employee, "Net");
                         //If the employee is a leaver before the start date then don't include unless they have a gross or net.
