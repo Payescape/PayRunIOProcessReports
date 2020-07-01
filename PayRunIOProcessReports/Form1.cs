@@ -1215,7 +1215,7 @@ namespace PayRunIOProcessReports
             }
             else
             {
-                p32ReportXml = prWG.GetP32Report(rpParameters);
+                p32ReportXml = prWG.GetP32Report(xdoc, rpParameters);
             }
 
             rpP32Report = PrepareP32SummaryReport(xdoc, p32ReportXml, rpParameters, prWG);
@@ -1315,17 +1315,18 @@ namespace PayRunIOProcessReports
                     rpP32Summary.ShppComp = prWG.GetDecimalElementByTagFromXml(summary, "ShppComp");
                     rpP32Summary.SapRecovered = prWG.GetDecimalElementByTagFromXml(summary, "SapRecovered");
                     rpP32Summary.SapComp = prWG.GetDecimalElementByTagFromXml(summary, "SapComp");
-                    rpP32Summary.TotalDeductions = rpP32Summary.EmploymentAllowance + rpP32Summary.SmpComp + rpP32Summary.SmpRecovered + rpP32Summary.SppComp + 
-                                                   rpP32Summary.SppRecovered + rpP32Summary.SapComp + rpP32Summary.SapRecovered + rpP32Summary.ShppComp + 
-                                                   rpP32Summary.ShppRecovered;
                     rpP32Summary.AppLevy = 0;
                     rpP32Summary.CisDeducted = prWG.GetDecimalElementByTagFromXml(summary, "CisDeducted");
                     rpP32Summary.CisSuffered = prWG.GetDecimalElementByTagFromXml(summary, "CisSuffered");
-                    rpP32Summary.NetNICs = prWG.GetDecimalElementByTagFromXml(summary, "NetNICs");
                     rpP32Summary.EmploymentAllowance = prWG.GetDecimalElementByTagFromXml(summary, "EmploymentAllowance");
+                    rpP32Summary.NetNICs = prWG.GetDecimalElementByTagFromXml(summary, "NetNICs") - rpP32Summary.EmploymentAllowance;
                     rpP32Summary.AmountDue = prWG.GetDecimalElementByTagFromXml(summary, "AmountDue");
                     rpP32Summary.AmountPaid = prWG.GetDecimalElementByTagFromXml(summary, "AmountPaid");
                     rpP32Summary.RemainingBalance = prWG.GetDecimalElementByTagFromXml(summary, "RemainingBalance");
+                    rpP32Summary.TotalDeductions = rpP32Summary.EmploymentAllowance + rpP32Summary.SmpComp + rpP32Summary.SmpRecovered + rpP32Summary.SppComp +
+                                                   rpP32Summary.SppRecovered + rpP32Summary.SapComp + rpP32Summary.SapRecovered + rpP32Summary.ShppComp +
+                                                   rpP32Summary.ShppRecovered;
+
                 }
 
                 rpP32ReportMonth.RPP32Summary = rpP32Summary;
@@ -1375,11 +1376,14 @@ namespace PayRunIOProcessReports
                     rpP32Summary.SapComp = prWG.GetDecimalElementByTagFromXml(annualTotal, "SapComp");
                     rpP32Summary.CisDeducted = prWG.GetDecimalElementByTagFromXml(annualTotal, "CisDeducted");
                     rpP32Summary.CisSuffered = prWG.GetDecimalElementByTagFromXml(annualTotal, "CisSuffered");
-                    rpP32Summary.NetNICs = prWG.GetDecimalElementByTagFromXml(annualTotal, "NetNICs");
                     rpP32Summary.EmploymentAllowance = prWG.GetDecimalElementByTagFromXml(annualTotal, "EmploymentAllowance");
+                    rpP32Summary.NetNICs = prWG.GetDecimalElementByTagFromXml(annualTotal, "NetNICs") - rpP32Summary.EmploymentAllowance;
                     rpP32Summary.AmountDue = prWG.GetDecimalElementByTagFromXml(annualTotal, "AmountDue");
                     rpP32Summary.AmountPaid = prWG.GetDecimalElementByTagFromXml(annualTotal, "AmountPaid");
                     rpP32Summary.RemainingBalance = prWG.GetDecimalElementByTagFromXml(annualTotal, "RemainingBalance");
+                    rpP32Summary.TotalDeductions = rpP32Summary.EmploymentAllowance + rpP32Summary.SmpComp + rpP32Summary.SmpRecovered + rpP32Summary.SppComp +
+                                                   rpP32Summary.SppRecovered + rpP32Summary.SapComp + rpP32Summary.SapRecovered + rpP32Summary.ShppComp +
+                                                   rpP32Summary.ShppRecovered;
                 }
                 rpP32ReportMonth.RPP32Summary = rpP32Summary;
 
