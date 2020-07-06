@@ -37,11 +37,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="AWSSDK.Core, Version=3.3.0.0, Culture=neutral, PublicKeyToken=885c28607f98e604, processorArchitecture=MSIL">
-      <HintPath>..\packages\AWSSDK.Core.3.3.107.19\lib\net45\AWSSDK.Core.dll</HintPath>
+      <HintPath>..\packages\AWSSDK.Core.3.3.107.20\lib\net45\AWSSDK.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="AWSSDK.S3, Version=3.3.0.0, Culture=neutral, PublicKeyToken=885c28607f98e604, processorArchitecture=MSIL">
-      <HintPath>..\packages\AWSSDK.S3.3.3.111.20\lib\net45\AWSSDK.S3.dll</HintPath>
+      <HintPath>..\packages\AWSSDK.S3.3.3.111.21\lib\net45\AWSSDK.S3.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="DevExpress.BonusSkins.v20.1, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
@@ -51,13 +51,37 @@
     <Reference Include="DevExpress.XtraReports.v20.1, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
     <Reference Include="DevExpress.XtraReports.v20.1.CodeCompletion, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
     <Reference Include="DevExpress.XtraReports.v20.1.Extensions, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
-    <Reference Include="DotNetZip, Version=1.13.4.0, Culture=neutral, PublicKeyToken=6583c7c814667745, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="DotNetZip, Version=1.13.8.0, Culture=neutral, PublicKeyToken=6583c7c814667745, processorArchitecture=MSIL">
       <HintPath>..\packages\DotNetZip.1.13.8\lib\net40\DotNetZip.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="PicoXLSX, Version=2.6.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\PayRunIOClassLibrary\packages\PicoXLSX.2.6.5\lib\net45\PicoXLSX.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="PayRunIO.Core.Enums, Version=20.21.3.15, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\PayRunIO.Core.Enums.20.21.3.15\lib\net452\PayRunIO.Core.Enums.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="PayRunIO.CSharp.SDK, Version=20.21.3.15, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\PayRunIO.CSharp.SDK.20.21.3.15\lib\net452\PayRunIO.CSharp.SDK.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="PayRunIO.Models, Version=20.21.3.15, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\PayRunIO.Models.20.21.3.15\lib\net452\PayRunIO.Models.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="PayRunIO.OAuth1, Version=20.21.3.15, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\PayRunIO.OAuth1.20.21.3.15\lib\net452\PayRunIO.OAuth1.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="PayRunIO.Utilities, Version=20.21.3.15, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\PayRunIO.Utilities.20.21.3.15\lib\net452\PayRunIO.Utilities.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="PicoXLSX, Version=2.6.5.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\PicoXLSX.2.6.5\lib\net45\PicoXLSX.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -149,7 +173,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Analyzer Include="..\packages\AWSSDK.S3.3.3.111.20\analyzers\dotnet\cs\AWSSDK.S3.CodeAnalysis.dll" />
+    <Analyzer Include="..\packages\AWSSDK.S3.3.3.111.21\analyzers\dotnet\cs\AWSSDK.S3.CodeAnalysis.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
