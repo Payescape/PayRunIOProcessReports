@@ -1480,7 +1480,7 @@ namespace PayRunIOProcessReports
             //// To show the report designer. You need to uncomment this to design the report.
             //// You also need to comment out the report.ExportToPDF line below
             ////
-            bool designMode = false;
+            bool designMode = true;
             if (designMode)
             {
                 report1.ShowDesigner();
@@ -3618,6 +3618,10 @@ namespace PayRunIOProcessReports
                 rpP32ReportMonth.PeriodNo = Convert.ToInt32(reportMonth.GetAttribute("Period"));
                 rpP32ReportMonth.RPPeriodNo = rpP32ReportMonth.PeriodNo.ToString();
                 rpP32ReportMonth.RPPeriodText = "Month " + rpP32ReportMonth.PeriodNo.ToString();
+                if(rpP32ReportMonth.PeriodNo == 0)
+                {
+                    rpP32ReportMonth.RPPeriodText = "Previous Months";
+                }
                 rpP32ReportMonth.PeriodName = reportMonth.GetAttribute("RootNodeName");
 
                 RPP32Breakdown rpP32Breakdown = new RPP32Breakdown();
