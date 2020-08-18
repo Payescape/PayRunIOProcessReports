@@ -18,6 +18,8 @@ using System.Net.Mail;
 
 namespace PayRunIOProcessReports
 {
+    using System.Text;
+
     public partial class Form1 : DevExpress.XtraEditors.XtraForm
     {
         public Form1()
@@ -717,57 +719,77 @@ namespace PayRunIOProcessReports
                 }
             }
         }
-        private void CreateBarclaysBankFile(string outgoingFolder, List<RPEmployeePeriod> rpEmployeePeriodList, RPEmployer rpEmployer)
+        public static string CreateBarclaysBankFile(string outgoingFolder, List<RPEmployeePeriod> rpEmployeePeriodList, RPEmployer rpEmployer)
         {
             string bankFileName = outgoingFolder + "\\" + "BarclaysBankFile.txt";
             string quotes = "\"";
             string comma = ",";
+
             //Create the Barclays bank file which does not have a header row.
-            using (StreamWriter sw = new StreamWriter(bankFileName))
+            var stringBuilder = new StringBuilder();
+            foreach (RPEmployeePeriod rpEmployeePeriod in rpEmployeePeriodList)
             {
-                string csvLine = null;
-                foreach (RPEmployeePeriod rpEmployeePeriod in rpEmployeePeriodList)
+                if (rpEmployeePeriod.PaymentMethod == "BACS")
                 {
-                    if (rpEmployeePeriod.PaymentMethod == "BACS")
-                    {
-                        string fullName = rpEmployeePeriod.Forename + " " + rpEmployeePeriod.Surname;
-                        fullName = fullName.ToUpper();
-                        csvLine = quotes + rpEmployeePeriod.SortCode + quotes + comma +
+                    string fullName = rpEmployeePeriod.Forename + " " + rpEmployeePeriod.Surname;
+                    fullName = fullName.ToUpper();
+                    var csvLine = quotes + rpEmployeePeriod.SortCode + quotes + comma +
                                   quotes + fullName + quotes + comma +
                                   quotes + rpEmployeePeriod.BankAccNo + quotes + comma +
                                   quotes + rpEmployeePeriod.NetPayTP.ToString() + quotes + comma +
                                   quotes + rpEmployer.Name.ToUpper() + quotes + comma +
                                   quotes + "99" + quotes;
-                        sw.WriteLine(csvLine);
-                    }
+
+                    stringBuilder.AppendLine(csvLine);
                 }
             }
+
+            if (!string.IsNullOrEmpty(outgoingFolder))
+            {
+                using (StreamWriter sw = new StreamWriter(bankFileName))
+                {
+                    sw.Write(stringBuilder.ToString());
+                }
+            }
+            
+            return stringBuilder.ToString();
         }
-        private void CreateEagleBankFile(string outgoingFolder, List<RPEmployeePeriod> rpEmployeePeriodList, RPEmployer rpEmployer)
+        public static string CreateEagleBankFile(string outgoingFolder, List<RPEmployeePeriod> rpEmployeePeriodList, RPEmployer rpEmployer)
         {
             string bankFileName = outgoingFolder + "\\" + "EagleBankFile.csv";
             string comma = ",";
+
             //Create the Eagle bank file which does have a header row.
-            using (StreamWriter sw = new StreamWriter(bankFileName))
+            var stringBuilder = new StringBuilder();
+
+            //Write the header row
+            string csvLine = "AccName,SortCode,AccNumber,Amount,Ref";
+            stringBuilder.AppendLine(csvLine);
+
+            foreach (RPEmployeePeriod rpEmployeePeriod in rpEmployeePeriodList)
             {
-                //Write the header row
-                string csvLine = "AccName,SortCode,AccNumber,Amount,Ref";
-                sw.WriteLine(csvLine);
-                foreach (RPEmployeePeriod rpEmployeePeriod in rpEmployeePeriodList)
+                if (rpEmployeePeriod.PaymentMethod == "BACS")
                 {
-                    if (rpEmployeePeriod.PaymentMethod == "BACS")
-                    {
-                        string fullName = rpEmployeePeriod.Forename + " " + rpEmployeePeriod.Surname;
-                        fullName = fullName.ToUpper();
-                        csvLine = fullName + comma +
-                                  rpEmployeePeriod.SortCode + comma +
-                                  rpEmployeePeriod.BankAccNo + comma +
-                                  rpEmployeePeriod.NetPayTP.ToString() + comma +
-                                  fullName;
-                        sw.WriteLine(csvLine);
-                    }
+                    string fullName = rpEmployeePeriod.Forename + " " + rpEmployeePeriod.Surname;
+                    fullName = fullName.ToUpper();
+                    csvLine = fullName + comma +
+                              rpEmployeePeriod.SortCode + comma +
+                              rpEmployeePeriod.BankAccNo + comma +
+                              rpEmployeePeriod.NetPayTP.ToString() + comma +
+                              fullName;
+                    stringBuilder.AppendLine(csvLine);
                 }
             }
+
+            if (!string.IsNullOrEmpty(outgoingFolder))
+            {
+                using (StreamWriter sw = new StreamWriter(bankFileName))
+                {
+                    sw.Write(stringBuilder.ToString());
+                }
+            }
+
+            return stringBuilder.ToString();
         }
         private void CreateTheNestPensionFile(string outgoingFolder, RPPensionFileScheme rpPensionFileScheme, RPEmployer rpEmployer)
         {
@@ -1453,6 +1475,7 @@ namespace PayRunIOProcessReports
         {
             string softwareHomeFolder = xdoc.Root.Element("SoftwareHomeFolder").Value + "Programs\\";
             string outgoingFolder = xdoc.Root.Element("DataHomeFolder").Value + "PE-Reports";
+            
             string coNo = rpParameters.ErRef;
             string coName = rpP32Report.EmployerName;
             int taxYear = rpP32Report.TaxYear;
@@ -3596,7 +3619,7 @@ namespace PayRunIOProcessReports
 
             return rpP32Report;
         }
-        private RPP32Report PrepareP32SummaryReport(XDocument xdoc, XmlDocument p32ReportXml, RPParameters rpParameters, PayRunIOWebGlobeClass prWG)
+        public static RPP32Report PrepareP32SummaryReport(XDocument xdoc, XmlDocument p32ReportXml, RPParameters rpParameters, PayRunIOWebGlobeClass prWG)
         {
             RPP32Report rpP32Report = new RPP32Report();
             foreach (XmlElement header in p32ReportXml.GetElementsByTagName("Header"))
@@ -3771,7 +3794,7 @@ namespace PayRunIOProcessReports
             
             return rpP32Report;
         }
-        private bool CheckIfNotZero(RPP32ReportMonth rpP32ReportMonth)
+        private static bool CheckIfNotZero(RPP32ReportMonth rpP32ReportMonth)
         {
             //Compare all the decimal fields to see if any are non zero using if
             //if(rpP32Period.Tax != 0 || rpP32Period.StudentLoan != 0 || rpP32Period.PostGraduateLoan != 0 || rpP32Period.NetTax != 0 || rpP32Period.EmployerNI != 0
