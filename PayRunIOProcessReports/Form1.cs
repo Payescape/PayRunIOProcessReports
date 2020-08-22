@@ -585,13 +585,25 @@ namespace PayRunIOProcessReports
             string sourceFolder = xdoc.Root.Element("DataHomeFolder").Value + "PE-Reports\\" + rpParameters.ErRef;
             string zipFileName = xdoc.Root.Element("DataHomeFolder").Value + "PE-Reports\\" + rpParameters.ErRef + "_PDF_Reports_" + rpEmployer.HMRCDesc + "_" + dateTimeStamp + ".zip";
             string zipFileNameNoPassword = xdoc.Root.Element("DataHomeFolder").Value + "PE-ReportsNoPassword\\" + rpParameters.ErRef + "_PDF_Reports_" + rpEmployer.HMRCDesc + "_" + dateTimeStamp + ".zip";
+            //
+            //The password for the zipped reports file is the first 4 characters of the employer name in lower case ( or if the employers name is less than 4 characters then all the employers name )
+            //plus the employers 4 digit number. Unless the employer has specified a particluar password in which case the password is held on the Companies table.
+            //
             string password = null;
-            password = rpEmployer.Name.ToLower().Replace(" ", "");
-            if (password.Length >= 4)
+            if(rpEmployer.ReportPassword == null)
             {
-                password = password.Substring(0, 4);
+                password = rpEmployer.Name.ToLower().Replace(" ", "");
+                if (password.Length >= 4)
+                {
+                    password = password.Substring(0, 4);
+                }
+                password = password + rpParameters.ErRef;
+
             }
-            password = password + rpParameters.ErRef;
+            else
+            {
+                password = rpEmployer.ReportPassword;
+            }
             try
             {
                 using (Ionic.Zip.ZipFile zip = new Ionic.Zip.ZipFile())
@@ -1480,7 +1492,7 @@ namespace PayRunIOProcessReports
             //// To show the report designer. You need to uncomment this to design the report.
             //// You also need to comment out the report.ExportToPDF line below
             ////
-            bool designMode = true;
+            bool designMode = false;
             if (designMode)
             {
                 report1.ShowDesigner();
@@ -1840,7 +1852,7 @@ namespace PayRunIOProcessReports
                                     {
                                         rpPayComponents.Add(rpPayComponent);
                                     }
-                                    if(rpPayComponent.PayCode != "TAX" && rpPayComponent.PayCode != "NI" && !rpPayComponent.PayCode.StartsWith("PENSION"))
+                                    if(rpPayComponent.PayCode != "TAX" && rpPayComponent.PayCode != "NI" && !rpPayComponent.PayCode.StartsWith("PENSION") && !rpPayComponent.PayCode.StartsWith("SLOAN"))
                                     {
                                         if (rpPayComponent.IsTaxable)
                                         {
@@ -3620,6 +3632,7 @@ namespace PayRunIOProcessReports
                 rpP32ReportMonth.RPPeriodText = "Month " + rpP32ReportMonth.PeriodNo.ToString();
                 if(rpP32ReportMonth.PeriodNo == 0)
                 {
+                    rpP32ReportMonth.RPPeriodNo = " ";
                     rpP32ReportMonth.RPPeriodText = "Previous Months";
                 }
                 rpP32ReportMonth.PeriodName = reportMonth.GetAttribute("RootNodeName");
