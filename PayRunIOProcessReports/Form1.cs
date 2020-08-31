@@ -646,6 +646,10 @@ namespace PayRunIOProcessReports
                     //Eagle
                     CreateEagleBankFile(outgoingFolder, rpEmployeePeriodList, rpEmployer);
                     break;
+                case "003":
+                    //Eagle
+                    CreateRevolutBankFile(outgoingFolder, rpEmployeePeriodList, rpEmployer);
+                    break;
                 default:
                     //No bank file required
                     break;
@@ -801,6 +805,36 @@ namespace PayRunIOProcessReports
                 }
             }
 
+            return stringBuilder.ToString();
+        }
+
+        public static string CreateRevolutBankFile(string outgoingFolder, List<RPEmployeePeriod> rpEmployeePeriodList, RPEmployer rpEmployer)
+        {
+            string bankFileName = outgoingFolder + "\\" + "RevolutBankFile.csv";
+            string comma = ",";
+            string month = null, year = null, fullName = null;
+            StringBuilder stringBuilder = new StringBuilder();
+            string csvLine = "Name,Recipient type,Account number,Sort code,Recipient bank country,Currency,Amount,Payment reference";
+            stringBuilder.AppendLine(csvLine);
+            //Create the Revolut bank file which does have a header row.
+            foreach (RPEmployeePeriod rpEmployeePeriod in rpEmployeePeriodList)
+            {
+                if (rpEmployeePeriod.PaymentMethod == "BACS")
+                {
+                    fullName = rpEmployeePeriod.Forename + " " + rpEmployeePeriod.Surname;
+                    month = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(rpEmployeePeriod.PayRunDate.Month);
+                    year = rpEmployeePeriod.PayRunDate.Year.ToString();
+                    csvLine = fullName + comma + "INDIVIDUAL" + comma + rpEmployeePeriod.BankAccNo + comma + rpEmployeePeriod.SortCode + comma + "GB" + comma + "GBP" + comma + rpEmployeePeriod.NetPayTP + comma + "Salary " + month + " " + year;
+                    stringBuilder.AppendLine(csvLine);
+                }
+            }
+            if (!string.IsNullOrEmpty(outgoingFolder))
+            {
+                using (StreamWriter sw = new StreamWriter(bankFileName))
+                {
+                    sw.Write(stringBuilder.ToString());
+                }
+            }
             return stringBuilder.ToString();
         }
         private void CreateTheNestPensionFile(string outgoingFolder, RPPensionFileScheme rpPensionFileScheme, RPEmployer rpEmployer)
