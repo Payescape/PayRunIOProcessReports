@@ -3587,7 +3587,7 @@ namespace PayRunIOProcessReports
             return PreparePeriodReport(xdoc, xmlPeriodReport);
         }
 
-        private RPP32Report CreateP32Report(XDocument xdoc, RPEmployer rpEmplopyer, RPParameters rpParameters)
+        private RPP32Report CreateP32Report(XDocument xdoc, RPEmployer rpEmployer, RPParameters rpParameters)
         {
             RPP32Report rpP32Report = null;
             PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
@@ -3603,13 +3603,20 @@ namespace PayRunIOProcessReports
             {
                 p32ReportXml = prWG.GetP32Report(xdoc, rpParameters);
             }
-
+            string outgoingFolder = xdoc.Root.Element("DataHomeFolder").Value + "PE-P32xml" + "\\";
+            p32ReportXml.Save(outgoingFolder + rpEmployer.Name + "-P32.xml");
             rpP32Report = PrepareP32SummaryReport(xdoc, p32ReportXml, rpParameters, prWG);
 
             return rpP32Report;
         }
         private RPP32Report PrepareP32SummaryReport(XDocument xdoc, XmlDocument p32ReportXml, RPParameters rpParameters, PayRunIOWebGlobeClass prWG)
         {
+            //var payeMonth = rpParameters.AccYearEnd.Day < 6 ? rpParameters.AccYearEnd.Month - 4 : rpParameters.AccYearEnd.Month - 3;
+            var payeMonth = rpParameters.PayRunDate.Day < 6 ? rpParameters.PayRunDate.Month - 4 : rpParameters.PayRunDate.Month - 3;
+            if (payeMonth <= 0)
+            {
+                payeMonth += 12;
+            }
             RPP32Report rpP32Report = new RPP32Report();
             foreach (XmlElement header in p32ReportXml.GetElementsByTagName("Header"))
             {
@@ -3653,6 +3660,7 @@ namespace PayRunIOProcessReports
                         rpP32PayRun.IncomeTax = prWG.GetDecimalElementByTagFromXml(payRun, "IncomeTax");
                         rpP32PayRun.StudentLoan = prWG.GetDecimalElementByTagFromXml(payRun, "StudentLoan");
                         rpP32PayRun.PostGraduateLoan = prWG.GetDecimalElementByTagFromXml(payRun, "PostGraduateLoan");
+                        rpP32PayRun.StudentLoan = rpP32PayRun.StudentLoan + rpP32PayRun.PostGraduateLoan;
                         rpP32PayRun.NetIncomeTax = prWG.GetDecimalElementByTagFromXml(payRun, "NetIncomeTax");
                         rpP32PayRun.GrossNICs = prWG.GetDecimalElementByTagFromXml(payRun, "GrossNICs");
 
@@ -3694,6 +3702,7 @@ namespace PayRunIOProcessReports
                     rpP32Summary.Tax = prWG.GetDecimalElementByTagFromXml(summary, "Tax");
                     rpP32Summary.StudentLoan= prWG.GetDecimalElementByTagFromXml(summary, "StudentLoan");
                     rpP32Summary.PostGraduateLoan = prWG.GetDecimalElementByTagFromXml(summary, "PostGraduateLoan");
+                    rpP32Summary.StudentLoan = rpP32Summary.StudentLoan + rpP32Summary.PostGraduateLoan;
                     rpP32Summary.NetTax = prWG.GetDecimalElementByTagFromXml(summary, "NetTax");
                     rpP32Summary.EmployerNI = prWG.GetDecimalElementByTagFromXml(summary, "EmployerNI");
                     rpP32Summary.EmployeeNI = prWG.GetDecimalElementByTagFromXml(summary, "EmployeeNI");
@@ -3724,7 +3733,15 @@ namespace PayRunIOProcessReports
 
                 //If any of the values are not zero add the P32 period to the list
                 addToList = CheckIfNotZero(rpP32ReportMonth);
+                //Add everything whether it's zero or not. 
+                //addToList = true;
 
+                //Check if PeriodNo is less than or equal to PAYE Month.
+
+                if (rpP32ReportMonth.PeriodNo == 0)
+                {
+                    addToList = true;
+                }
                 if (addToList)
                 {
                     rpP32ReportMonths.Add(rpP32ReportMonth);
@@ -3753,6 +3770,7 @@ namespace PayRunIOProcessReports
                     rpP32Summary.Tax = prWG.GetDecimalElementByTagFromXml(annualTotal, "Tax");
                     rpP32Summary.StudentLoan = prWG.GetDecimalElementByTagFromXml(annualTotal, "StudentLoan");
                     rpP32Summary.PostGraduateLoan = prWG.GetDecimalElementByTagFromXml(annualTotal, "PostGraduateLoan");
+                    rpP32Summary.StudentLoan = rpP32Summary.StudentLoan + rpP32Summary.PostGraduateLoan;
                     rpP32Summary.NetTax = prWG.GetDecimalElementByTagFromXml(annualTotal, "NetTax");
                     rpP32Summary.EmployerNI = prWG.GetDecimalElementByTagFromXml(annualTotal, "EmployerNI");
                     rpP32Summary.EmployeeNI = prWG.GetDecimalElementByTagFromXml(annualTotal, "EmployeeNI");
