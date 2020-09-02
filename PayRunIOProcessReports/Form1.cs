@@ -3668,12 +3668,6 @@ namespace PayRunIOProcessReports
         }
         public static RPP32Report PrepareP32SummaryReport(XDocument xdoc, XmlDocument p32ReportXml, RPParameters rpParameters, PayRunIOWebGlobeClass prWG)
         {
-            //var payeMonth = rpParameters.AccYearEnd.Day < 6 ? rpParameters.AccYearEnd.Month - 4 : rpParameters.AccYearEnd.Month - 3;
-            var payeMonth = rpParameters.PayRunDate.Day < 6 ? rpParameters.PayRunDate.Month - 4 : rpParameters.PayRunDate.Month - 3;
-            if (payeMonth <= 0)
-            {
-                payeMonth += 12;
-            }
             RPP32Report rpP32Report = new RPP32Report();
             foreach (XmlElement header in p32ReportXml.GetElementsByTagName("Header"))
             {
