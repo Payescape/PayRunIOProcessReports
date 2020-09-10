@@ -592,7 +592,7 @@ namespace PayRunIOProcessReports
             //plus the employers 4 digit number. Unless the employer has specified a particluar password in which case the password is held on the Companies table.
             //
             string password = null;
-            if(rpEmployer.ReportPassword == null)
+            if(rpEmployer.ReportPassword == null || rpEmployer.ReportPassword == "" || rpEmployer.ReportPassword == " ")
             {
                 password = rpEmployer.Name.ToLower().Replace(" ", "");
                 if (password.Length >= 4)
@@ -647,7 +647,7 @@ namespace PayRunIOProcessReports
                     CreateEagleBankFile(outgoingFolder, rpEmployeePeriodList, rpEmployer);
                     break;
                 case "003":
-                    //Eagle
+                    //Revolut
                     CreateRevolutBankFile(outgoingFolder, rpEmployeePeriodList, rpEmployer);
                     break;
                 default:
@@ -3277,7 +3277,14 @@ namespace PayRunIOProcessReports
                         payHistoryDetails[46] = rpEmployeePeriod.EeContributionsTaxPeriodPt1.ToString();
                         payHistoryDetails[47] = rpEmployeePeriod.EeContributionsTaxPeriodPt2.ToString();
                         payHistoryDetails[48] = rpEmployeePeriod.ErNICTP.ToString();
-                        payHistoryDetails[49] = Convert.ToDateTime(rpEmployeePeriod.AEAssessment.AssessmentDate).ToString("dd/MM/yy", CultureInfo.InvariantCulture);
+                        if(rpEmployeePeriod.AEAssessment.AssessmentDate == null)
+                        {
+                            payHistoryDetails[49] = "";
+                        }
+                        else
+                        {
+                            payHistoryDetails[49] = Convert.ToDateTime(rpEmployeePeriod.AEAssessment.AssessmentDate).ToString("dd/MM/yy", CultureInfo.InvariantCulture);
+                        }
                         payHistoryDetails[50] = rpEmployeePeriod.AEAssessment.AssessmentCode;
                         payHistoryDetails[51] = rpEmployeePeriod.AEAssessment.AssessmentEvent;
                         payHistoryDetails[52] = rpEmployeePeriod.AEAssessment.TaxPeriod.ToString();
