@@ -1161,7 +1161,10 @@ namespace PayRunIOProcessReports
             PrintPayslips(xdoc, rpEmployeePeriodList, rpEmployer, rpParameters);
             PrintPayslipsSimple(xdoc, rpEmployeePeriodList, rpEmployer, rpParameters);
             PrintPaymentsDueByMethodReport(xdoc, rpEmployeePeriodList, rpEmployer, rpParameters);
-            PrintComponentAnalysisReport(xdoc, rpPayComponents, rpEmployer, rpParameters);
+            bool showDetail = true;
+            PrintComponentAnalysisReport(xdoc, rpPayComponents, rpEmployer, rpParameters,showDetail);
+            showDetail = false;
+            PrintComponentAnalysisReport(xdoc, rpPayComponents, rpEmployer, rpParameters, showDetail);
             PrintPensionContributionsReport(xdoc, rpPensionContributions, rpEmployer, rpParameters);
             PrintPayrollRunDetailsReport(xdoc, rpEmployeePeriodList, rpEmployer, rpParameters);
             if (p45s.Count > 0)
@@ -1371,7 +1374,7 @@ namespace PayRunIOProcessReports
             }
 
         }
-        private void PrintComponentAnalysisReport(XDocument xdoc, List<RPPayComponent> rpPayComponents, RPEmployer rpEmployer, RPParameters rpParameters)
+        private void PrintComponentAnalysisReport(XDocument xdoc, List<RPPayComponent> rpPayComponents, RPEmployer rpEmployer, RPParameters rpParameters, bool showDetail)
         {
             string softwareHomeFolder = xdoc.Root.Element("SoftwareHomeFolder").Value + "Programs\\";
             string outgoingFolder = xdoc.Root.Element("DataHomeFolder").Value + "PE-Reports";
@@ -1387,15 +1390,16 @@ namespace PayRunIOProcessReports
                 payeMonth += 12;
             }
 
-            //Main payslip report
+            //Main Component Analysis report
             XtraReport report1 = XtraReport.FromFile(softwareHomeFolder + "ComponentAnalysisReport.repx", true);         //"ComponentAnalysisReport.repx"
-
+            
             report1.Parameters["CmpName"].Value = rpEmployer.Name;
             report1.Parameters["PayeRef"].Value = rpEmployer.PayeRef;
             report1.Parameters["Date"].Value = rpParameters.PayRunDate;
             report1.Parameters["Period"].Value = rpParameters.PeriodNo;
             report1.Parameters["Freq"].Value = rpParameters.PaySchedule;
             report1.Parameters["PAYEMonth"].Value = payeMonth;
+            report1.Parameters["ShowDetailBand"].Value = showDetail;
             report1.DataSource = rpPayComponents;
             //// To show the report designer. You need to uncomment this to design the report.
             //// You also need to comment out the report.ExportToPDF line below
@@ -1417,7 +1421,16 @@ namespace PayRunIOProcessReports
                 //string dirName = "V:\\Payescape\\PayRunIO\\WG\\";
                 string dirName = outgoingFolder + "\\" + coNo + "\\";
                 Directory.CreateDirectory(dirName);
-                string docName = coNo + "_ComponentAnalysisReportFor_TaxYear_" + taxYear + "_Period_" + taxPeriod + ".pdf";
+                string docName = null;
+                if(showDetail)
+                {
+                    docName = coNo + "_ComponentAnalysisReportFor_TaxYear_" + taxYear + "_Period_" + taxPeriod + ".pdf";
+                }
+                else
+                {
+                    docName = coNo + "_ComponentTotalsReportFor_TaxYear_" + taxYear + "_Period_" + taxPeriod + ".pdf";
+                }
+                
 
                 report1.ExportToPdf(dirName + docName);
                 docName = docName.Replace(".pdf", ".xlsx");
@@ -1909,7 +1922,10 @@ namespace PayRunIOProcessReports
                                     {
                                         rpPayComponents.Add(rpPayComponent);
                                     }
-                                    if(rpPayComponent.PayCode != "TAX" && rpPayComponent.PayCode != "NI" && !rpPayComponent.PayCode.StartsWith("PENSION") && !rpPayComponent.PayCode.StartsWith("SLOAN"))
+                                    //Probably should bite the bullet and make use of the IsPayCode marker here rather than looking for TAX, NI, PENSION, SLOAN, AOE etc.
+                                    //but I'm concerned it will cause unforseen issues.
+                                    if(rpPayComponent.PayCode != "TAX" && rpPayComponent.PayCode != "NI" && !rpPayComponent.PayCode.StartsWith("PENSION") && !rpPayComponent.PayCode.StartsWith("SLOAN")
+                                        && !rpPayComponent.PayCode.StartsWith("AOE"))
                                     {
                                         if (rpPayComponent.IsTaxable)
                                         {
@@ -1937,7 +1953,7 @@ namespace PayRunIOProcessReports
                                             rpEmployeePeriod.PreTaxPension = rpEmployeePeriod.PreTaxPension + rpPayComponent.AmountTP;
                                             break;
                                         case "AOE":
-                                            rpEmployeePeriod.AOE = rpEmployeePeriod.AOE + rpPayComponent.AmountTP;
+                                            rpEmployeePeriod.AOE = rpEmployeePeriod.AOE + (rpPayComponent.AmountTP * -1);
                                             break;
                                         case "SLOAN":
                                             rpEmployeePeriod.StudentLoan = rpEmployeePeriod.StudentLoan + (rpPayComponent.AmountTP * -1);
@@ -2627,6 +2643,7 @@ namespace PayRunIOProcessReports
                                 rpPayCode.PayCode = "EeNIPdByEr";
                                 rpPayCode.Description = "Ee NI Paid By Er";
                                 rpPayCode.Type = "E";
+                                rpPayCode.TotalAmount = 0;
                                 rpPayCode.AccountsAmount = rpEmployeeYtd.EeNiPaidByErAccountsAmount;
                                 rpPayCode.PayeAmount = rpEmployeeYtd.EeNiPaidByErPayeAmount;
                                 rpPayCode.AccountsUnits = rpEmployeeYtd.EeNiPaidByErAccountsUnits;
@@ -2637,6 +2654,7 @@ namespace PayRunIOProcessReports
                                 rpPayCode.PayCode = "GUTax";
                                 rpPayCode.Description = "Grossed up Tax";
                                 rpPayCode.Type = "E";
+                                rpPayCode.TotalAmount = 0;
                                 rpPayCode.AccountsAmount = rpEmployeeYtd.EeGuTaxPaidByErAccountsAmount;//GetDecimalElementByTagFromXml(employee, "EeGuTaxPaidByErAccountsAmount");
                                 rpPayCode.PayeAmount = rpEmployeeYtd.EeGuTaxPaidByErPayeAmount;//GetDecimalElementByTagFromXml(employee, "EeGuTaxPaidByErPayeAmount");
                                 rpPayCode.AccountsUnits = rpEmployeeYtd.EeGuTaxPaidByErAccountsUnits;//GetDecimalElementByTagFromXml(employee, "EeGuTaxPaidByErAccountsUnit");
@@ -2647,6 +2665,7 @@ namespace PayRunIOProcessReports
                                 rpPayCode.PayCode = "NIEeeLERtoUER";
                                 rpPayCode.Description = "NIEeeLERtoUER-A";
                                 rpPayCode.Type = "T";
+                                rpPayCode.TotalAmount = 0;
                                 rpPayCode.AccountsAmount = rpEmployeeYtd.EeNiLERtoUERAccountsAmount;//GetDecimalElementByTagFromXml(employee, "EeNiLERtoUERAccountsAmount");
                                 rpPayCode.PayeAmount = rpEmployeeYtd.EeNiLERtoUERPayeAmount;//GetDecimalElementByTagFromXml(employee, "EeNiLERtoUERPayeAmount");
                                 rpPayCode.AccountsUnits = rpEmployeeYtd.EeNiLERtoUERAccountsUnits;//GetDecimalElementByTagFromXml(employee, "EeNiLERtoUERAccountsUnit");
@@ -2657,6 +2676,7 @@ namespace PayRunIOProcessReports
                                 rpPayCode.PayCode = "NIEr";
                                 rpPayCode.Description = "NIEr-A";
                                 rpPayCode.Type = "T";
+                                rpPayCode.TotalAmount = 0;
                                 rpPayCode.AccountsAmount = rpEmployeeYtd.ErNiAccountsAmount;//GetDecimalElementByTagFromXml(employee, "ErNiAccountAmount");
                                 rpPayCode.PayeAmount = rpEmployeeYtd.ErNiPayeAmount;//GetDecimalElementByTagFromXml(employee, "ErNiPayeAmount");
                                 rpPayCode.AccountsUnits = rpEmployeeYtd.ErNiAccountsUnits;//GetDecimalElementByTagFromXml(employee, "ErNiAccountUnit");
@@ -2667,6 +2687,7 @@ namespace PayRunIOProcessReports
                                 rpPayCode.PayCode = "PenEr";
                                 rpPayCode.Description = "PenEr";
                                 rpPayCode.Type = "D";
+                                rpPayCode.TotalAmount = 0;
                                 rpPayCode.AccountsAmount = rpEmployeeYtd.ErPensionYtd;//GetDecimalElementByTagFromXml(employee, "ErPensionYTD");
                                 rpPayCode.PayeAmount = rpEmployeeYtd.ErPensionYtd;//GetDecimalElementByTagFromXml(employee, "ErPensionYTD");
                                 rpPayCode.AccountsUnits = 0;
@@ -2677,6 +2698,7 @@ namespace PayRunIOProcessReports
                                 rpPayCode.PayCode = "PenPreTaxEe";
                                 rpPayCode.Description = "PenPreTaxEe";
                                 rpPayCode.Type = "D";
+                                rpPayCode.TotalAmount = 0;
                                 rpPayCode.AccountsAmount = rpEmployeeYtd.PensionPreTaxEeAccounts;//GetDecimalElementByTagFromXml(employee, "EePensionYTD");
                                 rpPayCode.PayeAmount = rpEmployeeYtd.PensionPreTaxEePaye;//GetDecimalElementByTagFromXml(employee, "EePensionYTD");
                                 rpPayCode.AccountsUnits = 0;
@@ -2687,6 +2709,7 @@ namespace PayRunIOProcessReports
                                 rpPayCode.PayCode = "PenPostTaxEe";
                                 rpPayCode.Description = "PenPostTaxEe";
                                 rpPayCode.Type = "D";
+                                rpPayCode.TotalAmount = 0;
                                 rpPayCode.AccountsAmount = rpEmployeeYtd.PensionPostTaxEeAccounts;//GetDecimalElementByTagFromXml(employee, "EePensionYTD");
                                 rpPayCode.PayeAmount = rpEmployeeYtd.PensionPostTaxEePaye;//GetDecimalElementByTagFromXml(employee, "EePensionYTD");
                                 rpPayCode.AccountsUnits = 0;
@@ -2723,6 +2746,7 @@ namespace PayRunIOProcessReports
                         rpPayCode.PayCode = rpPensionYtd.Code + "-" + rpPensionYtd.SchemeName + "-Ee";
                         rpPayCode.Description = rpPensionYtd.Code + "-" + rpPensionYtd.SchemeName;
                         rpPayCode.Type = "P";
+                        rpPayCode.TotalAmount = 0;
                         rpPayCode.AccountsAmount = rpPensionYtd.EePensionYtd;
                         rpPayCode.PayeAmount = rpPensionYtd.EePensionYtd;
                         rpPayCode.AccountsUnits = 0;
@@ -2739,6 +2763,7 @@ namespace PayRunIOProcessReports
                         rpPayCode.PayCode = rpPensionYtd.Code + "-" + rpPensionYtd.SchemeName + "-Er";
                         rpPayCode.Description = rpPensionYtd.Code + "-" + rpPensionYtd.SchemeName;
                         rpPayCode.Type = "P";
+                        rpPayCode.TotalAmount = 0;
                         rpPayCode.AccountsAmount = rpPensionYtd.ErPensionYtd;
                         rpPayCode.PayeAmount = rpPensionYtd.ErPensionYtd;
                         rpPayCode.AccountsUnits = 0;
@@ -2755,6 +2780,7 @@ namespace PayRunIOProcessReports
                         rpPayCode.PayCode = rpPensionYtd.Code + "-" + rpPensionYtd.SchemeName + "-Pay";
                         rpPayCode.Description = rpPensionYtd.Code + "-" + rpPensionYtd.SchemeName;
                         rpPayCode.Type = "P";
+                        rpPayCode.TotalAmount = 0;
                         rpPayCode.AccountsAmount = rpPensionYtd.PensionablePayYtd;
                         rpPayCode.PayeAmount = rpPensionYtd.PensionablePayYtd;
                         rpPayCode.AccountsUnits = 0;
@@ -2774,13 +2800,14 @@ namespace PayRunIOProcessReports
                             rpPayCode.Code = prWG.GetElementByTagFromXml(payCode, "Code");
                             rpPayCode.PayCode = prWG.GetElementByTagFromXml(payCode, "Code");
                             rpPayCode.Description = prWG.GetElementByTagFromXml(payCode, "Description");
-                            bool isPayCode = prWG.GetBooleanElementByTagFromXml(payCode, "IsPayCode");
+                            rpPayCode.IsPayCode = prWG.GetBooleanElementByTagFromXml(payCode, "IsPayCode");
+                            rpPayCode.Type = prWG.GetElementByTagFromXml(payCode, "EarningOrDeduction");
+                            rpPayCode.TotalAmount = prWG.GetDecimalElementByTagFromXml(payCode, "TotalAmount");
                             rpPayCode.AccountsAmount = prWG.GetDecimalElementByTagFromXml(payCode, "AccountsAmount");
                             rpPayCode.PayeAmount = prWG.GetDecimalElementByTagFromXml(payCode, "PayeAmount");
                             rpPayCode.AccountsUnits = prWG.GetDecimalElementByTagFromXml(payCode, "AccountsUnits");
                             rpPayCode.PayeUnits = prWG.GetDecimalElementByTagFromXml(payCode, "PayeUnits");
-                            rpPayCode.IsPayCode = prWG.GetBooleanElementByTagFromXml(payCode, "IsPayCode");
-                            rpPayCode.Type = prWG.GetElementByTagFromXml(payCode, "EarningOrDeduction");
+                            
 
                             //
                             //Check if any of the values are not zero. If so write the first employee record
@@ -2801,15 +2828,38 @@ namespace PayRunIOProcessReports
                                     {
                                         //Deduction so multiply by -1
                                         rpPayCode.AccountsAmount = rpPayCode.AccountsAmount * -1;
-                                        //rpPayCode.AccountsUnits = rpPayCode.AccountsUnits * -1;
                                         rpPayCode.PayeAmount = rpPayCode.PayeAmount * -1;
-                                        //rpPayCode.PayeUnits = rpPayCode.PayeUnits * -1;
+                                        rpPayCode.TotalAmount = rpPayCode.TotalAmount * -1;
 
                                     }
                                     if (rpPayCode.Code == "UNPDM")
                                     {
                                         //Change UNPDM back to UNPD£. WG uses UNPD£ PR doesn't like symbols like £ in pay codes.
                                         rpPayCode.PayCode = "UNPD£";
+                                    }
+                                    if(rpPayCode.Code=="AOE")
+                                    {
+                                        RPPayCode aoePayCode = new RPPayCode();
+                                        aoePayCode = GetRPPayCode(rpPayCode);
+                                        //For an AOE we need to create 3 rows in the Ytd csv file.
+                                        aoePayCode.PayCode = aoePayCode.PayCode + " " + aoePayCode.Description;
+                                        rpPayCodeList.Add(aoePayCode);
+                                        //PaidTD
+                                        aoePayCode = new RPPayCode();
+                                        aoePayCode = GetRPPayCode(rpPayCode);
+                                        aoePayCode.Type = "A";
+                                        string reference = null;
+                                        string name = null;
+                                        int i = aoePayCode.Description.IndexOf('-');
+                                        reference = aoePayCode.Description.Substring(0, i + 1);
+                                        name = aoePayCode.Description.Substring(i + 1);
+                                        aoePayCode.Description = name + reference + "PaidTD";
+                                        aoePayCode.PayCode = aoePayCode.Description;
+                                        rpPayCodeList.Add(aoePayCode);
+                                        //PayYTD
+                                        rpPayCode.Type = "A";
+                                        rpPayCode.Description = name + reference + "PayYTD";
+                                        rpPayCode.PayCode = rpPayCode.Description;
                                     }
                                     //Add to employee record
                                     rpPayCodeList.Add(rpPayCode);
@@ -2837,6 +2887,22 @@ namespace PayRunIOProcessReports
             });
 
             return rpEmployeeYtdList;
+        }
+        private RPPayCode GetRPPayCode(RPPayCode rpPayCode)
+        {
+            RPPayCode aoePayCode = new RPPayCode();
+            aoePayCode.AccountsAmount = rpPayCode.AccountsAmount;
+            aoePayCode.AccountsUnits = rpPayCode.AccountsUnits;
+            aoePayCode.Code = rpPayCode.Code;
+            aoePayCode.Description = rpPayCode.Description;
+            aoePayCode.EeRef = rpPayCode.EeRef;
+            aoePayCode.IsPayCode = rpPayCode.IsPayCode;
+            aoePayCode.PayCode = rpPayCode.PayCode;
+            aoePayCode.PayeAmount = rpPayCode.PayeAmount;
+            aoePayCode.PayeUnits = rpPayCode.PayeUnits;
+            aoePayCode.TotalAmount = rpPayCode.TotalAmount;
+            aoePayCode.Type = rpPayCode.Type;
+            return aoePayCode;
         }
         public void CreateYTDCSV(XDocument xdoc, List<RPEmployeeYtd> rpEmployeeYtdList, RPParameters rpParameters)
         {
@@ -3002,7 +3068,7 @@ namespace PayRunIOProcessReports
                             payCodeDetails[6] = rpPayCode.AccountsUnits.ToString();
                             payCodeDetails[7] = rpPayCode.PayeUnits.ToString();
 
-                            switch (payCodeDetails[2])
+                            switch (rpPayCode.Code)
                             {
                                 case "UNPDM":
                                     //Change UNPDM back to UNPD£. WG uses UNPD£ PR doesn't like symbols like £ in pay codes.
@@ -3011,6 +3077,13 @@ namespace PayRunIOProcessReports
                                 case "SLOAN":
                                     payCodeDetails[2] = "StudentLoan";
                                     payCodeDetails[3] = "StudentLoan";
+                                    break;
+                                case "AOE":
+                                    if(payCodeDetails[3].Contains("PaidTD"))
+                                    {
+                                        payCodeDetails[4] = rpPayCode.TotalAmount.ToString();
+                                        payCodeDetails[5] = rpPayCode.TotalAmount.ToString();
+                                    }
                                     break;
                             }
 
@@ -3493,6 +3566,9 @@ namespace PayRunIOProcessReports
                                     payCodeDetails[1] = "StudentLoan";
                                     payCodeDetails[2] = "StudentLoan";
                                     //payCodeDetails[4] = "0";                    // Rate
+                                    break;
+                                case "AOE":
+                                    payCodeDetails[2] = payCodeDetails[2] +  " " + payCodeDetails[1]; //Code + Description
                                     break;
                             }
                             if (!wait)
