@@ -3295,7 +3295,7 @@ namespace PayRunIOProcessReports
                         payHistoryDetails[33] = rpEmployeePeriod.TaxPrev.ToString();
                         payHistoryDetails[34] = rpEmployeePeriod.TaxablePayPrevious.ToString();
                         payHistoryDetails[35] = rpEmployeePeriod.TaxThis.ToString();
-                        payHistoryDetails[36] = rpEmployeePeriod.TaxablePayYTD.ToString();
+                        payHistoryDetails[36] = (rpEmployeePeriod.TaxablePayYTD - rpEmployeePeriod.TaxablePayPrevious).ToString();
                         payHistoryDetails[37] = rpEmployeePeriod.HolidayAccruedTd.ToString();
 
                         decimal erPensionYtd = 0;
