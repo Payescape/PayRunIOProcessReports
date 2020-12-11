@@ -15,11 +15,11 @@ using Amazon;
 using Amazon.S3;
 using Amazon.S3.Model;
 using System.Net.Mail;
+using System.Text;
 
 namespace PayRunIOProcessReports
 {
-    using System.Text;
-
+    
     public partial class Form1 : DevExpress.XtraEditors.XtraForm
     {
         public Form1()
@@ -945,6 +945,7 @@ namespace PayRunIOProcessReports
                         rpPensionFileSchemePensionContributions = new List<RPPensionContribution>();
                     }
                     previousSchemeName = rpPensionContribution.RPPensionPeriod.SchemeName;
+                    rpPensionFileScheme.Key = rpPensionContribution.RPPensionPeriod.Key;
                     rpPensionFileScheme.SchemeName = rpPensionContribution.RPPensionPeriod.SchemeName;
                     rpPensionFileScheme.ProviderName = rpPensionContribution.RPPensionPeriod.ProviderName;
 
@@ -968,6 +969,10 @@ namespace PayRunIOProcessReports
                     {
                         rpPensionFileScheme.ProviderName = "THE PEOPLES PENSION";
                     }
+                    else if (rpPensionFileScheme.ProviderName.ToUpper().Contains("SMART PENSIONS"))
+                    {
+                        rpPensionFileScheme.ProviderName = "SMART PENSIONS";
+                    }
                     else
                     {
                         rpPensionFileScheme.ProviderName = "UNKOWN";
@@ -979,10 +984,12 @@ namespace PayRunIOProcessReports
             //The rpPensionFileScheme object we've create should now contain a scheme name plus a list for employee contributions
             rpPensionFileScheme.RPPensionContributions = rpPensionFileSchemePensionContributions;
             rpPensionFileSchemes.Add(rpPensionFileScheme);
-            ProcessPensionFileSchemes(outgoingFolder, rpPensionFileSchemes, rpEmployer);
+            ProcessPensionFileSchemes(xdoc, rpPensionFileSchemes, rpEmployer, rpParameters);
         }
-        private void ProcessPensionFileSchemes(string outgoingFolder, List<RPPensionFileScheme> rpPensionFileSchemes, RPEmployer rpEmployer)
+        private void ProcessPensionFileSchemes(XDocument xdoc, List<RPPensionFileScheme> rpPensionFileSchemes, RPEmployer rpEmployer, RPParameters rpParameters)
         {
+            string outgoingFolder = xdoc.Root.Element("DataHomeFolder").Value + "PE-Reports" + "\\" + rpParameters.ErRef;
+
             foreach (RPPensionFileScheme rpPensionFileScheme in rpPensionFileSchemes)
             {
                 switch (rpPensionFileScheme.ProviderName)
@@ -1000,7 +1007,14 @@ namespace PayRunIOProcessReports
                         CreateTheCreativeAEPensionFile(outgoingFolder, rpPensionFileScheme, rpEmployer);
                         break;
                     case "THE PEOPLES PENSION":
-                        CreateThePeoplesPensionFile(outgoingFolder, rpPensionFileScheme, rpEmployer);
+                        CreateThePeoplesPensionPensionFile(outgoingFolder, rpPensionFileScheme, rpEmployer);
+                        break;
+                    case "SMART PENSIONS":
+                        //Get the transformed from PayRun.IO
+                        rpParameters.PensionKey = rpPensionFileScheme.Key;
+                        GetSmartPensionsReport(xdoc, rpPensionFileScheme, rpParameters);
+                        //Create the csv file long hand.
+                        //CreateTheSmartPensionsPensionFile(outgoingFolder, rpPensionFileScheme, rpEmployer, rpParameters);
                         break;
                     case "UNKNOWN":
                         break;
@@ -1355,7 +1369,7 @@ namespace PayRunIOProcessReports
                 }
             }
         }
-        private void CreateThePeoplesPensionFile(string outgoingFolder, RPPensionFileScheme rpPensionFileScheme, RPEmployer rpEmployer)
+        private void CreateThePeoplesPensionPensionFile(string outgoingFolder, RPPensionFileScheme rpPensionFileScheme, RPEmployer rpEmployer)
         {
             string pensionFileName = outgoingFolder + "\\" + rpPensionFileScheme.SchemeName + "PensionFile.csv";
             string comma = ",";
@@ -1430,6 +1444,150 @@ namespace PayRunIOProcessReports
             }
 
         }
+        private void CreateTheSmartPensionsPensionFile(string outgoingFolder, RPPensionFileScheme rpPensionFileScheme, RPEmployer rpEmployer, RPParameters rpParameters)
+        {
+            string pensionFileName = outgoingFolder + "\\" + rpPensionFileScheme.SchemeName + "PensionFile.csv";
+            string comma = ",";
+            string providerEmployerReference = rpPensionFileScheme.RPPensionContributions[0].RPPensionPeriod.ProviderEmployerReference;
+            string startDate = rpPensionFileScheme.RPPensionContributions[0].StartDate.ToString("dd-MM-yyyy");
+            string endDate = rpPensionFileScheme.RPPensionContributions[0].EndDate.ToString("dd-MM-yyyy");
+            string payDate = rpPensionFileScheme.RPPensionContributions[0].PayRunDate.ToString("dd-MM-yyyy");
+            string freq = null;
+            switch (rpParameters.PaySchedule)
+            {
+                case "Fortnightly":
+                    freq = "W2";
+                    break;
+                case "FourWeekly":
+                    freq = "W4";
+                    break;
+                case "Monthly":
+                    freq = "M1";
+                    break;
+                case "Quarterly":
+                    freq = "M3";
+                    break;
+                case "Yearly":
+                    freq = "MA";
+                    break;
+                default:
+                    freq = "W1";
+                    break;
+            }
+            int taxPeriod = rpParameters.TaxPeriod;
+            using (StreamWriter sw = new StreamWriter(pensionFileName))
+            {
+                string csvLine = "PAPDISVersion,PensionProviderId,EmployerId,Group,SubGroup,PayPeriodStartDate,PayPeriodEndDate," +
+                          "ContributionDeductionDate,FrequencyCode,TaxPeriod,Title," +
+                          "Forename1,Forename2,Surname,EmployeeId,BirthDate," +
+                          "Gender,NationalInsurance,Address1,Address2," +
+                          "Address3,Address4,Postcode,Country,EmailAddress,EmploymentStartDate," +
+                          "ExitDate,ExitReasonCode,AssessmentCode," +
+                          "EventCode,EventDate,DeferralDate,AEOptOutDate,AEOptOutReference," +
+                          "EnrolmentCommunicationsIssuedDate,EmployerContributionsAmount," +
+                          "EmployeeContributionsAmount,AdditionalVoluntaryContributionsAmount," +
+                          "AdditionalVoluntaryContributionsPercent,PensionableEarningsAmount," +
+                          "ER Cont. %,EE Cont. %,SalarySacrificeIndicator";
+                sw.WriteLine(csvLine);
+                
+                foreach (RPPensionContribution rpPensionContribution in rpPensionFileScheme.RPPensionContributions)
+                {
+                    int assesmentCode;
+                    switch (rpPensionContribution.RPPensionPeriod.AEStatus.ToUpper())
+                    {
+                        case "ELIGIBLE":
+                            assesmentCode = 1;
+                            break;
+                        case "NONELIGIBLE":
+                            assesmentCode = 2;
+                            break;
+                        case "ENTITLED":
+                            assesmentCode = 3;
+                            break;
+                        default:
+                            assesmentCode = 4;
+                            break;
+                       
+                    }
+                    if (rpPensionContribution.RPPensionPeriod.AEWorkerGroup == "")
+                    {
+                        rpPensionContribution.RPPensionPeriod.AEWorkerGroup = "Default";
+                    }
+                    string salarySacrifice = "N";
+                    if (rpPensionContribution.RPPensionPeriod.Code == "SACRIFICE")
+                    {
+                        salarySacrifice = "Y";
+                    }
+                       
+                    if (rpPensionContribution.RPPensionPeriod.EePensionTaxPeriod != 0 || rpPensionContribution.RPPensionPeriod.ErPensionTaxPeriod != 0)
+                    {
+                        
+                       csvLine = "PAP01" + comma + //PAPDIS version
+                                  "SMART" + comma + //Pension provider Id
+                                  providerEmployerReference + comma + //Employer Id
+                                  rpPensionContribution.RPPensionPeriod.AEWorkerGroup + comma + //Group
+                                  "" + comma + //Sub group
+                                  startDate + comma + //Pay period start date
+                                  endDate + comma + //Pay period end date
+                                  payDate + comma + //Contribution deduction date
+                                  freq + comma + //Frequency code
+                                  taxPeriod + comma + //Tax period
+                                  rpPensionContribution.Title + comma + //Title
+                                  rpPensionContribution.Forename + comma + //Forename1
+                                  "" + comma +  //2nd Forename
+                                  rpPensionContribution.Surname + comma + //Surname
+                                  rpPensionContribution.EeRef + comma + //Ee Id
+                                  rpPensionContribution.DOB.ToString("dd-MM-yyyy") + comma + //DOB
+                                  rpPensionContribution.Gender + comma + //Gender
+                                  rpPensionContribution.NINumber + comma + //NI number
+                                  rpPensionContribution.RPAddress.Line1 + comma + //Address1
+                                  rpPensionContribution.RPAddress.Line2 + comma + //Address2
+                                  rpPensionContribution.RPAddress.Line3 + comma + //Address3
+                                  rpPensionContribution.RPAddress.Line4 + comma + //Address4
+                                  rpPensionContribution.RPAddress.Postcode + comma + //Postcode
+                                  rpPensionContribution.RPAddress.Country + comma + //Country
+                                  rpPensionContribution.EmailAddress + comma + //email address
+                                  rpPensionContribution.StartingDate.ToString("dd-MM-yyyy") + comma + //Employment start date    ********
+                                  "" + comma + //Exit date
+                                  "" + comma + //Exit reason code
+                                  assesmentCode + comma + //Assessment code
+                                  "" + comma + //Event code
+                                  "" + comma + //Event date
+                                  "" + comma + //Deferral date
+                                  "" + comma + //AE opt out date
+                                  "" + comma + //AE opt out reference
+                                  "" + comma + //Enrollment communications issued date
+                                  rpPensionContribution.RPPensionPeriod.ErPensionTaxPeriod + comma + //Er contribution amount
+                                  rpPensionContribution.RPPensionPeriod.EePensionTaxPeriod + comma + //Ee contribution amount
+                                  "0" + comma + //AVC amount
+                                  "0" + comma + //AVC percentage
+                                  rpPensionContribution.RPPensionPeriod.PensionablePayTaxPeriod + comma + //Pensionable earnings amount
+                                  rpPensionContribution.RPPensionPeriod.ErContributionPercent + comma + //Er contribution percentage
+                                  rpPensionContribution.RPPensionPeriod.EeContibutionPercent + comma + //Ee contribution percentage
+                                  salarySacrifice; //Salary sacrifice indicator
+                        sw.WriteLine(csvLine);
+                        
+                    }
+
+                }
+                
+            }
+
+        }
+        private void GetSmartPensionsReport(XDocument xdoc, RPPensionFileScheme rpPensionFileScheme, RPParameters rpParameters)
+        {
+            PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
+            string outgoingFolder = xdoc.Root.Element("DataHomeFolder").Value + "PE-Reports" + "\\" + rpParameters.ErRef;
+            string pensionFileName = outgoingFolder + "\\" + rpPensionFileScheme.SchemeName + "PensionFile.csv";
+
+            //Get the transformed report from PayRun.IO. It'll return the csv file as required and I won't need to run the CreateTheSmartPensionsPensionFile method.
+            string csvReport = prWG.GetSmartPensionsReport(xdoc, rpParameters);
+
+            using (StreamWriter sw = new StreamWriter(pensionFileName))
+            {
+                sw.Write(csvReport);
+            }
+        }
         public void PrintStandardReports(XDocument xdoc, List<RPEmployeePeriod> rpEmployeePeriodList, RPEmployer rpEmployer, RPParameters rpParameters,
                                          List<P45> p45s, List<RPPayComponent> rpPayComponents, List<RPPensionContribution> rpPensionContributions)
         {
@@ -1453,10 +1611,43 @@ namespace PayRunIOProcessReports
             {
                 PrintPayrollTotalsSummaryReport(xdoc, rpEmployeePeriodList, rpEmployer, rpParameters);
             }
+            if (rpParameters.PaidInCash)
+            {
+                //At least one employee was paid in cash to we may need to run the Note And Coin Requirement report
+                if(rpEmployer.NoteAndCoinRequired) 
+                {
+                    PrintNoteAndCoinRequiredReport(xdoc, rpEmployer, rpParameters);
+                }
+            }
 
             if (p45s.Count > 0)
             {
                 PrintP45s(xdoc, p45s, rpParameters, rpEmployer);
+            }
+        }
+        private void PrintNoteAndCoinRequiredReport(XDocument xdoc, RPEmployer rpEmployer, RPParameters rpParameters)
+        {
+            string outgoingFolder = xdoc.Root.Element("DataHomeFolder").Value + "PE-Reports";
+            string coNo = rpParameters.ErRef;
+            int taxYear = rpParameters.TaxYear;
+            int taxPeriod = rpParameters.PeriodNo;
+            string dirName = outgoingFolder + "\\" + coNo + "\\";
+
+            PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
+            XmlDocument xmlReport = new XmlDocument();
+            xmlReport = prWG.GetNoteAndCoinRequirementReport(xdoc, rpParameters);
+
+            string reportName = "NoteAndCoinRequirementReport";
+            string assemblyName = "PayRunIOClassLibrary";
+            XtraReport xtraReport = prWG.CreatePDFReport(xmlReport, reportName, assemblyName);
+
+            string docName = coNo + "_NoteAndCoinRequirementReportFor_TaxYear_" + taxYear + "_Period_" + taxPeriod + ".pdf";
+
+            xtraReport.ExportToPdf(dirName + docName);
+            if (rpEmployer.ReportsInExcelFormat)
+            {
+                docName = docName.Replace(".pdf", ".xlsx");
+                xtraReport.ExportToXlsx(dirName + docName);
             }
         }
         private void PrintPayslips(XDocument xdoc, List<RPEmployeePeriod> rpEmployeePeriodList, RPEmployer rpEmployer, RPParameters rpParameters)
@@ -2013,6 +2204,7 @@ namespace PayRunIOProcessReports
                            List<RPPensionContribution>, RPEmployer, RPParameters> 
                            PrepareStandardReports(XDocument xdoc, XmlDocument xmlReport, RPParameters rpParameters)
         {
+            bool paidInCash = false;
             string textLine = null;
             int logOneIn = Convert.ToInt32(xdoc?.Root?.Element("LogOneIn")?.Value);
             string configDirName = xdoc?.Root?.Element("SoftwareHomeFolder")?.Value;
@@ -2092,11 +2284,17 @@ namespace PayRunIOProcessReports
                         rpEmployeePeriod.SortCode = prWG.GetElementByTagFromXml(employee, "SortCode");
                         rpEmployeePeriod.BankAccNo = prWG.GetElementByTagFromXml(employee, "BankAccNo");
                         rpEmployeePeriod.DateOfBirth = Convert.ToDateTime(prWG.GetDateElementByTagFromXml(employee, "DateOfBirth"));
-                        rpEmployeePeriod.StartingDate = Convert.ToDateTime(prWG.GetDateElementByTagFromXml(employee, "StartingDate"));
+                        rpEmployeePeriod.StartingDate = Convert.ToDateTime(prWG.GetDateElementByTagFromXml(employee, "StartDate"));
                         rpEmployeePeriod.Gender = prWG.GetElementByTagFromXml(employee, "Gender");
                         rpEmployeePeriod.BuildingSocRef = prWG.GetElementByTagFromXml(employee, "BuildingSocRef");
                         rpEmployeePeriod.NINumber = prWG.GetElementByTagFromXml(employee, "NiNumber");
                         rpEmployeePeriod.PaymentMethod = prWG.GetElementByTagFromXml(employee, "PayMethod");
+                        if(rpEmployeePeriod.PaymentMethod=="Cash")
+                        {
+                            //Need to produce the NoteAndCoinRequirement report
+                            paidInCash = true;
+                           
+                        }
                         rpEmployeePeriod.PayRunDate = Convert.ToDateTime(prWG.GetDateElementByTagFromXml(employee, "PayRunDate"));
                         rpEmployeePeriod.PeriodStartDate = Convert.ToDateTime(prWG.GetDateElementByTagFromXml(employee, "PeriodStartDate"));
                         rpEmployeePeriod.PeriodEndDate = Convert.ToDateTime(prWG.GetDateElementByTagFromXml(employee, "PeriodEndDate"));
@@ -2378,8 +2576,9 @@ namespace PayRunIOProcessReports
                                     }
                                     //Probably should bite the bullet and make use of the IsPayCode marker here rather than looking for TAX, NI, PENSION, SLOAN, AOE etc.
                                     //but I'm concerned it will cause unforseen issues.
-                                    if(rpPayComponent.PayCode != "TAX" && rpPayComponent.PayCode != "NI" && !rpPayComponent.PayCode.StartsWith("PENSION") && !rpPayComponent.PayCode.StartsWith("SLOAN")
-                                        && !rpPayComponent.PayCode.StartsWith("AOE"))
+                                    if(rpPayComponent.PayCode != "TAX" && rpPayComponent.PayCode != "NI" && !rpPayComponent.PayCode.StartsWith("PENSION") && 
+                                       rpPayComponent.PayCode != "SLOAN" && rpPayComponent.PayCode != "PGL" &&
+                                       rpPayComponent.PayCode != "AOE")
                                     {
                                         if (rpPayComponent.IsTaxable)
                                         {
@@ -2411,6 +2610,7 @@ namespace PayRunIOProcessReports
                                             rpEmployeePeriod.AEOYtd = rpEmployeePeriod.AEOYtd + (rpPayComponent.AmountYTD * -1);
                                             break;
                                         case "SLOAN":
+                                        case "PGL":
                                             rpEmployeePeriod.StudentLoan = rpEmployeePeriod.StudentLoan + (rpPayComponent.AmountTP * -1);
                                             rpEmployeePeriod.StudentLoanYtd = rpEmployeePeriod.StudentLoanYtd + (rpPayComponent.AmountYTD * -1);
                                             break;
@@ -2572,7 +2772,9 @@ namespace PayRunIOProcessReports
                                     rpEmployeePeriod.TotalDedTP = rpEmployeePeriod.TotalDedTP + rpDeduction.AmountTP;
                                     rpEmployeePeriod.TotalDedYTD = rpEmployeePeriod.TotalDedYTD + rpDeduction.AmountYTD;
                                     //Other Deduction is a column on the Pay Run Details YTD report
-                                    if(!rpDeduction.Code.Contains("PENSION") && rpDeduction.Code != "TAX" && rpDeduction.Code != "NI" && rpDeduction.Code != "AOE" && rpDeduction.Code != "SLOAN")
+                                    if(!rpDeduction.Code.Contains("PENSION") && rpDeduction.Code != "TAX" && rpDeduction.Code != "NI" 
+                                        && rpDeduction.Code != "AOE" && rpDeduction.Code != "SLOAN"
+                                        && rpDeduction.Code != "PGL")
                                     {
                                         rpEmployeePeriod.TotalOtherDedTP = rpEmployeePeriod.TotalOtherDedTP + rpDeduction.AmountTP;
                                         rpEmployeePeriod.TotalOtherDedYTD = rpEmployeePeriod.TotalOtherDedYTD + rpDeduction.AmountYTD;
@@ -2760,6 +2962,11 @@ namespace PayRunIOProcessReports
             {
                 textLine = string.Format("Error preparing reports.\r\n{0}.\r\n", ex);
                 prWG.update_Progress(textLine, configDirName, logOneIn);
+            }
+            if(paidInCash)
+            {
+                //At least one employee was paid in cash so we may need the NotesAndCoinRequirement report
+                rpParameters.PaidInCash = true;
             }
             return new Tuple<List<RPEmployeePeriod>, List<RPPayComponent>, List<P45>, List<RPPreSamplePayCode>,
                                   List<RPPensionContribution>, RPEmployer, RPParameters>
@@ -3187,7 +3394,7 @@ namespace PayRunIOProcessReports
                             case 4:
                                 rpPayCode.PayCode = "PenEr";
                                 rpPayCode.Description = "PenEr";
-                                rpPayCode.Type = "D";
+                                rpPayCode.Type = "M";
                                 rpPayCode.TotalAmount = 0;
                                 rpPayCode.AccountsAmount = rpEmployeeYtd.ErPensionYtd;//GetDecimalElementByTagFromXml(employee, "ErPensionYTD");
                                 rpPayCode.PayeAmount = rpEmployeeYtd.ErPensionYtd;//GetDecimalElementByTagFromXml(employee, "ErPensionYTD");
@@ -3880,7 +4087,7 @@ namespace PayRunIOProcessReports
                                 case 1:
                                     payCodeDetails[1] = "PenEr";
                                     payCodeDetails[2] = "PenEr";
-                                    payCodeDetails[3] = "D";
+                                    payCodeDetails[3] = "M";
                                     payCodeDetails[6] = erPensionTp.ToString();
                                     break;
 
