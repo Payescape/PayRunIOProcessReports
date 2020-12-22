@@ -1039,7 +1039,7 @@ namespace PayRunIOProcessReports
                                   quotes + fullName + quotes + comma +
                                   quotes + rpEmployeePeriod.BankAccNo + quotes + comma +
                                   quotes + rpEmployeePeriod.NetPayTP.ToString() + quotes + comma +
-                                  quotes + rpEmployer.Name.ToUpper() + quotes + comma +
+                                  quotes + rpEmployer.Name.ToUpper().Substring(0,18) + quotes + comma +
                                   quotes + "99" + quotes;
 
                     stringBuilder.AppendLine(csvLine);
