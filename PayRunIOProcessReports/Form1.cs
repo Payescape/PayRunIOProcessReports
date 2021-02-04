@@ -16,7 +16,7 @@ using Amazon.S3;
 using Amazon.S3.Model;
 using System.Net.Mail;
 using System.Text;
-
+using System.Windows.Forms;
 namespace PayRunIOProcessReports
 {
     
@@ -24,14 +24,12 @@ namespace PayRunIOProcessReports
     {
         public Form1()
         {
-           InitializeComponent();
+            InitializeComponent();
         }
 
         private void btnProduceReports_Click(object sender, EventArgs e)
         {
-            //Change to force a commit.
-            //Change to force a commit.
-            //Change to force a commit.
+            
             string configDirName = "C:\\Payescape\\Service\\Config\\";
             //
             //Read the config file to get the outgoing folder and the timer details.
@@ -42,24 +40,23 @@ namespace PayRunIOProcessReports
             xdoc = configFile.ConfigRecord(dirName);
             dirName = xdoc.Root.Element("SoftwareHomeFolder").Value;
             configDirName = dirName;
-            int interval = Convert.ToInt32(xdoc.Root.Element("Interval").Value);
-            int logOneIn = Convert.ToInt32(xdoc.Root.Element("LogOneIn").Value);
-
+            
             PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
 
             
             // Scan the folder and upload files waiting there.
             string textLine = string.Format("Starting from called program (PayRunIOProcessReports).");
-            prWG.update_Progress(textLine, configDirName, 1);
+            prWG.Update_Progress(textLine, configDirName);
             
             
             //Start by updating the contacts table
             prWG.UpdateContactDetails(xdoc);
+
             
             //Now process the reports
-             ProcessReportsFromPayRunIO(xdoc);
+            ProcessReportsFromPayRunIO(xdoc);
 
-
+            
             Close();
 
         }
@@ -74,13 +71,14 @@ namespace PayRunIOProcessReports
             string filePrefix = xdoc.Root.Element("FilePrefix").Value;
             int interval = Convert.ToInt32(xdoc.Root.Element("Interval").Value);
             int logOneIn = Convert.ToInt32(xdoc.Root.Element("LogOneIn").Value);
+            bool live = Convert.ToBoolean(xdoc.Root.Element("Live").Value);
 
-            string textLine = null;
+            string textLine;
 
             PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
 
             textLine = string.Format("Start processing the Outputs folder.");
-            prWG.update_Progress(textLine, softwareHomeFolder, logOneIn);
+            prWG.Update_Progress(textLine, softwareHomeFolder);
             string originalDirName = "Outputs";
             string archiveDirName = "PE-ArchivedOutputs";
             string[] directories = prWG.GetAListOfDirectories(xdoc, "Outputs");
@@ -100,18 +98,18 @@ namespace PayRunIOProcessReports
                 catch (Exception ex)
                 {
                     textLine = string.Format("Error processing the reports for directory {0}.\r\n{1}.\r\n", directories[i], ex);
-                    prWG.update_Progress(textLine, softwareHomeFolder, logOneIn);
+                    prWG.Update_Progress(textLine, softwareHomeFolder);
                 }
 
             }
 
             textLine = string.Format("Finished processing the reports.");
-            prWG.update_Progress(textLine, softwareHomeFolder, logOneIn);
+            prWG.Update_Progress(textLine, softwareHomeFolder);
 
             //Transfer the contents of PE-Outgoing up to the Blue Marble SFTP server
             //Each company has it's own folder beneath PE-Outgoing which is just named with their company number "_" pay date.
             textLine = string.Format("Start processing the PE-Outgoing directory.");
-            prWG.update_Progress(textLine, softwareHomeFolder, logOneIn);
+            prWG.Update_Progress(textLine, softwareHomeFolder);
 
             originalDirName = "PE-Outgoing";
             archiveDirName = "PE-Outgoing\\Archive";
@@ -120,7 +118,7 @@ namespace PayRunIOProcessReports
 
 
             int nowDate = Convert.ToInt32(DateTime.Now.ToString("yyyyMMdd"));
-            int payDate = 0;
+            int payDate;
             int start = 0, length = 0, diff = 0;
 
             for (int i = 0; i < directories.Count(); i++)
@@ -132,14 +130,17 @@ namespace PayRunIOProcessReports
                     //Because of a bug in Blue Marble I'm not uploading the files until it's within 1 day
                     //Emer wants to delay the upload of the pay history and ytd files until the pay date has been reached. This is from the folder PE-Outgoing
                     //I'm going to use the pay date in the file name and then I can compare for it.
-
-                    start = directories[i].LastIndexOf("PE-Outgoing\\") + 17;
-                    length = 8;
-                    payDate = Convert.ToInt32(directories[i].Substring(start, length));
-                    diff = payDate - nowDate;
-                    if (diff > 1)
+                    //If it's not the live system this does not apply.
+                    if(live)
                     {
-                        upload = false;
+                        start = directories[i].LastIndexOf("PE-Outgoing\\") + 17;
+                        length = 8;
+                        payDate = Convert.ToInt32(directories[i].Substring(start, length));
+                        diff = payDate - nowDate;
+                        if (diff > 1)
+                        {
+                            upload = false;
+                        }
                     }
                     if(upload)
                     {
@@ -154,14 +155,14 @@ namespace PayRunIOProcessReports
                                 try
                                 {
                                     textLine = string.Format("Trying to archive directory {0}.", directories[i]);
-                                    prWG.update_Progress(textLine, softwareHomeFolder, logOneIn);
+                                    prWG.Update_Progress(textLine, softwareHomeFolder);
 
                                     prWG.ArchiveDirectory(xdoc, directories[i], originalDirName, archiveDirName);
                                 }
                                 catch (Exception ex)
                                 {
                                     textLine = string.Format("Error archiving directory {0}.\r\n{1}.\r\n", directories[i], ex);
-                                    prWG.update_Progress(textLine, softwareHomeFolder, logOneIn);
+                                    prWG.Update_Progress(textLine, softwareHomeFolder);
                                 }
 
                             }
@@ -171,7 +172,7 @@ namespace PayRunIOProcessReports
                         catch (Exception ex)
                         {
                             textLine = string.Format("Error processing PE-Outgoing folder for directory {0}.\r\n{1}.\r\n", directories[i], ex);
-                            prWG.update_Progress(textLine, softwareHomeFolder, logOneIn);
+                            prWG.Update_Progress(textLine, softwareHomeFolder);
                         }
                     }
                 }
@@ -197,12 +198,12 @@ namespace PayRunIOProcessReports
             int interval = Convert.ToInt32(xdoc.Root.Element("Interval").Value);
             int logOneIn = Convert.ToInt32(xdoc.Root.Element("LogOneIn").Value);
 
-            string textLine = null;
+            string textLine;
 
             PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
 
             textLine = string.Format("Start processing the reports.");
-            prWG.update_Progress(textLine, softwareHomeFolder, logOneIn);
+            prWG.Update_Progress(textLine, softwareHomeFolder);
 
             bool success = true;
 
@@ -231,7 +232,7 @@ namespace PayRunIOProcessReports
                     if (sftpReturn[0] == "Success")
                     {
                         textLine = string.Format("Successfully uploaded csv file {0} for client reference : {1}", csvFile, companyNo);
-                        prWG.update_Progress(textLine, softwareHomeFolder, logOneIn);
+                        prWG.Update_Progress(textLine, softwareHomeFolder);
                     }
                     else
                     {
@@ -239,7 +240,7 @@ namespace PayRunIOProcessReports
                         // SFTP failed
                         //
                         textLine = sftpReturn[1];
-                        prWG.update_Progress(textLine, softwareHomeFolder, logOneIn);
+                        prWG.Update_Progress(textLine, softwareHomeFolder);
                         success = false;
                     }
 
@@ -247,7 +248,7 @@ namespace PayRunIOProcessReports
                 catch
                 {
                     textLine = string.Format("Failed to upload zipped csv file {0} for client reference : {1}", csvFile, companyNo);
-                    prWG.update_Progress(textLine, softwareHomeFolder, logOneIn);
+                    prWG.Update_Progress(textLine, softwareHomeFolder);
                     success = false;
                 }
                 
@@ -263,7 +264,7 @@ namespace PayRunIOProcessReports
             string softwareHomeFolder = xdoc.Root.Element("SoftwareHomeFolder").Value;
             int logOneIn = Convert.ToInt32(xdoc.Root.Element("LogOneIn").Value);
 
-            string textLine = null;
+            string textLine;
 
             PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
             
@@ -292,7 +293,7 @@ namespace PayRunIOProcessReports
             catch(Exception ex)
             {
                 textLine = string.Format("Error printing standard reports.\r\n", ex);
-                prWG.update_Progress(textLine, softwareHomeFolder, logOneIn);
+                prWG.Update_Progress(textLine, softwareHomeFolder);
             }
             
             //Produce bank files if necessary
@@ -303,12 +304,12 @@ namespace PayRunIOProcessReports
             catch(Exception ex)
             {
                 textLine = string.Format("Error processing bank reports.\r\n", ex);
-                prWG.update_Progress(textLine, softwareHomeFolder, logOneIn);
+                prWG.Update_Progress(textLine, softwareHomeFolder);
             }
 
             
             //Produce Pre Sample file (XLSX)
-            CreatePreSampleXLSX(xdoc, rpEmployeePeriodList, rpEmployer, rpParameters, rpPreSamplePayCodes);
+            CreatePreSampleXLSX(xdoc, rpEmployeePeriodList, rpParameters, rpPreSamplePayCodes);
 
             try
             {
@@ -317,7 +318,7 @@ namespace PayRunIOProcessReports
             catch(Exception ex)
             {
                 textLine = string.Format("Error zipping reports.\r\n", ex);
-                prWG.update_Progress(textLine, softwareHomeFolder, logOneIn);
+                prWG.Update_Progress(textLine, softwareHomeFolder);
             }
             try
             {
@@ -337,7 +338,7 @@ namespace PayRunIOProcessReports
             catch (Exception ex)
             {
                 textLine = string.Format("Error emailing zipped reports.\r\n", ex);
-                prWG.update_Progress(textLine, softwareHomeFolder, logOneIn);
+                prWG.Update_Progress(textLine, softwareHomeFolder);
             }
             try
             {
@@ -346,7 +347,7 @@ namespace PayRunIOProcessReports
             catch(Exception ex)
             {
                 textLine = string.Format("Error uploading zipped reports to Amazon S3.\r\n", ex);
-                prWG.update_Progress(textLine, softwareHomeFolder, logOneIn);
+                prWG.Update_Progress(textLine, softwareHomeFolder);
             }
 
         }
@@ -355,7 +356,7 @@ namespace PayRunIOProcessReports
         {
             int logOneIn = Convert.ToInt32(xdoc.Root.Element("LogOneIn").Value);
             string configDirName = xdoc.Root.Element("SoftwareHomeFolder").Value;
-            string textLine = null;
+            string textLine;
             PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
 
             string reportFolder = xdoc.Root.Element("DataHomeFolder").Value + "PE-Reports";
@@ -371,14 +372,14 @@ namespace PayRunIOProcessReports
             catch (Exception ex)
             {
                 textLine = string.Format("Error emailing zipped pdf reports for report folder, {0}.\r\n{1}.\r\n", reportFolder, ex);
-                prWG.update_Progress(textLine, configDirName, logOneIn);
+                prWG.Update_Progress(textLine, configDirName);
             }
         }
         public void EmailUnZippedReports(XDocument xdoc, RPEmployer rpEmployer, RPParameters rpParameters)
         {
             int logOneIn = Convert.ToInt32(xdoc.Root.Element("LogOneIn").Value);
             string configDirName = xdoc.Root.Element("SoftwareHomeFolder").Value;
-            string textLine = null;
+            string textLine;
             PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
             
 
@@ -394,7 +395,7 @@ namespace PayRunIOProcessReports
             catch (Exception ex)
             {
                 textLine = string.Format("Error emailing zipped pdf reports for report folder, {0}.\r\n{1}.\r\n", reportFolder, ex);
-                prWG.update_Progress(textLine, configDirName, logOneIn);
+                prWG.Update_Progress(textLine, configDirName);
             }
             
         }
@@ -417,7 +418,7 @@ namespace PayRunIOProcessReports
         {
             int logOneIn = Convert.ToInt32(xdoc.Root.Element("LogOneIn").Value);
             string configDirName = xdoc.Root.Element("SoftwareHomeFolder").Value;
-            string textLine = null;
+            string textLine;
             PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
             try
             {
@@ -433,7 +434,7 @@ namespace PayRunIOProcessReports
             catch(Exception ex)
             {
                 textLine = string.Format("Error uploading zipped pdf reports to Amazon S3 for report folder, {0}.\r\n{1}.\r\n", directory, ex);
-                prWG.update_Progress(textLine, configDirName, logOneIn);
+                prWG.Update_Progress(textLine, configDirName);
             }
             
         }
@@ -497,7 +498,7 @@ namespace PayRunIOProcessReports
         {
             int logOneIn = Convert.ToInt32(xdoc.Root.Element("LogOneIn").Value);
             string configDirName = xdoc.Root.Element("SoftwareHomeFolder").Value;
-            string textLine = null;
+            string textLine;
             PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
 
             try
@@ -514,7 +515,7 @@ namespace PayRunIOProcessReports
             catch (Exception ex)
             {
                 textLine = string.Format("Error uploading PEOutgoing file to Amazon S3 for report folder, {0}.\r\n{1}.\r\n", directory, ex);
-                prWG.update_Progress(textLine, configDirName, logOneIn);
+                prWG.Update_Progress(textLine, configDirName);
             }
         }
         private void UploadPEOutgoingFileToAmazonS3(XDocument xdoc, FileInfo file)
@@ -559,7 +560,7 @@ namespace PayRunIOProcessReports
         {
             int logOneIn = Convert.ToInt32(xdoc.Root.Element("LogOneIn").Value);
             string configDirName = xdoc.Root.Element("SoftwareHomeFolder").Value;
-            string textLine = null;
+            string textLine;
             PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
 
             try
@@ -674,7 +675,7 @@ namespace PayRunIOProcessReports
                         {
                             textLine = string.Format("Attempting sending an email to, {0} from {1} with password:{2}, port:{3}, host:{4}.", firstEmailAddress,
                                                         smtpEmailSettings.SMTPUsername, smtpEmailSettings.SMTPPassword, smtpEmailSettings.SMTPPort, smtpEmailSettings.SMTPHost);
-                            prWG.update_Progress(textLine, configDirName, logOneIn);
+                            prWG.Update_Progress(textLine, configDirName);
 
                             smtpClient.Send(mailMessage);
 
@@ -682,7 +683,7 @@ namespace PayRunIOProcessReports
                         catch (Exception ex)
                         {
                             textLine = string.Format("Error sending an email to, {0}.\r\n{1}.\r\n", firstEmailAddress, ex);
-                            prWG.update_Progress(textLine, configDirName, logOneIn);
+                            prWG.Update_Progress(textLine, configDirName);
                         }
                     }
                     
@@ -693,7 +694,7 @@ namespace PayRunIOProcessReports
             catch (Exception ex)
             {
                 textLine = string.Format("Error sending email for file.\r\n{0}.\r\n", ex);
-                prWG.update_Progress(textLine, configDirName, logOneIn);
+                prWG.Update_Progress(textLine, configDirName);
             }
             finally
             {
@@ -701,154 +702,12 @@ namespace PayRunIOProcessReports
             }
 
         }
-        //private void EmailUnZippedReportFiles(XDocument xdoc, FileInfo[] files, RPParameters rpParameters, RPEmployer rpEmployer)
-        //{
-        //    int logOneIn = Convert.ToInt32(xdoc.Root.Element("LogOneIn").Value);
-        //    string configDirName = xdoc.Root.Element("SoftwareHomeFolder").Value;
-        //    string reportDirName = xdoc.Root.Element("DataHomeFolder").Value + "PE-Reports\\" + rpParameters.ErRef; ;
-        //    string textLine = null;
-        //    PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
-
-        //    try
-        //    {
-        //        //
-        //        // Send an email.
-        //        //
-        //        bool validEmailAddress = false;
-        //        //Find amount due to HMRC in the file name.
-        //        string hmrcDesc = null;
-        //        if (rpEmployer.P32Required)
-        //        {
-        //            hmrcDesc = rpEmployer.HMRCDesc;
-        //            hmrcDesc = hmrcDesc.Replace("[", "£");
-        //            hmrcDesc = hmrcDesc.Replace("]", "");
-        //        }
-
-        //        DateTime runDate = rpParameters.PayRunDate;
-        //        runDate = runDate.AddDays(-5);
-        //        runDate = runDate.AddMonths(1);
-        //        int day = runDate.Day;
-        //        day = 20 - day;
-        //        runDate = runDate.AddDays(day);
-        //        string dueDate = runDate.ToLongDateString();
-        //        string taxYear = rpParameters.TaxYear.ToString() + "/" + (rpParameters.TaxYear + 1).ToString().Substring(2, 2);
-        //        string mailSubject = String.Format("Payroll reports for {0}, for tax year {1}, pay period {2} ({3}).", rpEmployer.Name, taxYear, rpParameters.PeriodNo, rpParameters.PaySchedule);
-        //        string mailBody = null;
-
-        //        // Get currrent day of week.
-        //        DayOfWeek today = DateTime.Today.DayOfWeek;
-        //        string dataSource = xdoc.Root.Element("DataSource").Value;            //"APPSERVER1\\MSSQL";  //"13.69.154.210\\MSSQL";  
-        //        string dataBase = xdoc.Root.Element("Database").Value;
-        //        string userID = xdoc.Root.Element("Username").Value;
-        //        string password = xdoc.Root.Element("Password").Value;
-        //        string sqlConnectionString = "Server=" + dataSource + ";Database=" + dataBase + ";User ID=" + userID + ";Password=" + password + ";";
-        //        //
-        //        //Get the SMTP email settings from the database
-        //        //
-        //        SMTPEmailSettings smtpEmailSettings = new SMTPEmailSettings();
-        //        smtpEmailSettings = prWG.GetEmailSettings(xdoc, sqlConnectionString);
-        //        //
-        //        //Get a list of email addresses to send the reports to
-        //        //
-        //        List<ContactInfo> contactInfoList = new List<ContactInfo>();
-        //        contactInfoList = prWG.GetListOfContactInfo(xdoc, sqlConnectionString, rpParameters);
-        //        mailBody = String.Format("Hi All,\r\n\r\nPlease find attached payroll reports for {0}, for tax year {1}, pay period {2} ({3}).\r\n\r\n"
-        //                                         , rpEmployer.Name, taxYear, rpParameters.PeriodNo, rpParameters.PaySchedule);
-        //        if (rpEmployer.P32Required)
-        //        {
-        //            mailBody = mailBody + string.Format("The amount payable to HMRC this month is {0}, this payment is due on or before {1}.\r\n\r\n"
-        //                                                    , hmrcDesc, dueDate);
-        //        }
-        //        string approveBy = null;
-        //        switch (rpParameters.PaySchedule)
-        //        {
-        //            case "Weekly":
-        //                approveBy = "by 12 noon on Wednesday";
-        //                break;
-        //            case "Monthly":
-        //                approveBy = "by the 15th of this month";
-        //                break;
-        //            default:
-        //                approveBy = "as soon as possible";
-        //                break;
-        //        }
-        //        mailBody = mailBody + string.Format("Please review and confirm if all is correct {0}.\r\n\r\nKind Regards,\r\n\r\nThe Payescape Team.", approveBy);
-
-        //        //Start of EmailMessage
-        //        using (MailMessage mailMessage = new MailMessage())
-        //        {
-        //            string firstEmailAddress = null;
-        //            foreach(ContactInfo contactInfo in contactInfoList)
-        //            {
-        //                RegexUtilities regexUtilities = new RegexUtilities();
-        //                bool isValidEmailAddress = regexUtilities.IsValidEmail(contactInfo.EmailAddress);
-        //                if(isValidEmailAddress)
-        //                {
-        //                    mailMessage.To.Add(new MailAddress(contactInfo.EmailAddress));
-        //                    if(!validEmailAddress)
-        //                    {
-        //                        validEmailAddress = true;
-        //                        firstEmailAddress = contactInfo.EmailAddress;
-        //                    }
-                                    
-        //                }
-                                
-        //            }
-        //            if(validEmailAddress)
-        //            {
-        //                mailMessage.From = new MailAddress(smtpEmailSettings.FromAddress);
-        //                mailMessage.Subject = mailSubject;
-        //                mailMessage.Body = mailBody;
-        //                foreach (FileInfo file in files)
-        //                {
-        //                    Attachment attachment = new Attachment(file.FullName);
-        //                    mailMessage.Attachments.Add(attachment);
-
-        //                }
-
-        //                SmtpClient smtpClient = new SmtpClient();
-        //                smtpClient.UseDefaultCredentials = smtpEmailSettings.SMTPUserDefaultCredentials;
-        //                smtpClient.Credentials = new System.Net.NetworkCredential(smtpEmailSettings.SMTPUsername, smtpEmailSettings.SMTPPassword);
-
-        //                smtpClient.Port = smtpEmailSettings.SMTPPort;
-        //                smtpClient.Host = smtpEmailSettings.SMTPHost;
-        //                smtpClient.EnableSsl = smtpEmailSettings.SMTPEnableSSL;
-
-        //                try
-        //                {
-        //                    textLine = string.Format("Attempting sending an email to, {0} from {1} with password:{2}, port:{3}, host:{4}.",firstEmailAddress,
-        //                                                smtpEmailSettings.SMTPUsername, smtpEmailSettings.SMTPPassword, smtpEmailSettings.SMTPPort, smtpEmailSettings.SMTPHost);
-        //                    prWG.update_Progress(textLine, configDirName, logOneIn);
-
-        //                    smtpClient.Send(mailMessage);
-
-        //                }
-        //                catch (Exception ex)
-        //                {
-        //                    textLine = string.Format("Error sending an email to, {0}.\r\n{1}.\r\n", firstEmailAddress, ex);
-        //                    prWG.update_Progress(textLine, configDirName, logOneIn);
-        //                }
-        //            }
-                            
-        //        }
-        //        //End of MailMessage
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        textLine = string.Format("Error sending email for folder, {0}.\r\n{1}.\r\n", reportDirName, ex);
-        //        prWG.update_Progress(textLine, configDirName, logOneIn);
-        //    }
-        //    finally
-        //    {
-
-        //    }
-
-        //}
+        
         public void ZipReports(XDocument xdoc, RPEmployer rpEmployer, RPParameters rpParameters)
         {
             int logOneIn = Convert.ToInt32(xdoc.Root.Element("LogOneIn").Value);
             string configDirName = xdoc.Root.Element("SoftwareHomeFolder").Value;
-            string textLine = null;
+            string textLine;
             PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
             //
             // Zip the folder.
@@ -897,7 +756,7 @@ namespace PayRunIOProcessReports
             catch (Exception ex)
             {
                 textLine = string.Format("Error zipping pdf reports for source folder, {0}.\r\n{1}.\r\n", sourceFolder, ex);
-                prWG.update_Progress(textLine, configDirName, logOneIn);
+                prWG.Update_Progress(textLine, configDirName);
             }
 
         }
@@ -933,52 +792,64 @@ namespace PayRunIOProcessReports
             List<RPPensionFileScheme> rpPensionFileSchemes = new List<RPPensionFileScheme>();
             foreach (RPPensionContribution rpPensionContribution in rpPensionContributions)
             {
-                if (rpPensionContribution.RPPensionPeriod.SchemeName != previousSchemeName)
+                //If the AE Assessment Override is "Opt Out" don't include in the pension report.
+                if(rpPensionContribution.AEAssessmentOverride != "Opt Out")
                 {
-                    //We've moved to a new scheme.
-                    if (previousSchemeName != null)
+                    if (rpPensionContribution.RPPensionPeriod.SchemeName != previousSchemeName)
                     {
-                        //The rpPensionFileScheme object we've create should now contain a scheme name plus a list for employee contributions
-                        rpPensionFileScheme.RPPensionContributions = rpPensionFileSchemePensionContributions;
-                        rpPensionFileSchemes.Add(rpPensionFileScheme);
-                        rpPensionFileScheme = new RPPensionFileScheme();
-                        rpPensionFileSchemePensionContributions = new List<RPPensionContribution>();
-                    }
-                    previousSchemeName = rpPensionContribution.RPPensionPeriod.SchemeName;
-                    rpPensionFileScheme.Key = rpPensionContribution.RPPensionPeriod.Key;
-                    rpPensionFileScheme.SchemeName = rpPensionContribution.RPPensionPeriod.SchemeName;
-                    rpPensionFileScheme.ProviderName = rpPensionContribution.RPPensionPeriod.ProviderName;
+                        //We've moved to a new scheme.
+                        if (previousSchemeName != null)
+                        {
+                            //The rpPensionFileScheme object we've create should now contain a scheme name plus a list for employee contributions
+                            rpPensionFileScheme.RPPensionContributions = rpPensionFileSchemePensionContributions;
+                            rpPensionFileSchemes.Add(rpPensionFileScheme);
+                            rpPensionFileScheme = new RPPensionFileScheme();
+                            rpPensionFileSchemePensionContributions = new List<RPPensionContribution>();
+                        }
+                        previousSchemeName = rpPensionContribution.RPPensionPeriod.SchemeName;
+                        rpPensionFileScheme.Key = rpPensionContribution.RPPensionPeriod.Key;
+                        rpPensionFileScheme.SchemeName = rpPensionContribution.RPPensionPeriod.SchemeName;
+                        rpPensionFileScheme.ProviderName = rpPensionContribution.RPPensionPeriod.ProviderName;
+                        if (rpPensionFileScheme.ProviderName == null)
+                        {
+                            rpPensionFileScheme.ProviderName = "UNKOWN";
+                        }
+                        else
+                        {
+                            if (rpPensionFileScheme.ProviderName.ToUpper().Contains("AVIVA"))
+                            {
+                                rpPensionFileScheme.ProviderName = "AVIVA";
+                            }
+                            else if (rpPensionFileScheme.ProviderName.ToUpper().Contains("NEST"))
+                            {
+                                rpPensionFileScheme.ProviderName = "NEST";
+                            }
+                            else if (rpPensionFileScheme.ProviderName.ToUpper().Contains("WORKERS PENSION TRUST"))
+                            {
+                                rpPensionFileScheme.ProviderName = "WORKERS PENSION TRUST";
+                            }
+                            else if (rpPensionFileScheme.ProviderName.ToUpper().Contains("CREATIVE AUTO ENROLMENT"))
+                            {
+                                rpPensionFileScheme.ProviderName = "CREATIVE AUTO ENROLMENT";
+                            }
+                            else if (rpPensionFileScheme.ProviderName.ToUpper().Contains("THE PEOPLES PENSION"))
+                            {
+                                rpPensionFileScheme.ProviderName = "THE PEOPLES PENSION";
+                            }
+                            else if (rpPensionFileScheme.ProviderName.ToUpper().Contains("SMART PENSIONS"))
+                            {
+                                rpPensionFileScheme.ProviderName = "SMART PENSIONS";
+                            }
+                            else
+                            {
+                                rpPensionFileScheme.ProviderName = "UNKOWN";
+                            }
+                        }
 
-                    if (rpPensionFileScheme.ProviderName.ToUpper().Contains("AVIVA"))
-                    {
-                        rpPensionFileScheme.ProviderName = "AVIVA";
                     }
-                    else if (rpPensionFileScheme.ProviderName.ToUpper().Contains("NEST"))
-                    {
-                        rpPensionFileScheme.ProviderName = "NEST";
-                    }
-                    else if (rpPensionFileScheme.ProviderName.ToUpper().Contains("WORKERS PENSION TRUST"))
-                    {
-                        rpPensionFileScheme.ProviderName = "WORKERS PENSION TRUST";
-                    }
-                    else if (rpPensionFileScheme.ProviderName.ToUpper().Contains("CREATIVE AUTO ENROLMENT"))
-                    {
-                        rpPensionFileScheme.ProviderName = "CREATIVE AUTO ENROLMENT";
-                    }
-                    else if (rpPensionFileScheme.ProviderName.ToUpper().Contains("THE PEOPLES PENSION"))
-                    {
-                        rpPensionFileScheme.ProviderName = "THE PEOPLES PENSION";
-                    }
-                    else if (rpPensionFileScheme.ProviderName.ToUpper().Contains("SMART PENSIONS"))
-                    {
-                        rpPensionFileScheme.ProviderName = "SMART PENSIONS";
-                    }
-                    else
-                    {
-                        rpPensionFileScheme.ProviderName = "UNKOWN";
-                    }
+                    rpPensionFileSchemePensionContributions.Add(rpPensionContribution);
                 }
-                rpPensionFileSchemePensionContributions.Add(rpPensionContribution);
+                
             }
             //After the last rpPensionContribution create the final pensionFileScheme and add it to the list.
             //The rpPensionFileScheme object we've create should now contain a scheme name plus a list for employee contributions
@@ -2457,6 +2328,7 @@ namespace PayRunIOProcessReports
                             rpPensionContribution.EndDate = rpEmployeePeriod.PeriodEndDate;
                             rpPensionContribution.PayRunDate = rpEmployeePeriod.PayRunDate;
                             rpPensionContribution.SchemeFileType = "SchemeFileType";
+                            rpPensionContribution.AEAssessmentOverride = rpAEAssessment.AssessmentOverride;
                             rpPensionContribution.RPPensionPeriod = rpPensionPeriod;
 
                             rpPensionContributions.Add(rpPensionContribution);
@@ -2595,90 +2467,90 @@ namespace PayRunIOProcessReports
                                     {
                                         case "HOLPY":
                                         case "HOLIDAY":
-                                            rpEmployeePeriod.HolidayPay = rpEmployeePeriod.HolidayPay + rpPayComponent.AmountTP;
+                                            rpEmployeePeriod.HolidayPay += rpPayComponent.AmountTP;
                                             break;
                                         case "PENSIONRAS":
                                         case "PENSIONTAXEX":
-                                            rpEmployeePeriod.PostTaxPension = rpEmployeePeriod.PostTaxPension + rpPayComponent.AmountTP;
+                                            rpEmployeePeriod.PostTaxPension += rpPayComponent.AmountTP;
                                             break;
                                         case "PENSION":
                                         case "PENSIONSS":
-                                            rpEmployeePeriod.PreTaxPension = rpEmployeePeriod.PreTaxPension + rpPayComponent.AmountTP;
+                                            rpEmployeePeriod.PreTaxPension += rpPayComponent.AmountTP;
                                             break;
                                         case "AOE":
-                                            rpEmployeePeriod.AEO = rpEmployeePeriod.AEO + (rpPayComponent.AmountTP * -1);
-                                            rpEmployeePeriod.AEOYtd = rpEmployeePeriod.AEOYtd + (rpPayComponent.AmountYTD * -1);
+                                            rpEmployeePeriod.AEO += (rpPayComponent.AmountTP * -1);
+                                            rpEmployeePeriod.AEOYtd += (rpPayComponent.AmountYTD * -1);
                                             break;
                                         case "SLOAN":
                                         case "PGL":
-                                            rpEmployeePeriod.StudentLoan = rpEmployeePeriod.StudentLoan + (rpPayComponent.AmountTP * -1);
-                                            rpEmployeePeriod.StudentLoanYtd = rpEmployeePeriod.StudentLoanYtd + (rpPayComponent.AmountYTD * -1);
+                                            rpEmployeePeriod.StudentLoan += (rpPayComponent.AmountTP * -1);
+                                            rpEmployeePeriod.StudentLoanYtd += (rpPayComponent.AmountYTD * -1);
                                             break;
                                         case "TAX":
-                                            rpEmployeePeriod.Tax = rpEmployeePeriod.Tax + rpPayComponent.AmountTP;
+                                            rpEmployeePeriod.Tax += rpPayComponent.AmountTP;
                                             break;
                                         case "NI":
-                                            rpEmployeePeriod.NetNI = rpEmployeePeriod.NetNI + rpPayComponent.AmountTP;
+                                            rpEmployeePeriod.NetNI += rpPayComponent.AmountTP;
                                             break;
                                         case "SAP":
-                                            rpEmployeePeriod.SAPAdd = rpEmployeePeriod.SAPAdd + rpPayComponent.AmountTP;
-                                            rpEmployeePeriod.AbsencePay = rpEmployeePeriod.AbsencePay + rpPayComponent.AmountTP;
-                                            rpEmployeePeriod.AbsencePayYtd = rpEmployeePeriod.AbsencePayYtd + rpPayComponent.AmountYTD;
+                                            rpEmployeePeriod.SAPAdd += rpPayComponent.AmountTP;
+                                            rpEmployeePeriod.AbsencePay += rpPayComponent.AmountTP;
+                                            rpEmployeePeriod.AbsencePayYtd += rpPayComponent.AmountYTD;
                                             break;
                                         case "SAPOFFSET":
-                                            rpEmployeePeriod.SAPSetOff=rpEmployeePeriod.SAPSetOff + rpPayComponent.AmountTP;
-                                            rpEmployeePeriod.AbsencePay = rpEmployeePeriod.AbsencePay + rpPayComponent.AmountTP;
-                                            rpEmployeePeriod.AbsencePayYtd = rpEmployeePeriod.AbsencePayYtd + rpPayComponent.AmountYTD;
+                                            rpEmployeePeriod.SAPSetOff += rpPayComponent.AmountTP;
+                                            rpEmployeePeriod.AbsencePay += rpPayComponent.AmountTP;
+                                            rpEmployeePeriod.AbsencePayYtd += rpPayComponent.AmountYTD;
                                             break;
                                         case "SHPP":
-                                            rpEmployeePeriod.ShPPAdd = rpEmployeePeriod.ShPPAdd + rpPayComponent.AmountTP;
-                                            rpEmployeePeriod.AbsencePay = rpEmployeePeriod.AbsencePay + rpPayComponent.AmountTP;
-                                            rpEmployeePeriod.AbsencePayYtd = rpEmployeePeriod.AbsencePayYtd + rpPayComponent.AmountYTD;
+                                            rpEmployeePeriod.ShPPAdd += rpPayComponent.AmountTP;
+                                            rpEmployeePeriod.AbsencePay += rpPayComponent.AmountTP;
+                                            rpEmployeePeriod.AbsencePayYtd += rpPayComponent.AmountYTD;
                                             break;
                                         case "SHPPOFFSET":
-                                            rpEmployeePeriod.ShPPSetOff = rpEmployeePeriod.ShPPSetOff + rpPayComponent.AmountTP;
-                                            rpEmployeePeriod.AbsencePay = rpEmployeePeriod.AbsencePay + rpPayComponent.AmountTP;
-                                            rpEmployeePeriod.AbsencePayYtd = rpEmployeePeriod.AbsencePayYtd + rpPayComponent.AmountYTD;
+                                            rpEmployeePeriod.ShPPSetOff += rpPayComponent.AmountTP;
+                                            rpEmployeePeriod.AbsencePay += rpPayComponent.AmountTP;
+                                            rpEmployeePeriod.AbsencePayYtd += rpPayComponent.AmountYTD;
                                             break;
                                         case "SMP":
-                                            rpEmployeePeriod.SMPAdd = rpEmployeePeriod.SMPAdd + rpPayComponent.AmountTP;
-                                            rpEmployeePeriod.AbsencePay = rpEmployeePeriod.AbsencePay + rpPayComponent.AmountTP;
-                                            rpEmployeePeriod.AbsencePayYtd = rpEmployeePeriod.AbsencePayYtd + rpPayComponent.AmountYTD;
+                                            rpEmployeePeriod.SMPAdd += rpPayComponent.AmountTP;
+                                            rpEmployeePeriod.AbsencePay += rpPayComponent.AmountTP;
+                                            rpEmployeePeriod.AbsencePayYtd += rpPayComponent.AmountYTD;
                                             break;
                                         case "SMPOFFSET":
-                                            rpEmployeePeriod.SMPSetOff = rpEmployeePeriod.SMPSetOff + rpPayComponent.AmountTP;
-                                            rpEmployeePeriod.AbsencePay = rpEmployeePeriod.AbsencePay + rpPayComponent.AmountTP;
-                                            rpEmployeePeriod.AbsencePayYtd = rpEmployeePeriod.AbsencePayYtd + rpPayComponent.AmountYTD;
+                                            rpEmployeePeriod.SMPSetOff += rpPayComponent.AmountTP;
+                                            rpEmployeePeriod.AbsencePay += rpPayComponent.AmountTP;
+                                            rpEmployeePeriod.AbsencePayYtd += rpPayComponent.AmountYTD;
                                             break;
                                         case "SPBP":
-                                            rpEmployeePeriod.SPBPAdd = rpEmployeePeriod.SPBPAdd + rpPayComponent.AmountTP;
-                                            rpEmployeePeriod.AbsencePay = rpEmployeePeriod.AbsencePay + rpPayComponent.AmountTP;
-                                            rpEmployeePeriod.AbsencePayYtd = rpEmployeePeriod.AbsencePayYtd + rpPayComponent.AmountYTD;
+                                            rpEmployeePeriod.SPBPAdd += rpPayComponent.AmountTP;
+                                            rpEmployeePeriod.AbsencePay += rpPayComponent.AmountTP;
+                                            rpEmployeePeriod.AbsencePayYtd += rpPayComponent.AmountYTD;
                                             break;
                                         case "SPBPOFFSET":
-                                            rpEmployeePeriod.SPBPSetOff = rpEmployeePeriod.SPBPSetOff + rpPayComponent.AmountTP;
-                                            rpEmployeePeriod.AbsencePay = rpEmployeePeriod.AbsencePay + rpPayComponent.AmountTP;
-                                            rpEmployeePeriod.AbsencePayYtd = rpEmployeePeriod.AbsencePayYtd + rpPayComponent.AmountYTD;
+                                            rpEmployeePeriod.SPBPSetOff += rpPayComponent.AmountTP;
+                                            rpEmployeePeriod.AbsencePay += rpPayComponent.AmountTP;
+                                            rpEmployeePeriod.AbsencePayYtd += rpPayComponent.AmountYTD;
                                             break;
                                         case "SPP":
-                                            rpEmployeePeriod.OSPPAdd = rpEmployeePeriod.OSPPAdd + rpPayComponent.AmountTP;
-                                            rpEmployeePeriod.AbsencePay = rpEmployeePeriod.AbsencePay + rpPayComponent.AmountTP;
-                                            rpEmployeePeriod.AbsencePayYtd = rpEmployeePeriod.AbsencePayYtd + rpPayComponent.AmountYTD;
+                                            rpEmployeePeriod.OSPPAdd += rpPayComponent.AmountTP;
+                                            rpEmployeePeriod.AbsencePay += rpPayComponent.AmountTP;
+                                            rpEmployeePeriod.AbsencePayYtd += rpPayComponent.AmountYTD;
                                             break;
                                         case "SPPOFFSET":
-                                            rpEmployeePeriod.OSPPSetOff = rpEmployeePeriod.OSPPSetOff + rpPayComponent.AmountTP;
-                                            rpEmployeePeriod.AbsencePay = rpEmployeePeriod.AbsencePay + rpPayComponent.AmountTP;
-                                            rpEmployeePeriod.AbsencePayYtd = rpEmployeePeriod.AbsencePayYtd + rpPayComponent.AmountYTD;
+                                            rpEmployeePeriod.OSPPSetOff += rpPayComponent.AmountTP;
+                                            rpEmployeePeriod.AbsencePay += rpPayComponent.AmountTP;
+                                            rpEmployeePeriod.AbsencePayYtd += rpPayComponent.AmountYTD;
                                             break;
                                         case "SSP":
-                                            rpEmployeePeriod.SSPAdd = rpEmployeePeriod.SSPAdd + rpPayComponent.AmountTP;
-                                            rpEmployeePeriod.AbsencePay = rpEmployeePeriod.AbsencePay + rpPayComponent.AmountTP;
-                                            rpEmployeePeriod.AbsencePayYtd = rpEmployeePeriod.AbsencePayYtd + rpPayComponent.AmountYTD;
+                                            rpEmployeePeriod.SSPAdd += rpPayComponent.AmountTP;
+                                            rpEmployeePeriod.AbsencePay += rpPayComponent.AmountTP;
+                                            rpEmployeePeriod.AbsencePayYtd += rpPayComponent.AmountYTD;
                                             break;
                                         case "SSPOFFSET":
-                                            rpEmployeePeriod.SSPSetOff = rpEmployeePeriod.SSPSetOff + rpPayComponent.AmountTP;
-                                            rpEmployeePeriod.AbsencePay = rpEmployeePeriod.AbsencePay + rpPayComponent.AmountTP;
-                                            rpEmployeePeriod.AbsencePayYtd = rpEmployeePeriod.AbsencePayYtd + rpPayComponent.AmountYTD;
+                                            rpEmployeePeriod.SSPSetOff += rpPayComponent.AmountTP;
+                                            rpEmployeePeriod.AbsencePay += rpPayComponent.AmountTP;
+                                            rpEmployeePeriod.AbsencePayYtd += rpPayComponent.AmountYTD;
                                             break;
                                         default:
                                             break;
@@ -2961,7 +2833,7 @@ namespace PayRunIOProcessReports
             catch (Exception ex)
             {
                 textLine = string.Format("Error preparing reports.\r\n{0}.\r\n", ex);
-                prWG.update_Progress(textLine, configDirName, logOneIn);
+                prWG.Update_Progress(textLine, configDirName);
             }
             if(paidInCash)
             {
@@ -3038,7 +2910,8 @@ namespace PayRunIOProcessReports
             //We haven't got the correct payroll run date in the "EmployeeYtd" report so I'm going use the RPParameters from the "EmployeePeriod" report.
             //I'm just a bit concerned of the order they will come in. Hopefully always alphabetical.
             RPParameters rpParameters = null;
-            foreach (FileInfo file in files)
+            RPEmployer rpEmployer = null;
+            foreach (FileInfo file in files.OrderBy(x => x.Name))
             {
                 if (file.FullName.Contains("EmployeePeriod"))
                 {
@@ -3047,7 +2920,6 @@ namespace PayRunIOProcessReports
                     List<P45> p45s = null;
                     List<RPPreSamplePayCode> rpPreSamplePayCodes = null;
                     List<RPPensionContribution> rpPensionContributions = null;
-                    RPEmployer rpEmployer = null;
                     
                     try
                     {
@@ -3063,17 +2935,21 @@ namespace PayRunIOProcessReports
                     catch (Exception ex)
                     {
                         textLine = string.Format("Error preparing the employee period reports for file {0}.\r\n{1}.\r\n", file, ex);
-                        prWG.update_Progress(textLine, configDirName, logOneIn);
+                        prWG.Update_Progress(textLine, configDirName);
                     }
-                    try
+                    if(!rpEmployer.HoldPayHistory)
                     {
-                        CreateHistoryCSV(xdoc, rpParameters, rpEmployer, rpEmployeePeriodList);
+                        try
+                        {
+                            CreateHistoryCSV(xdoc, rpParameters, rpEmployer, rpEmployeePeriodList);
+                        }
+                        catch (Exception ex)
+                        {
+                            textLine = string.Format("Error creating the history csv file for file {0}.\r\n{1}.\r\n", file, ex);
+                            prWG.Update_Progress(textLine, configDirName);
+                        }
                     }
-                    catch(Exception ex)
-                    {
-                        textLine = string.Format("Error creating the history csv file for file {0}.\r\n{1}.\r\n", file, ex);
-                        prWG.update_Progress(textLine, configDirName, logOneIn);
-                    }
+                    
 
                     try
                     {
@@ -3084,26 +2960,31 @@ namespace PayRunIOProcessReports
                     catch (Exception ex)
                     {
                         textLine = string.Format("Error producing the employee period reports for file {0}.\r\n{1}.\r\n", file, ex);
-                        prWG.update_Progress(textLine, configDirName, logOneIn);
+                        prWG.Update_Progress(textLine, configDirName);
                     }
                    
                 }
                 else if (file.FullName.Contains("EmployeeYtd"))
                 {
-                    try
+                    eeYtdProcessed = true;
+                    if (!rpEmployer.HoldPayHistory)
                     {
-                        var tuple = PrepareYTDReport(xdoc, file);
-                        List<RPEmployeeYtd> rpEmployeeYtdList = tuple.Item1;
-                        //I'm going to use the RPParameters from the "EmployeePeriod" report for now at least.
-                        //RPParameters rpParameters = tuple.Item2;
-                        CreateYTDCSV(xdoc, rpEmployeeYtdList, rpParameters);
-                        eeYtdProcessed = true;
+                        try
+                        {
+                            var tuple = PrepareYTDReport(xdoc, file);
+                            List<RPEmployeeYtd> rpEmployeeYtdList = tuple.Item1;
+                            //I'm going to use the RPParameters from the "EmployeePeriod" report for now at least.
+                            //RPParameters rpParameters = tuple.Item2;
+                            CreateYTDCSV(xdoc, rpEmployeeYtdList, rpParameters);
+                        }
+                        catch (Exception ex)
+                        {
+                            textLine = string.Format("Error producing the employee ytd report for file {0}.\r\n{1}.\r\n", file, ex);
+                            prWG.Update_Progress(textLine, configDirName);
+                            eeYtdProcessed = false;
+                        }
                     }
-                    catch (Exception ex)
-                    {
-                        textLine = string.Format("Error producing the employee ytd report for file {0}.\r\n{1}.\r\n", file, ex);
-                        prWG.update_Progress(textLine, configDirName, logOneIn);
-                    }
+                    
                 }
                 else if(file.Name.StartsWith("RTI-Re"))
                 {
@@ -3111,12 +2992,12 @@ namespace PayRunIOProcessReports
                     {
                         prWG.ArchiveRTIOutputs(directory, file);
                         textLine = string.Format("Successfully archived RTI for file {0}.", file);
-                        prWG.update_Progress(textLine, configDirName, logOneIn);
+                        prWG.Update_Progress(textLine, configDirName);
                     }
                     catch(Exception ex)
                     {
                         textLine = string.Format("Error archiving RTI for file {0}.\r\n{1}.\r\n", file, ex);
-                        prWG.update_Progress(textLine, configDirName, logOneIn);
+                        prWG.Update_Progress(textLine, configDirName);
                     }
                 }
             }
@@ -4476,7 +4357,8 @@ namespace PayRunIOProcessReports
                 rpP32Report.TaxYear = prWG.GetIntElementByTagFromXml(header, "TaxYear");
                 rpP32Report.TaxYearStartDate = Convert.ToDateTime(prWG.GetDateElementByTagFromXml(header, "TaxYearStart"));
                 rpP32Report.TaxYearEndDate = Convert.ToDateTime(prWG.GetDateElementByTagFromXml(header, "TaxYearEndDate"));
-                rpP32Report.AnnualEmploymentAllowance = prWG.GetIntElementByTagFromXml(header, "AnnualEmploymentAllowance");
+                rpP32Report.ApprenticeshipLevyAllowance = prWG.GetDecimalElementByTagFromXml(header, "ApprenticeshipLevyAllowance");
+                rpP32Report.AnnualEmploymentAllowance = prWG.GetDecimalElementByTagFromXml(header, "AnnualEmploymentAllowance");
             }
             bool addToList = false;
             bool annualTotalRequired = false;
@@ -4499,6 +4381,8 @@ namespace PayRunIOProcessReports
 
                 foreach (XmlElement paySchedule in reportMonth.GetElementsByTagName("PaySchedule"))
                 {
+                    addToList = false;
+
                     RPP32Schedule rpP32Schedule = new RPP32Schedule();
                     rpP32Schedule.PayScheduleName = paySchedule.GetAttribute("Name");
                     rpP32Schedule.PayScheduleFrequency = paySchedule.GetAttribute("Frequency");
@@ -4513,38 +4397,27 @@ namespace PayRunIOProcessReports
                         rpP32PayRun.StudentLoan = rpP32PayRun.StudentLoan + rpP32PayRun.PostGraduateLoan;
                         rpP32PayRun.NetIncomeTax = prWG.GetDecimalElementByTagFromXml(payRun, "NetIncomeTax");
                         rpP32PayRun.GrossNICs = prWG.GetDecimalElementByTagFromXml(payRun, "GrossNICs");
-
+                        rpP32PayRun.PayPeriod = rpP32PayRun.PayDate.Day < 6 ? rpP32PayRun.PayDate.Month - 4 : rpP32PayRun.PayDate.Month - 3;
+                        if (rpP32PayRun.PayPeriod <= 0)
+                        {
+                            rpP32PayRun.PayPeriod += 12;
+                        }
+                        rpP32PayRun.TaxPeriod = prWG.GetIntElementByTagFromXml(payRun, "TaxPeriod");
                         rpP32PayRuns.Add(rpP32PayRun);
                     }
                     if(rpP32PayRuns.Count > 0)
                     {
                         rpP32Schedule.RPP32PayRuns = rpP32PayRuns;
 
-                        
+                        addToList = true;
                     }
-                    try
-                    {
-                        rpP32Schedules.Add(rpP32Schedule);
-                        
-                    }
-                    catch(Exception ex)
-                    {
-
-                    }
+                    rpP32Schedules.Add(rpP32Schedule);
                     
                 }
-                try
-                {
-                    rpP32Breakdown.RPP32Schedules = rpP32Schedules;
+                rpP32Breakdown.RPP32Schedules = rpP32Schedules;
 
-                    rpP32ReportMonth.RPP32Breakdown = rpP32Breakdown;
-                }
-                catch(Exception ex)
-                {
-
-                }
+                rpP32ReportMonth.RPP32Breakdown = rpP32Breakdown;
                 
-
                 RPP32Summary rpP32Summary = new RPP32Summary();
 
                 foreach(XmlElement summary in reportMonth.GetElementsByTagName("Summary"))
@@ -4565,11 +4438,13 @@ namespace PayRunIOProcessReports
                     rpP32Summary.ShppComp = prWG.GetDecimalElementByTagFromXml(summary, "ShppComp");
                     rpP32Summary.SapRecovered = prWG.GetDecimalElementByTagFromXml(summary, "SapRecovered");
                     rpP32Summary.SapComp = prWG.GetDecimalElementByTagFromXml(summary, "SapComp");
-                    rpP32Summary.AppLevy = 0;
+                    rpP32Summary.SpbpRecovered = prWG.GetDecimalElementByTagFromXml(summary, "SpbpRecovered");
+                    rpP32Summary.SpbpComp = prWG.GetDecimalElementByTagFromXml(summary, "SpbpComp");
                     rpP32Summary.CisDeducted = prWG.GetDecimalElementByTagFromXml(summary, "CisDeducted");
                     rpP32Summary.CisSuffered = prWG.GetDecimalElementByTagFromXml(summary, "CisSuffered");
                     rpP32Summary.EmploymentAllowance = prWG.GetDecimalElementByTagFromXml(summary, "EmploymentAllowance");
                     rpP32Summary.NetNICs = prWG.GetDecimalElementByTagFromXml(summary, "NetNICs") - rpP32Summary.EmploymentAllowance;
+                    rpP32Summary.AppLevy = prWG.GetDecimalElementByTagFromXml(summary, "ApprenticeshipLevy");
                     rpP32Summary.AmountDue = prWG.GetDecimalElementByTagFromXml(summary, "AmountDue");
                     rpP32Summary.AmountPaid = prWG.GetDecimalElementByTagFromXml(summary, "AmountPaid");
                     rpP32Summary.RemainingBalance = prWG.GetDecimalElementByTagFromXml(summary, "RemainingBalance");
@@ -4581,10 +4456,12 @@ namespace PayRunIOProcessReports
 
                 rpP32ReportMonth.RPP32Summary = rpP32Summary;
 
-                //If any of the values are not zero add the P32 period to the list
-                addToList = CheckIfNotZero(rpP32ReportMonth);
-                //Add everything whether it's zero or not. 
-                //addToList = true;
+                if(!addToList)
+                {
+                    //If any of the values are not zero add the P32 period to the list
+                    addToList = CheckIfNotZero(rpP32ReportMonth);
+                    
+                }
 
                 //Check if PeriodNo is less than or equal to PAYE Month.
 
@@ -4654,29 +4531,6 @@ namespace PayRunIOProcessReports
         }
         private static bool CheckIfNotZero(RPP32ReportMonth rpP32ReportMonth)
         {
-            //Compare all the decimal fields to see if any are non zero using if
-            //if(rpP32Period.Tax != 0 || rpP32Period.StudentLoan != 0 || rpP32Period.PostGraduateLoan != 0 || rpP32Period.NetTax != 0 || rpP32Period.EmployerNI != 0
-            //    || rpP32Period.EmployeeNI != 0 || rpP32Period.GrossNICs != 0 || rpP32Period.SmpRecovered != 0 || rpP32Period.SmpComp != 0 || rpP32Period.SppRecovered !=0
-            //    || rpP32Period.SppComp != 0 || rpP32Period.ShppRecovered !=0 || rpP32Period.ShppComp != 0 || rpP32Period.SapRecovered != 0 || rpP32Period.SapComp != 0
-            //    || rpP32Period.CisDeducted != 0 | rpP32Period.CisSuffered != 0 || rpP32Period.NetNICs != 0 || rpP32Period.EmploymentAllowance !=0
-            //    || rpP32Period.AmountDue != 0 || rpP32Period.AmountPaid != 0 || rpP32Period.RemainingBalance != 0)
-            //{
-            //    return true;
-            //}
-
-            //Compare all the decimal fields to see if any are non zero using reflection
-            //foreach (PropertyInfo pi in rpP32ReportMonth.GetType().GetProperties() )
-            //{
-            //    if(pi.PropertyType==typeof(decimal))
-            //    {
-            //        decimal value = (decimal)pi.GetValue(rpP32ReportMonth);
-            //        if(value != 0)
-            //        {
-            //           return true;
-            //        }
-            //    }
-            //}
-            //Compare all the decimal fields (in the Summary) to see if any are non zero using reflection
             foreach (PropertyInfo pi in rpP32ReportMonth.RPP32Summary.GetType().GetProperties())
             {
                 if (pi.PropertyType == typeof(decimal))
@@ -4691,76 +4545,9 @@ namespace PayRunIOProcessReports
 
             return false;
         }
-        private void CreatePreSampleXLSX(XDocument xdoc, List<RPEmployeePeriod> rpEmployeePeriodList, RPEmployer rpEmployer, RPParameters rpParameters)
-        {
-            //Create a list of the required columns.
-            List<string> reqCol = new List<string>();
-            reqCol.Add("EeRef");
-            reqCol.Add("Name");
-            reqCol.Add("Dept");
-            reqCol.Add("CostCentre");
-            reqCol.Add("Branch");
-            reqCol.Add("Status");
-            reqCol.Add("TaxCode");
-            reqCol.Add("NILetter");
-            reqCol.Add("PreTaxAddDed");
-            reqCol.Add("GrossedUpTaxThisRun");
-            reqCol.Add("EeNIPdByEr");
-            reqCol.Add("GUStudentLoan");
-            reqCol.Add("GUNIReduction");
-            reqCol.Add("PenPreTaxEeGU");
-            reqCol.Add("TotalAbsencePay");
-            reqCol.Add("HolidayPay");
-            reqCol.Add("PenPreTaxEe");
-            reqCol.Add("TaxablePay");
-            reqCol.Add("Tax");
-            reqCol.Add("NI");
-            reqCol.Add("PostTaxAddDed");
-            reqCol.Add("PostTaxPension");
-            reqCol.Add("AOE");
-            reqCol.Add("StudentLoan");
-            reqCol.Add("NetPay");
-            reqCol.Add("ErNI");
-            reqCol.Add("PenEr");
-            reqCol.Add("TotalGrossUp");
-            
-            RPEmployeePeriod rpEmployeePeriod = rpEmployeePeriodList.First();
-
-            foreach (RPAddition rpAddition in rpEmployeePeriod.Additions)
-            {
-                reqCol.Add(rpAddition.Description);
-            }
-            foreach (RPDeduction rpDeduction in rpEmployeePeriod.Deductions)
-            {
-                reqCol.Add(rpDeduction.Description);
-            }
-
-            //Need to count how many columns we are going to need
-            string[] headings = new string[reqCol.Count()];
-            int i = 0;
-            foreach (string col in reqCol)
-            {
-                headings[i] = col.ToString();
-            }
-            //Create a workbook.
-            Workbook workbook = new Workbook("X:\\Payescape\\PayRunIO\\PreSample.xlsx", "Pre Sample");
-            //Write the headings.
-            foreach (string heading in headings)
-            {
-                workbook.CurrentWorksheet.AddNextCell(heading);
-            }
-            //Move to the next row.
-            workbook.CurrentWorksheet.GoToNextRow();
-            //Now create a sample data line.
-            //foreach (string column in columns)
-            //{
-            //    workbook.CurrentWorksheet.AddNextCell(column);
-            //}
-            //Save the workbook.
-            workbook.Save();
-        }
+        
         private void CreatePreSampleXLSX(XDocument xdoc, List<RPEmployeePeriod> rpEmployeePeriodList,
-                                       RPEmployer rpEmployer, RPParameters rpParameters, List<RPPreSamplePayCode> rpPreSamplePayCodes)
+                                       RPParameters rpParameters, List<RPPreSamplePayCode> rpPreSamplePayCodes)
         {
             string outgoingFolder = xdoc.Root.Element("DataHomeFolder").Value + "PE-Reports";
             string coNo = rpParameters.ErRef;
@@ -4788,10 +4575,6 @@ namespace PayRunIOProcessReports
             //Now for each employee create a row and add in the values for each column
             foreach(RPEmployeePeriod rpEmployeePeriod in rpEmployeePeriodList)
             {
-                if(rpEmployeePeriod.Reference=="81")
-                {
-
-                }
                 workbook.CurrentWorksheet.GoToNextRow();
 
                 workbook = CreateFixedWorkbookColumns(workbook, rpEmployeePeriod);
@@ -4886,7 +4669,7 @@ namespace PayRunIOProcessReports
             decimal erPensionTP = 0;
             foreach(RPPensionPeriod pensionPeriod in rpEmployeePeriod.Pensions)
             {
-                erPensionTP = erPensionTP + pensionPeriod.ErPensionTaxPeriod;
+                erPensionTP += pensionPeriod.ErPensionTaxPeriod;
             }
             workbook.CurrentWorksheet.AddNextCell(erPensionTP);
             workbook.CurrentWorksheet.AddNextCell(0.00);//TotalGrossUP
