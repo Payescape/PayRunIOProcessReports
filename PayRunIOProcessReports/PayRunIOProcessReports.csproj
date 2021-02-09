@@ -78,15 +78,8 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <EmbeddedResource Include="ComponentAnalysisReport.repx" />
-    <EmbeddedResource Include="P32Report.repx" />
-    <EmbeddedResource Include="PaymentsDueByMethodsReport.repx" />
-    <EmbeddedResource Include="PayrollRunDetailsReport.repx" />
-    <EmbeddedResource Include="PayslipSimple.repx" />
-    <EmbeddedResource Include="PensionContributionsReport.repx" />
     <None Include="app.config" />
     <None Include="packages.config" />
-    <EmbeddedResource Include="Payslip.repx" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

@@ -34,10 +34,9 @@ namespace PayRunIOProcessReports
             //
             //Read the config file to get the outgoing folder and the timer details.
             //
-            XDocument xdoc = new XDocument();
             string dirName = configDirName;
             ReadConfigFile configFile = new ReadConfigFile();
-            xdoc = configFile.ConfigRecord(dirName);
+            XDocument xdoc = configFile.ConfigRecord(dirName);
             dirName = xdoc.Root.Element("SoftwareHomeFolder").Value;
             configDirName = dirName;
             
@@ -63,14 +62,6 @@ namespace PayRunIOProcessReports
         private void ProcessReportsFromPayRunIO(XDocument xdoc)
         {
             string softwareHomeFolder = xdoc.Root.Element("SoftwareHomeFolder").Value;
-            string dataHomeFolder = xdoc.Root.Element("DataHomeFolder").Value;
-            bool archive = Convert.ToBoolean(xdoc.Root.Element("Archive").Value);
-            string sftpHostName = xdoc.Root.Element("SFTPHostName").Value;
-            string user = xdoc.Root.Element("User").Value;
-            string passwordFile = softwareHomeFolder + xdoc.Root.Element("PasswordFile").Value;
-            string filePrefix = xdoc.Root.Element("FilePrefix").Value;
-            int interval = Convert.ToInt32(xdoc.Root.Element("Interval").Value);
-            int logOneIn = Convert.ToInt32(xdoc.Root.Element("LogOneIn").Value);
             bool live = Convert.ToBoolean(xdoc.Root.Element("Live").Value);
 
             string textLine;
@@ -119,7 +110,7 @@ namespace PayRunIOProcessReports
 
             int nowDate = Convert.ToInt32(DateTime.Now.ToString("yyyyMMdd"));
             int payDate;
-            int start = 0, length = 0, diff = 0;
+            int start, length, diff;
 
             for (int i = 0; i < directories.Count(); i++)
             {
@@ -183,21 +174,15 @@ namespace PayRunIOProcessReports
         private bool TransferToBlueMarbleSFTPServer(XDocument xdoc, string directory)
         {
             string softwareHomeFolder = xdoc.Root.Element("SoftwareHomeFolder").Value;
-            string dataHomeFolder = xdoc.Root.Element("DataHomeFolder").Value;
-            bool archive = Convert.ToBoolean(xdoc.Root.Element("Archive").Value);
             string sftpHostName = xdoc.Root.Element("SFTPHostName").Value;
             string user = xdoc.Root.Element("User").Value;
-            bool live = Convert.ToBoolean(xdoc.Root.Element("Live").Value);
+            //bool live = Convert.ToBoolean(xdoc.Root.Element("Live").Value);
             //if(!live)
             //{
             //    user = "payruntest123";//For testing purposes
             //}
             
             string passwordFile = softwareHomeFolder + "Programs\\" +xdoc.Root.Element("PasswordFile").Value;
-            string filePrefix = xdoc.Root.Element("FilePrefix").Value;
-            int interval = Convert.ToInt32(xdoc.Root.Element("Interval").Value);
-            int logOneIn = Convert.ToInt32(xdoc.Root.Element("LogOneIn").Value);
-
             string textLine;
 
             PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
@@ -212,11 +197,6 @@ namespace PayRunIOProcessReports
             //
             bool isUnity = true;
 
-            string dataSource = xdoc.Root.Element("DataSource").Value;            //"APPSERVER1\\MSSQL";  //"13.69.154.210\\MSSQL";  
-            string dataBase = xdoc.Root.Element("Database").Value;
-            string userID = xdoc.Root.Element("Username").Value;
-            string password = xdoc.Root.Element("Password").Value;
-            string sqlConnectionString = "Server=" + dataSource + ";Database=" + dataBase + ";User ID=" + userID + ";Password=" + password + ";";
             int x = directory.LastIndexOf('\\') + 1;
             int companyNo = Convert.ToInt32(directory.Substring(x, 4));
 
@@ -262,8 +242,6 @@ namespace PayRunIOProcessReports
                                           List<RPPreSamplePayCode> rpPreSamplePayCodes, List<RPPensionContribution> rpPensionContributions)
         {
             string softwareHomeFolder = xdoc.Root.Element("SoftwareHomeFolder").Value;
-            int logOneIn = Convert.ToInt32(xdoc.Root.Element("LogOneIn").Value);
-
             string textLine;
 
             PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
@@ -354,7 +332,6 @@ namespace PayRunIOProcessReports
        
         public void EmailZippedReports(XDocument xdoc, RPEmployer rpEmployer, RPParameters rpParameters)
         {
-            int logOneIn = Convert.ToInt32(xdoc.Root.Element("LogOneIn").Value);
             string configDirName = xdoc.Root.Element("SoftwareHomeFolder").Value;
             string textLine;
             PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
@@ -377,7 +354,6 @@ namespace PayRunIOProcessReports
         }
         public void EmailUnZippedReports(XDocument xdoc, RPEmployer rpEmployer, RPParameters rpParameters)
         {
-            int logOneIn = Convert.ToInt32(xdoc.Root.Element("LogOneIn").Value);
             string configDirName = xdoc.Root.Element("SoftwareHomeFolder").Value;
             string textLine;
             PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
@@ -401,8 +377,6 @@ namespace PayRunIOProcessReports
         }
         public void UploadZippedReportsToAmazonS3(XDocument xdoc)
         {
-            int logOneIn = Convert.ToInt32(xdoc.Root.Element("LogOneIn").Value);
-            string configDirName = xdoc.Root.Element("SoftwareHomeFolder").Value;
             string reportFolder = xdoc.Root.Element("DataHomeFolder").Value + "PE-ReportsNoPassword";
             string amazonS3Folder = "PE-ReportsNoPassword";
             //Upload PE-ReportsNoPassword
@@ -416,7 +390,6 @@ namespace PayRunIOProcessReports
         }
         public void UploadDirectoryToAmazonS3(string directory, XDocument xdoc, string amazonS3Folder)
         {
-            int logOneIn = Convert.ToInt32(xdoc.Root.Element("LogOneIn").Value);
             string configDirName = xdoc.Root.Element("SoftwareHomeFolder").Value;
             string textLine;
             PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
@@ -440,9 +413,6 @@ namespace PayRunIOProcessReports
         }
         private void UploadZippedReportToAmazonS3(XDocument xdoc, FileInfo file, string folderPath)
         {
-            int logOneIn = Convert.ToInt32(xdoc.Root.Element("LogOneIn").Value);
-            string configDirName = xdoc.Root.Element("SoftwareHomeFolder").Value;
-            string reportFolder = xdoc.Root.Element("DataHomeFolder").Value + "PE-Reports";
             string awsBucketName = xdoc.Root.Element("AwsBucketName").Value;
             string awsAccessKey = xdoc.Root.Element("AwsAccessKey").Value;
             string awsAccessSecret = xdoc.Root.Element("AwsAccessSecret").Value;
@@ -450,7 +420,6 @@ namespace PayRunIOProcessReports
             
             bool live = Convert.ToBoolean(xdoc.Root.Element("Live").Value);
             string bucketName = awsBucketName;
-            RegionEndpoint bucketRegion = RegionEndpoint.EUWest2;
             IAmazonS3 s3Client;
             if (awsInDevelopment)
             {
@@ -462,11 +431,11 @@ namespace PayRunIOProcessReports
             }
             if (live)
             {
-                folderPath = folderPath + "Live/";
+                folderPath += "Live/";
             }
             else
             {
-                folderPath = folderPath + "Test/";
+                folderPath += "Test/";
             }
             try
             {
@@ -496,7 +465,6 @@ namespace PayRunIOProcessReports
         }
         public void UploadPEOutgoingFilesToAmazonS3(XDocument xdoc, string directory)
         {
-            int logOneIn = Convert.ToInt32(xdoc.Root.Element("LogOneIn").Value);
             string configDirName = xdoc.Root.Element("SoftwareHomeFolder").Value;
             string textLine;
             PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
@@ -527,7 +495,7 @@ namespace PayRunIOProcessReports
 
             bool live = Convert.ToBoolean(xdoc.Root.Element("Live").Value);
             string bucketName = awsBucketName;
-            RegionEndpoint bucketRegion = RegionEndpoint.EUWest2;
+            //RegionEndpoint bucketRegion = RegionEndpoint.EUWest2;
             IAmazonS3 s3Client;
             if (awsInDevelopment)
             {
@@ -558,7 +526,6 @@ namespace PayRunIOProcessReports
         }
         private void EmailReports(XDocument xdoc, FileInfo[] files, RPParameters rpParameters, RPEmployer rpEmployer)
         {
-            int logOneIn = Convert.ToInt32(xdoc.Root.Element("LogOneIn").Value);
             string configDirName = xdoc.Root.Element("SoftwareHomeFolder").Value;
             string textLine;
             PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
@@ -610,7 +577,7 @@ namespace PayRunIOProcessReports
                                                  , rpEmployer.Name, taxYear, rpParameters.PeriodNo, rpParameters.PaySchedule);
                 if (rpEmployer.P32Required)
                 {
-                    mailBody = mailBody + string.Format("The amount payable to HMRC this month is {0}, this payment is due on or before {1}.\r\n\r\n"
+                    mailBody += string.Format("The amount payable to HMRC this month is {0}, this payment is due on or before {1}.\r\n\r\n"
                                                             , hmrcDesc, dueDate);
                 }
                 string approveBy = null;
@@ -626,7 +593,7 @@ namespace PayRunIOProcessReports
                         approveBy = "as soon as possible";
                         break;
                 }
-                mailBody = mailBody + string.Format("Please review and confirm if all is correct {0}.\r\n\r\nKind Regards,\r\n\r\nThe Payescape Team.", approveBy);
+                mailBody += string.Format("Please review and confirm if all is correct {0}.\r\n\r\nKind Regards,\r\n\r\nThe Payescape Team.", approveBy);
 
 
                 //Start of MailMessage
@@ -663,13 +630,15 @@ namespace PayRunIOProcessReports
 
                         }
 
-                        SmtpClient smtpClient = new SmtpClient();
-                        smtpClient.UseDefaultCredentials = smtpEmailSettings.SMTPUserDefaultCredentials;
-                        smtpClient.Credentials = new System.Net.NetworkCredential(smtpEmailSettings.SMTPUsername, smtpEmailSettings.SMTPPassword);
-
-                        smtpClient.Port = smtpEmailSettings.SMTPPort;
-                        smtpClient.Host = smtpEmailSettings.SMTPHost;
-                        smtpClient.EnableSsl = smtpEmailSettings.SMTPEnableSSL;
+                        SmtpClient smtpClient = new SmtpClient()
+                        {
+                            UseDefaultCredentials = smtpEmailSettings.SMTPUserDefaultCredentials,
+                            Credentials = new System.Net.NetworkCredential(smtpEmailSettings.SMTPUsername, smtpEmailSettings.SMTPPassword),
+                            Port = smtpEmailSettings.SMTPPort,
+                            Host = smtpEmailSettings.SMTPHost,
+                            EnableSsl = smtpEmailSettings.SMTPEnableSSL
+                        };
+                        
 
                         try
                         {
@@ -705,7 +674,6 @@ namespace PayRunIOProcessReports
         
         public void ZipReports(XDocument xdoc, RPEmployer rpEmployer, RPParameters rpParameters)
         {
-            int logOneIn = Convert.ToInt32(xdoc.Root.Element("LogOneIn").Value);
             string configDirName = xdoc.Root.Element("SoftwareHomeFolder").Value;
             string textLine;
             PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
@@ -720,7 +688,7 @@ namespace PayRunIOProcessReports
             //The password for the zipped reports file is the first 4 characters of the employer name in lower case ( or if the employers name is less than 4 characters then all the employers name )
             //plus the employers 4 digit number. Unless the employer has specified a particluar password in which case the password is held on the Companies table.
             //
-            string password = null;
+            string password;
             if(rpEmployer.ReportPassword == null || rpEmployer.ReportPassword == "" || rpEmployer.ReportPassword == " ")
             {
                 password = rpEmployer.Name.ToLower().Replace(" ", "");
@@ -728,7 +696,7 @@ namespace PayRunIOProcessReports
                 {
                     password = password.Substring(0, 4);
                 }
-                password = password + rpParameters.ErRef;
+                password += rpParameters.ErRef;
 
             }
             else
@@ -773,11 +741,11 @@ namespace PayRunIOProcessReports
                     break;
                 case "002":
                     //Eagle
-                    CreateEagleBankFile(outgoingFolder, rpEmployeePeriodList, rpEmployer);
+                    CreateEagleBankFile(outgoingFolder, rpEmployeePeriodList);
                     break;
                 case "003":
                     //Revolut
-                    CreateRevolutBankFile(outgoingFolder, rpEmployeePeriodList, rpEmployer);
+                    CreateRevolutBankFile(outgoingFolder, rpEmployeePeriodList);
                     break;
                 default:
                     //No bank file required
@@ -927,7 +895,7 @@ namespace PayRunIOProcessReports
             
             return stringBuilder.ToString();
         }
-        public static string CreateEagleBankFile(string outgoingFolder, List<RPEmployeePeriod> rpEmployeePeriodList, RPEmployer rpEmployer)
+        public static string CreateEagleBankFile(string outgoingFolder, List<RPEmployeePeriod> rpEmployeePeriodList)
         {
             string bankFileName = outgoingFolder + "\\" + "EagleBankFile.csv";
             string comma = ",";
@@ -965,11 +933,11 @@ namespace PayRunIOProcessReports
             return stringBuilder.ToString();
         }
 
-        public static string CreateRevolutBankFile(string outgoingFolder, List<RPEmployeePeriod> rpEmployeePeriodList, RPEmployer rpEmployer)
+        public static string CreateRevolutBankFile(string outgoingFolder, List<RPEmployeePeriod> rpEmployeePeriodList)
         {
             string bankFileName = outgoingFolder + "\\" + "RevolutBankFile.csv";
             string comma = ",";
-            string month = null, year = null, fullName = null;
+            string month, year, fullName;
             StringBuilder stringBuilder = new StringBuilder();
             string csvLine = "Name,Recipient type,Account number,Sort code,Recipient bank country,Currency,Amount,Payment reference";
             stringBuilder.AppendLine(csvLine);
@@ -1003,7 +971,7 @@ namespace PayRunIOProcessReports
             string endDate = rpPensionFileScheme.RPPensionContributions[0].EndDate.ToString("yyyy-MM-dd");
             string frequency = rpPensionFileScheme.RPPensionContributions[0].Freq;
             string blank = "";
-            string zeroContributions = "";
+            string zeroContributions;
             List<RPPensionContribution> joinersThisPeriod = new List<RPPensionContribution>();
             string header = 'H' + comma + providerEmployerReference + comma +
                                             "CS" + comma + endDate + comma + rpEmployer.NESTPensionText +
@@ -1041,11 +1009,11 @@ namespace PayRunIOProcessReports
             if (joinersThisPeriod.Count > 0)
             {
                 pensionFileName = outgoingFolder + "\\" + rpPensionFileScheme.SchemeName + "JoinerFile.csv";
-                string joinerCSVLine = "";
-                string joinerDateOfBirth = null;
-                string joinerStartDate = null;
-                char niYesNo = 'N';
-                char gender = ' ';
+                string joinerCSVLine;
+                string joinerDateOfBirth;
+                string joinerStartDate;
+                char niYesNo;
+                char gender;
                 header = 'H' + comma + providerEmployerReference + comma + "ME";
 
                 using (StreamWriter joinerStream = new StreamWriter(pensionFileName))
@@ -1118,11 +1086,11 @@ namespace PayRunIOProcessReports
             if (joinersThisPeriod.Count > 0)
             {
                 pensionFileName = outgoingFolder + "\\" + rpPensionFileScheme.SchemeName + "JoinerFile.csv";
-                string joinerCSVLine = "";
-                string joinerDateOfBirth = null;
-                string joinerStartDate = null;
-                string frequency = null;
-                char gender = ' ';
+                string joinerCSVLine;
+                string joinerDateOfBirth;
+                string joinerStartDate;
+                string frequency;
+                char gender;
 
                 using (StreamWriter joinerStream = new StreamWriter(pensionFileName))
                 {
@@ -1315,136 +1283,6 @@ namespace PayRunIOProcessReports
             }
 
         }
-        private void CreateTheSmartPensionsPensionFile(string outgoingFolder, RPPensionFileScheme rpPensionFileScheme, RPEmployer rpEmployer, RPParameters rpParameters)
-        {
-            string pensionFileName = outgoingFolder + "\\" + rpPensionFileScheme.SchemeName + "PensionFile.csv";
-            string comma = ",";
-            string providerEmployerReference = rpPensionFileScheme.RPPensionContributions[0].RPPensionPeriod.ProviderEmployerReference;
-            string startDate = rpPensionFileScheme.RPPensionContributions[0].StartDate.ToString("dd-MM-yyyy");
-            string endDate = rpPensionFileScheme.RPPensionContributions[0].EndDate.ToString("dd-MM-yyyy");
-            string payDate = rpPensionFileScheme.RPPensionContributions[0].PayRunDate.ToString("dd-MM-yyyy");
-            string freq = null;
-            switch (rpParameters.PaySchedule)
-            {
-                case "Fortnightly":
-                    freq = "W2";
-                    break;
-                case "FourWeekly":
-                    freq = "W4";
-                    break;
-                case "Monthly":
-                    freq = "M1";
-                    break;
-                case "Quarterly":
-                    freq = "M3";
-                    break;
-                case "Yearly":
-                    freq = "MA";
-                    break;
-                default:
-                    freq = "W1";
-                    break;
-            }
-            int taxPeriod = rpParameters.TaxPeriod;
-            using (StreamWriter sw = new StreamWriter(pensionFileName))
-            {
-                string csvLine = "PAPDISVersion,PensionProviderId,EmployerId,Group,SubGroup,PayPeriodStartDate,PayPeriodEndDate," +
-                          "ContributionDeductionDate,FrequencyCode,TaxPeriod,Title," +
-                          "Forename1,Forename2,Surname,EmployeeId,BirthDate," +
-                          "Gender,NationalInsurance,Address1,Address2," +
-                          "Address3,Address4,Postcode,Country,EmailAddress,EmploymentStartDate," +
-                          "ExitDate,ExitReasonCode,AssessmentCode," +
-                          "EventCode,EventDate,DeferralDate,AEOptOutDate,AEOptOutReference," +
-                          "EnrolmentCommunicationsIssuedDate,EmployerContributionsAmount," +
-                          "EmployeeContributionsAmount,AdditionalVoluntaryContributionsAmount," +
-                          "AdditionalVoluntaryContributionsPercent,PensionableEarningsAmount," +
-                          "ER Cont. %,EE Cont. %,SalarySacrificeIndicator";
-                sw.WriteLine(csvLine);
-                
-                foreach (RPPensionContribution rpPensionContribution in rpPensionFileScheme.RPPensionContributions)
-                {
-                    int assesmentCode;
-                    switch (rpPensionContribution.RPPensionPeriod.AEStatus.ToUpper())
-                    {
-                        case "ELIGIBLE":
-                            assesmentCode = 1;
-                            break;
-                        case "NONELIGIBLE":
-                            assesmentCode = 2;
-                            break;
-                        case "ENTITLED":
-                            assesmentCode = 3;
-                            break;
-                        default:
-                            assesmentCode = 4;
-                            break;
-                       
-                    }
-                    if (rpPensionContribution.RPPensionPeriod.AEWorkerGroup == "")
-                    {
-                        rpPensionContribution.RPPensionPeriod.AEWorkerGroup = "Default";
-                    }
-                    string salarySacrifice = "N";
-                    if (rpPensionContribution.RPPensionPeriod.Code == "SACRIFICE")
-                    {
-                        salarySacrifice = "Y";
-                    }
-                       
-                    if (rpPensionContribution.RPPensionPeriod.EePensionTaxPeriod != 0 || rpPensionContribution.RPPensionPeriod.ErPensionTaxPeriod != 0)
-                    {
-                        
-                       csvLine = "PAP01" + comma + //PAPDIS version
-                                  "SMART" + comma + //Pension provider Id
-                                  providerEmployerReference + comma + //Employer Id
-                                  rpPensionContribution.RPPensionPeriod.AEWorkerGroup + comma + //Group
-                                  "" + comma + //Sub group
-                                  startDate + comma + //Pay period start date
-                                  endDate + comma + //Pay period end date
-                                  payDate + comma + //Contribution deduction date
-                                  freq + comma + //Frequency code
-                                  taxPeriod + comma + //Tax period
-                                  rpPensionContribution.Title + comma + //Title
-                                  rpPensionContribution.Forename + comma + //Forename1
-                                  "" + comma +  //2nd Forename
-                                  rpPensionContribution.Surname + comma + //Surname
-                                  rpPensionContribution.EeRef + comma + //Ee Id
-                                  rpPensionContribution.DOB.ToString("dd-MM-yyyy") + comma + //DOB
-                                  rpPensionContribution.Gender + comma + //Gender
-                                  rpPensionContribution.NINumber + comma + //NI number
-                                  rpPensionContribution.RPAddress.Line1 + comma + //Address1
-                                  rpPensionContribution.RPAddress.Line2 + comma + //Address2
-                                  rpPensionContribution.RPAddress.Line3 + comma + //Address3
-                                  rpPensionContribution.RPAddress.Line4 + comma + //Address4
-                                  rpPensionContribution.RPAddress.Postcode + comma + //Postcode
-                                  rpPensionContribution.RPAddress.Country + comma + //Country
-                                  rpPensionContribution.EmailAddress + comma + //email address
-                                  rpPensionContribution.StartingDate.ToString("dd-MM-yyyy") + comma + //Employment start date    ********
-                                  "" + comma + //Exit date
-                                  "" + comma + //Exit reason code
-                                  assesmentCode + comma + //Assessment code
-                                  "" + comma + //Event code
-                                  "" + comma + //Event date
-                                  "" + comma + //Deferral date
-                                  "" + comma + //AE opt out date
-                                  "" + comma + //AE opt out reference
-                                  "" + comma + //Enrollment communications issued date
-                                  rpPensionContribution.RPPensionPeriod.ErPensionTaxPeriod + comma + //Er contribution amount
-                                  rpPensionContribution.RPPensionPeriod.EePensionTaxPeriod + comma + //Ee contribution amount
-                                  "0" + comma + //AVC amount
-                                  "0" + comma + //AVC percentage
-                                  rpPensionContribution.RPPensionPeriod.PensionablePayTaxPeriod + comma + //Pensionable earnings amount
-                                  rpPensionContribution.RPPensionPeriod.ErContributionPercent + comma + //Er contribution percentage
-                                  rpPensionContribution.RPPensionPeriod.EeContibutionPercent + comma + //Ee contribution percentage
-                                  salarySacrifice; //Salary sacrifice indicator
-                        sw.WriteLine(csvLine);
-                        
-                    }
-
-                }
-                
-            }
-
-        }
         private void GetSmartPensionsReport(XDocument xdoc, RPPensionFileScheme rpPensionFileScheme, RPParameters rpParameters)
         {
             PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
@@ -1468,11 +1306,11 @@ namespace PayRunIOProcessReports
                 PrintPayslipsSimple(xdoc, rpEmployeePeriodList, rpEmployer, rpParameters);
             }
             PrintPaymentsDueByMethodReport(xdoc, rpEmployeePeriodList, rpEmployer, rpParameters);
+            PrintPensionContributionsReport(xdoc, rpPensionContributions, rpEmployer, rpParameters);
             bool showDetail = true;
             PrintComponentAnalysisReport(xdoc, rpPayComponents, rpEmployer, rpParameters,showDetail);
             showDetail = false;
             PrintComponentAnalysisReport(xdoc, rpPayComponents, rpEmployer, rpParameters, showDetail);
-            PrintPensionContributionsReport(xdoc, rpPensionContributions, rpEmployer, rpParameters);
             PrintPayrollRunDetailsReport(xdoc, rpEmployeePeriodList, rpEmployer, rpParameters);
             if (rpEmployer.PayRunDetailsYTDRequired)
             {
@@ -1498,21 +1336,17 @@ namespace PayRunIOProcessReports
         }
         private void PrintNoteAndCoinRequiredReport(XDocument xdoc, RPEmployer rpEmployer, RPParameters rpParameters)
         {
-            string outgoingFolder = xdoc.Root.Element("DataHomeFolder").Value + "PE-Reports";
-            string coNo = rpParameters.ErRef;
-            int taxYear = rpParameters.TaxYear;
-            int taxPeriod = rpParameters.PeriodNo;
-            string dirName = outgoingFolder + "\\" + coNo + "\\";
-
+            
             PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
-            XmlDocument xmlReport = new XmlDocument();
-            xmlReport = prWG.GetNoteAndCoinRequirementReport(xdoc, rpParameters);
+            XmlDocument xmlReport = prWG.GetNoteAndCoinRequirementReport(xdoc, rpParameters);
 
             string reportName = "NoteAndCoinRequirementReport";
             string assemblyName = "PayRunIOClassLibrary";
             XtraReport xtraReport = prWG.CreatePDFReport(xmlReport, reportName, assemblyName);
 
-            string docName = coNo + "_NoteAndCoinRequirementReportFor_TaxYear_" + taxYear + "_Period_" + taxPeriod + ".pdf";
+            string dirName = xdoc.Root.Element("DataHomeFolder").Value + "PE-Reports" + "\\" + rpParameters.ErRef + "\\";
+            Directory.CreateDirectory(dirName);
+            string docName = rpParameters.ErRef + "_NoteAndCoinRequirementReportFor_TaxYear_" + rpParameters.TaxYear + "_Period_" + rpParameters.PeriodNo + ".pdf";
 
             xtraReport.ExportToPdf(dirName + docName);
             if (rpEmployer.ReportsInExcelFormat)
@@ -1523,550 +1357,153 @@ namespace PayRunIOProcessReports
         }
         private void PrintPayslips(XDocument xdoc, List<RPEmployeePeriod> rpEmployeePeriodList, RPEmployer rpEmployer, RPParameters rpParameters)
         {
-            string softwareHomeFolder = xdoc.Root.Element("SoftwareHomeFolder").Value + "Programs\\";
-            string outgoingFolder = xdoc.Root.Element("DataHomeFolder").Value + "PE-Reports";
-            string coNo = rpParameters.ErRef;
-            string coName = rpEmployer.Name;
-            int taxYear = rpParameters.TaxYear;
-            int taxPeriod = rpParameters.PeriodNo;
-            string freq = rpParameters.PaySchedule;
-
+            PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
             //Main payslip report
-            XtraReport report1 = XtraReport.FromFile(softwareHomeFolder + "Payslip.repx", true);
-            report1.Parameters["CmpName"].Value = rpEmployer.Name;
-            report1.Parameters["PayeRef"].Value = rpEmployer.PayeRef;
-            report1.Parameters["Date"].Value = rpParameters.PayRunDate; //.AccYearEnd;
-            report1.Parameters["Period"].Value = rpParameters.PeriodNo;
-            report1.DataSource = rpEmployeePeriodList;
-            //// To show the report designer. You need to uncomment this to design the report.
-            //// You also need to comment out the report.ExportToPDF line below
-            ////
-            bool designMode = false;
-            if (designMode)
-            {
-                report1.ShowDesigner();
-                //report1.ShowPreview();
+            string reportName = "Payslip";
+            string assemblyName = "PayRunIOClassLibrary";
+            XtraReport xtraReport = prWG.CreatePDFReport(rpEmployeePeriodList, rpEmployer, rpParameters, reportName, assemblyName);
 
-            }
-            else
-            {
-                // Export to pdf file.
-
-                //
-                // I'm going to remove spaces from the document name. I'll replace them with dashes
-                //
-                //string dirName = "V:\\Payescape\\PayRunIO\\WG\\";
-
-                string dirName = outgoingFolder + "\\" + coNo + "\\";
-                Directory.CreateDirectory(dirName);
-                string docName = coNo + "_PayslipReportFor_TaxYear_" + taxYear + "_Period_" + taxPeriod + ".pdf";
-
-                report1.ExportToPdf(dirName + docName);
-                //docName = docName.Replace(".pdf", ".xlsx");
-                //report1.ExportToXlsx(dirName + docName);
-
-            }
-
+            //Don't save the full payslip as an xlsx file as it doesn't render well, which is why I've created a simple payslip.
+            bool reportInExcelFormat = rpEmployer.ReportsInExcelFormat;
+            rpEmployer.ReportsInExcelFormat = false;
+            SaveReport(xtraReport, xdoc, rpEmployer, rpParameters, reportName);
+            rpEmployer.ReportsInExcelFormat = reportInExcelFormat;
         }
+        
         private void PrintPayslipsSimple(XDocument xdoc, List<RPEmployeePeriod> rpEmployeePeriodList, RPEmployer rpEmployer, RPParameters rpParameters)
         {
-
-            string softwareHomeFolder = xdoc.Root.Element("SoftwareHomeFolder").Value + "Programs\\";
-            string outgoingFolder = xdoc.Root.Element("DataHomeFolder").Value + "PE-Reports";
-            string coNo = rpParameters.ErRef;
-            string coName = rpEmployer.Name;
-            int taxYear = rpParameters.TaxYear;
-            int taxPeriod = rpParameters.PeriodNo;
-            string freq = rpParameters.PaySchedule;
-
-            //Main payslip report
-            XtraReport report1 = XtraReport.FromFile(softwareHomeFolder + "PayslipSimple.repx", true);
-            report1.Parameters["CmpName"].Value = rpEmployer.Name;
-            report1.Parameters["PayeRef"].Value = rpEmployer.PayeRef;
-            report1.Parameters["Date"].Value = rpParameters.PayRunDate; //.AccYearEnd;
-            report1.Parameters["Period"].Value = rpParameters.PeriodNo;
-            report1.DataSource = rpEmployeePeriodList;
-            //// To show the report designer. You need to uncomment this to design the report.
-            //// You also need to comment out the report.ExportToPDF line below
-            ////
-            bool designMode = false;
-            if (designMode)
-            {
-                report1.ShowDesigner();
-                //report1.ShowPreview();
-
-            }
-            else
-            {
-                // Export to pdf file.
-
-                //
-                // I'm going to remove spaces from the document name. I'll replace them with dashes
-                //
-                //string dirName = "V:\\Payescape\\PayRunIO\\WG\\";
-
-                string dirName = outgoingFolder + "\\" + coNo + "\\";
-                Directory.CreateDirectory(dirName);
-                string docName = coNo + "_PayslipReportFor_TaxYear_" + taxYear + "_Period_" + taxPeriod + ".xlsx";
-
-                //report1.ExportToPdf(dirName + docName);
-                //docName = docName.Replace(".pdf", ".xlsx");
-                report1.ExportToXlsx(dirName + docName);
-
-            }
-
+            PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
+            //Simple payslip report
+            string assemblyName = "PayRunIOClassLibrary";
+            string reportName = "PayslipSimple";
+            
+            XtraReport xtraReport = prWG.CreatePDFReport(rpEmployeePeriodList, rpEmployer, rpParameters, reportName, assemblyName);
+            
+            SaveReport(xtraReport, xdoc, rpEmployer, rpParameters, reportName);
         }
         private void PrintPaymentsDueByMethodReport(XDocument xdoc, List<RPEmployeePeriod> rpEmployeePeriodList, RPEmployer rpEmployer, RPParameters rpParameters)
         {
-            string softwareHomeFolder = xdoc.Root.Element("SoftwareHomeFolder").Value + "Programs\\";
-            string outgoingFolder = xdoc.Root.Element("DataHomeFolder").Value + "PE-Reports";
-            string coNo = rpParameters.ErRef;
-            string coName = rpEmployer.Name;
-            int taxYear = rpParameters.TaxYear;
-            int taxPeriod = rpParameters.PeriodNo;
-            string freq = rpParameters.PaySchedule;
-            //var payeMonth = rpParameters.AccYearEnd.Day < 6 ? rpParameters.AccYearEnd.Month - 4 : rpParameters.AccYearEnd.Month - 3;
-            var payeMonth = rpParameters.PayRunDate.Day < 6 ? rpParameters.PayRunDate.Month - 4 : rpParameters.PayRunDate.Month - 3;
-            if (payeMonth <= 0)
-            {
-                payeMonth += 12;
-            }
+            PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
+            //Payments Due By Method report
+            string assemblyName = "PayRunIOClassLibrary";
+            string reportName = "PaymentsDueByMethodsReport";
 
-            //Main payslip report
-            XtraReport report1 = XtraReport.FromFile(softwareHomeFolder + "PaymentsDueByMethodsReport.repx", true);         //"PaymentsDueByMethodReport.repx"
+            XtraReport xtraReport = prWG.CreatePDFReport(rpEmployeePeriodList, rpEmployer, rpParameters, reportName, assemblyName);
 
-            report1.Parameters["CmpName"].Value = rpEmployer.Name;
-            report1.Parameters["PayeRef"].Value = rpEmployer.PayeRef;
-            report1.Parameters["Date"].Value = rpParameters.PayRunDate;
-            report1.Parameters["Period"].Value = rpParameters.PeriodNo;
-            report1.Parameters["Freq"].Value = rpParameters.PaySchedule;
-            report1.Parameters["PAYEMonth"].Value = payeMonth;
-            report1.DataSource = rpEmployeePeriodList;
-            //// To show the report designer. You need to uncomment this to design the report.
-            //// You also need to comment out the report.ExportToPDF line below
-            ////
-            bool designMode = false;
-            if (designMode)
-            {
-                report1.ShowDesigner();
-                //report1.ShowPreview();
-
-            }
-            else
-            {
-                // Export to pdf file.
-
-                //
-                // I'm going to remove spaces from the document name. I'll replace them with dashes
-                //
-                //string dirName = "V:\\Payescape\\PayRunIO\\WG\\";
-                string dirName = outgoingFolder + "\\" + coNo + "\\";
-                Directory.CreateDirectory(dirName);
-                string docName = coNo + "_PaymentsDueByMethodReportFor_TaxYear_" + taxYear + "_Period_" + taxPeriod + ".pdf";
-
-                report1.ExportToPdf(dirName + docName);
-                if(rpEmployer.ReportsInExcelFormat)
-                {
-                    docName = docName.Replace(".pdf", ".xlsx");
-                    report1.ExportToXlsx(dirName + docName);
-                }
-                
-            }
-
+            SaveReport(xtraReport, xdoc, rpEmployer, rpParameters, reportName);
         }
         private void PrintPensionContributionsReport(XDocument xdoc, List<RPPensionContribution> rpPensionContributions, RPEmployer rpEmployer, RPParameters rpParameters)
         {
-            string softwareHomeFolder = xdoc.Root.Element("SoftwareHomeFolder").Value + "Programs\\";
-            string outgoingFolder = xdoc.Root.Element("DataHomeFolder").Value + "PE-Reports";
-            string coNo = rpParameters.ErRef;
-            string coName = rpEmployer.Name;
-            int taxYear = rpParameters.TaxYear;
-            int taxPeriod = rpParameters.PeriodNo;
-            string freq = rpParameters.PaySchedule;
-            //var payeMonth = rpParameters.AccYearEnd.Day < 6 ? rpParameters.AccYearEnd.Month - 4 : rpParameters.AccYearEnd.Month - 3;
-            var payeMonth = rpParameters.PayRunDate.Day < 6 ? rpParameters.PayRunDate.Month - 4 : rpParameters.PayRunDate.Month - 3;
-            if (payeMonth <= 0)
-            {
-                payeMonth += 12;
-            }
+            PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
+            //Pensions Copntributions report
+            string assemblyName = "PayRunIOClassLibrary";
+            string reportName = "PensionContributionsReport";
+            XtraReport xtraReport = prWG.CreatePDFReport(rpPensionContributions, rpEmployer, rpParameters, reportName, assemblyName);
 
-            //Main payslip report
-            XtraReport report1 = XtraReport.FromFile(softwareHomeFolder + "PensionContributionsReport.repx", true);         //"PensionContributionsReport.repx"
-
-            report1.Parameters["CmpName"].Value = rpEmployer.Name;
-            report1.Parameters["PayeRef"].Value = rpEmployer.PayeRef;
-            report1.Parameters["Date"].Value = rpParameters.PayRunDate;
-            report1.Parameters["Period"].Value = rpParameters.PeriodNo;
-            report1.Parameters["Freq"].Value = rpParameters.PaySchedule;
-            report1.Parameters["PAYEMonth"].Value = payeMonth;
-            report1.DataSource = rpPensionContributions;
-            //// To show the report designer. You need to uncomment this to design the report.
-            //// You also need to comment out the report.ExportToPDF line below
-            ////
-            bool designMode = false;
-            if (designMode)
-            {
-                report1.ShowDesigner();
-                //report1.ShowPreview();
-
-            }
-            else
-            {
-                // Export to pdf file.
-
-                //
-                // I'm going to remove spaces from the document name. I'll replace them with dashes
-                //
-                //string dirName = "V:\\Payescape\\PayRunIO\\WG\\";
-                string dirName = outgoingFolder + "\\" + coNo + "\\";
-                Directory.CreateDirectory(dirName);
-                string docName = coNo + "_PensionContributionsReportFor_TaxYear_" + taxYear + "_Period_" + taxPeriod + ".pdf";
-
-                report1.ExportToPdf(dirName + docName);
-                if (rpEmployer.ReportsInExcelFormat)
-                {
-                    docName = docName.Replace(".pdf", ".xlsx");
-                    report1.ExportToXlsx(dirName + docName);
-                }
-            }
-
+            SaveReport(xtraReport, xdoc, rpEmployer, rpParameters, reportName);
         }
         private void PrintComponentAnalysisReport(XDocument xdoc, List<RPPayComponent> rpPayComponents, RPEmployer rpEmployer, RPParameters rpParameters, bool showDetail)
         {
-            string softwareHomeFolder = xdoc.Root.Element("SoftwareHomeFolder").Value + "Programs\\";
-            string outgoingFolder = xdoc.Root.Element("DataHomeFolder").Value + "PE-Reports";
-            string coNo = rpParameters.ErRef;
-            string coName = rpEmployer.Name;
-            int taxYear = rpParameters.TaxYear;
-            int taxPeriod = rpParameters.PeriodNo;
-            string freq = rpParameters.PaySchedule;
-            //var payeMonth = rpParameters.AccYearEnd.Day < 6 ? rpParameters.AccYearEnd.Month - 4 : rpParameters.AccYearEnd.Month - 3;
-            var payeMonth = rpParameters.PayRunDate.Day < 6 ? rpParameters.PayRunDate.Month - 4 : rpParameters.PayRunDate.Month - 3;
-            if (payeMonth <= 0)
+            PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
+            //Component Analysis report
+            string assemblyName = "PayRunIOClassLibrary";
+            string reportName = "ComponentAnalysisReport";
+            XtraReport xtraReport = prWG.CreatePDFReport(rpPayComponents, rpEmployer, rpParameters, showDetail, reportName, assemblyName);
+            if (showDetail)
             {
-                payeMonth += 12;
-            }
-
-            //Main Component Analysis report
-            XtraReport report1 = XtraReport.FromFile(softwareHomeFolder + "ComponentAnalysisReport.repx", true);         //"ComponentAnalysisReport.repx"
-            
-            report1.Parameters["CmpName"].Value = rpEmployer.Name;
-            report1.Parameters["PayeRef"].Value = rpEmployer.PayeRef;
-            report1.Parameters["Date"].Value = rpParameters.PayRunDate;
-            report1.Parameters["Period"].Value = rpParameters.PeriodNo;
-            report1.Parameters["Freq"].Value = rpParameters.PaySchedule;
-            report1.Parameters["PAYEMonth"].Value = payeMonth;
-            report1.Parameters["ShowDetailBand"].Value = showDetail;
-            report1.DataSource = rpPayComponents;
-            //// To show the report designer. You need to uncomment this to design the report.
-            //// You also need to comment out the report.ExportToPDF line below
-            ////
-            bool designMode = false;
-            if (designMode)
-            {
-                report1.ShowDesigner();
-                //report1.ShowPreview();
-
+                reportName = "ComponentAnalysisReport";
             }
             else
             {
-                // Export to pdf file.
-
-                //
-                // I'm going to remove spaces from the document name. I'll replace them with dashes
-                //
-                //string dirName = "V:\\Payescape\\PayRunIO\\WG\\";
-                string dirName = outgoingFolder + "\\" + coNo + "\\";
-                Directory.CreateDirectory(dirName);
-                string docName = null;
-                if(showDetail)
-                {
-                    docName = coNo + "_ComponentAnalysisReportFor_TaxYear_" + taxYear + "_Period_" + taxPeriod + ".pdf";
-                }
-                else
-                {
-                    docName = coNo + "_ComponentTotalsReportFor_TaxYear_" + taxYear + "_Period_" + taxPeriod + ".pdf";
-                }
-                
-
-                report1.ExportToPdf(dirName + docName);
-                if (rpEmployer.ReportsInExcelFormat)
-                {
-                    docName = docName.Replace(".pdf", ".xlsx");
-                    report1.ExportToXlsx(dirName + docName);
-                }
+                reportName = "ComponentTotalsReport";
             }
-
+            SaveReport(xtraReport, xdoc, rpEmployer, rpParameters, reportName);
         }
         private void PrintPayrollRunDetailsReport(XDocument xdoc, List<RPEmployeePeriod> rpEmployeePeriodList, RPEmployer rpEmployer, RPParameters rpParameters)
         {
-            string softwareHomeFolder = xdoc.Root.Element("SoftwareHomeFolder").Value + "Programs\\";
-            string outgoingFolder = xdoc.Root.Element("DataHomeFolder").Value + "PE-Reports";
-            string coNo = rpParameters.ErRef;
-            string coName = rpEmployer.Name;
-            int taxYear = rpParameters.TaxYear;
-            int taxPeriod = rpParameters.PeriodNo;
-            string freq = rpParameters.PaySchedule;
-            //var payeMonth = rpParameters.AccYearEnd.Day < 6 ? rpParameters.AccYearEnd.Month - 4 : rpParameters.AccYearEnd.Month - 3;
-            var payeMonth = rpParameters.PayRunDate.Day < 6 ? rpParameters.PayRunDate.Month - 4 : rpParameters.PayRunDate.Month - 3;
-            if (payeMonth <= 0)
-            {
-                payeMonth += 12;
-            }
+            PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
+            //Payroll Run Details report
+            string assemblyName = "PayRunIOClassLibrary";
+            string reportName = "PayrollRunDetailsReport";
 
-            //Main payslip report
-            XtraReport report1 = XtraReport.FromFile(softwareHomeFolder + "PayrollRunDetailsReport.repx", true);         //"PayrollRunDetailsReport.repx"
+            XtraReport xtraReport = prWG.CreatePDFReport(rpEmployeePeriodList, rpEmployer, rpParameters, reportName, assemblyName);
 
-            report1.Parameters["CmpName"].Value = rpEmployer.Name;
-            report1.Parameters["PayeRef"].Value = rpEmployer.PayeRef;
-            report1.Parameters["Date"].Value = rpParameters.PayRunDate;
-            report1.Parameters["Period"].Value = rpParameters.PeriodNo;
-            report1.Parameters["Freq"].Value = rpParameters.PaySchedule;
-            report1.Parameters["PAYEMonth"].Value = payeMonth;
-            report1.DataSource = rpEmployeePeriodList;
-            //// To show the report designer. You need to uncomment this to design the report.
-            //// You also need to comment out the report.ExportToPDF line below
-            ////
-            bool designMode = false;
-            if (designMode)
-            {
-                report1.ShowDesigner();
-                //report1.ShowPreview();
-
-            }
-            else
-            {
-                // Export to pdf file.
-
-                //
-                // I'm going to remove spaces from the document name. I'll replace them with dashes
-                //
-                //string dirName = "V:\\Payescape\\PayRunIO\\WG\\";
-                string dirName = outgoingFolder + "\\" + coNo + "\\";
-                Directory.CreateDirectory(dirName);
-                string docName = coNo + "_PayrollRunDetailsReportFor_TaxYear_" + taxYear + "_Period_" + taxPeriod + ".pdf";
-
-                report1.ExportToPdf(dirName + docName);
-                if (rpEmployer.ReportsInExcelFormat)
-                {
-                    docName = docName.Replace(".pdf", ".xlsx");
-                    report1.ExportToXlsx(dirName + docName);
-                }
-            }
-
+            SaveReport(xtraReport, xdoc, rpEmployer, rpParameters, reportName);
         }
         private void PrintPayrollRunDetailsYTDReport(XDocument xdoc, List<RPEmployeePeriod> rpEmployeePeriodList, RPEmployer rpEmployer, RPParameters rpParameters)
         {
-            string softwareHomeFolder = xdoc.Root.Element("SoftwareHomeFolder").Value + "Programs\\";
-            string outgoingFolder = xdoc.Root.Element("DataHomeFolder").Value + "PE-Reports";
-            string coNo = rpParameters.ErRef;
-            string coName = rpEmployer.Name;
-            int taxYear = rpParameters.TaxYear;
-            int taxPeriod = rpParameters.PeriodNo;
-            string freq = rpParameters.PaySchedule;
-            //var payeMonth = rpParameters.AccYearEnd.Day < 6 ? rpParameters.AccYearEnd.Month - 4 : rpParameters.AccYearEnd.Month - 3;
-            var payeMonth = rpParameters.PayRunDate.Day < 6 ? rpParameters.PayRunDate.Month - 4 : rpParameters.PayRunDate.Month - 3;
-            if (payeMonth <= 0)
-            {
-                payeMonth += 12;
-            }
+            PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
 
-            //Main payslip report
-            XtraReport report1 = XtraReport.FromFile(softwareHomeFolder + "PayrollRunDetailsYTDReport.repx", true);         //"PayrollRunDetailsYTDReport.repx"
+            //Payroll Run Details YTD report
+            string assemblyName = "PayRunIOClassLibrary";
+            string reportName = "PayrollRunDetailsYTDReport";
 
-            report1.Parameters["CmpName"].Value = rpEmployer.Name;
-            report1.Parameters["PayeRef"].Value = rpEmployer.PayeRef;
-            report1.Parameters["Date"].Value = rpParameters.PayRunDate;
-            report1.Parameters["Period"].Value = rpParameters.PeriodNo;
-            report1.Parameters["Freq"].Value = rpParameters.PaySchedule;
-            report1.Parameters["PAYEMonth"].Value = payeMonth;
-            report1.DataSource = rpEmployeePeriodList;
-            //// To show the report designer. You need to uncomment this to design the report.
-            //// You also need to comment out the report.ExportToPDF line below
-            ////
-            bool designMode = false;
-            if (designMode)
-            {
-                report1.ShowDesigner();
-                //report1.ShowPreview();
+            XtraReport xtraReport = prWG.CreatePDFReport(rpEmployeePeriodList, rpEmployer, rpParameters, reportName, assemblyName);
 
-            }
-            else
-            {
-                // Export to pdf file.
-
-                //
-                // I'm going to remove spaces from the document name. I'll replace them with dashes
-                //
-                //string dirName = "V:\\Payescape\\PayRunIO\\WG\\";
-                string dirName = outgoingFolder + "\\" + coNo + "\\";
-                Directory.CreateDirectory(dirName);
-                string docName = coNo + "_PayrollRunDetailsYTDReportFor_TaxYear_" + taxYear + "_Period_" + taxPeriod + ".pdf";
-
-                report1.ExportToPdf(dirName + docName);
-                if (rpEmployer.ReportsInExcelFormat)
-                {
-                    docName = docName.Replace(".pdf", ".xlsx");
-                    report1.ExportToXlsx(dirName + docName);
-                }
-            }
-
+            SaveReport(xtraReport, xdoc, rpEmployer, rpParameters, reportName);
         }
         private void PrintPayrollTotalsSummaryReport(XDocument xdoc, List<RPEmployeePeriod> rpEmployeePeriodList, RPEmployer rpEmployer, RPParameters rpParameters)
         {
-            string softwareHomeFolder = xdoc.Root.Element("SoftwareHomeFolder").Value + "Programs\\";
-            string outgoingFolder = xdoc.Root.Element("DataHomeFolder").Value + "PE-Reports";
-            string coNo = rpParameters.ErRef;
-            string coName = rpEmployer.Name;
-            int taxYear = rpParameters.TaxYear;
-            int taxPeriod = rpParameters.PeriodNo;
-            string freq = rpParameters.PaySchedule;
-            //var payeMonth = rpParameters.AccYearEnd.Day < 6 ? rpParameters.AccYearEnd.Month - 4 : rpParameters.AccYearEnd.Month - 3;
-            var payeMonth = rpParameters.PayRunDate.Day < 6 ? rpParameters.PayRunDate.Month - 4 : rpParameters.PayRunDate.Month - 3;
-            if (payeMonth <= 0)
-            {
-                payeMonth += 12;
-            }
+            PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
 
-            //Main payslip report
-            XtraReport report1 = XtraReport.FromFile(softwareHomeFolder + "PayrollTotalsSummaryReport.repx", true);         //"PayrollRunDetailsYTDReport.repx"
+            //Payroll Totals Summary report
+            string assemblyName = "PayRunIOClassLibrary";
+            string reportName = "PayrollTotalsSummaryReport";
 
-            report1.Parameters["CmpName"].Value = rpEmployer.Name;
-            report1.Parameters["PayeRef"].Value = rpEmployer.PayeRef;
-            report1.Parameters["Date"].Value = rpParameters.PayRunDate;
-            report1.Parameters["Period"].Value = rpParameters.PeriodNo;
-            report1.Parameters["Freq"].Value = rpParameters.PaySchedule;
-            report1.Parameters["PAYEMonth"].Value = payeMonth;
-            report1.DataSource = rpEmployeePeriodList;
-            //// To show the report designer. You need to uncomment this to design the report.
-            //// You also need to comment out the report.ExportToPDF line below
-            ////
-            bool designMode = false;
-            if (designMode)
-            {
-                report1.ShowDesigner();
-                //report1.ShowPreview();
+            XtraReport xtraReport = prWG.CreatePDFReport(rpEmployeePeriodList, rpEmployer, rpParameters, reportName, assemblyName);
 
-            }
-            else
-            {
-                // Export to pdf file.
-
-                //
-                // I'm going to remove spaces from the document name. I'll replace them with dashes
-                //
-                //string dirName = "V:\\Payescape\\PayRunIO\\WG\\";
-                string dirName = outgoingFolder + "\\" + coNo + "\\";
-                Directory.CreateDirectory(dirName);
-                string docName = coNo + "_PayrollTotalsSummaryReportFor_TaxYear_" + taxYear + "_Period_" + taxPeriod + ".pdf";
-
-                report1.ExportToPdf(dirName + docName);
-                if (rpEmployer.ReportsInExcelFormat)
-                {
-                    docName = docName.Replace(".pdf", ".xlsx");
-                    report1.ExportToXlsx(dirName + docName);
-                }
-            }
-
+            SaveReport(xtraReport, xdoc, rpEmployer, rpParameters, reportName);
         }
 
         private void PrintP45s(XDocument xdoc, List<P45> p45s, RPParameters rpParameters, RPEmployer rpEmployer)
         {
-            string softwareHomeFolder = xdoc.Root.Element("SoftwareHomeFolder").Value + "Programs\\";
-            string outgoingFolder = xdoc.Root.Element("DataHomeFolder").Value + "PE-Reports";
-            string coNo = rpParameters.ErRef;
-            int taxYear = rpParameters.TaxYear;
-            int taxPeriod = rpParameters.PeriodNo;
+            PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
+
             //P45 report
-            XtraReport report1 = XtraReport.FromFile(softwareHomeFolder + "P45.repx", true);
-            report1.DataSource = p45s;
-            //// To show the report designer. You need to uncomment this to design the report.
-            //// You also need to comment out the report.ExportToPDF line below
-            ////
-            bool designMode = false;
-            if (designMode)
-            {
-                report1.ShowDesigner();
-                //report1.ShowPreview();
+            string assemblyName = "PayRunIOClassLibrary";
+            string reportName = "P45";
 
-            }
-            else
-            {
-                // Export to pdf file.
+            XtraReport xtraReport = prWG.CreatePDFReport(p45s, reportName, assemblyName);
 
-                //
-                // I'm going to remove spaces from the document name. I'll replace them with dashes
-                //
-                string dirName = outgoingFolder + "\\" + coNo + "\\";
-                Directory.CreateDirectory(dirName);
-                string docName = coNo + "_P45ReportFor_TaxYear_" + taxYear + "_Period_" + taxPeriod + ".pdf";
-
-                report1.ExportToPdf(dirName + docName);
-                if (rpEmployer.ReportsInExcelFormat)
-                {
-                    docName = docName.Replace(".pdf", ".xlsx");
-                    report1.ExportToXlsx(dirName + docName);
-                }
-            }
-
+            SaveReport(xtraReport, xdoc, rpEmployer, rpParameters, reportName);
         }
         public void PrintP32Report(XDocument xdoc, RPP32Report rpP32Report, RPParameters rpParameters, RPEmployer rpEmployer)
         {
-            string softwareHomeFolder = xdoc.Root.Element("SoftwareHomeFolder").Value + "Programs\\";
-            string outgoingFolder = xdoc.Root.Element("DataHomeFolder").Value + "PE-Reports";
-            
-            string coNo = rpParameters.ErRef;
-            string coName = rpP32Report.EmployerName;
-            int taxYear = rpP32Report.TaxYear;
-            int taxPeriod = rpParameters.PeriodNo;
-            string freq = rpParameters.PaySchedule;
-            var payeMonth = rpParameters.PayRunDate.Day < 6 ? rpParameters.PayRunDate.Month - 4 : rpParameters.PayRunDate.Month - 3;
-            if (payeMonth <= 0)
-            {
-                payeMonth += 12;
-            }
+            PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
 
             //Main P32 report
-            XtraReport report1 = XtraReport.FromFile(softwareHomeFolder + "P32Report.repx", true);
-            report1.Parameters["CmpName"].Value = coName;
-            report1.Parameters["PayeRef"].Value = rpP32Report.EmployerPayeRef;
-            report1.Parameters["Date"].Value = rpParameters.PayRunDate; //.AccYearEnd;
-            report1.Parameters["Period"].Value = rpParameters.PeriodNo;
-            report1.Parameters["Freq"].Value = rpParameters.PaySchedule;
-            report1.Parameters["PAYEMonth"].Value = payeMonth;
-            report1.Parameters["AnnualEmploymentAllowance"].Value = rpP32Report.AnnualEmploymentAllowance;
-            report1.Parameters["PaymentRef"].Value = rpP32Report.PaymentRef;
-            report1.Parameters["TaxYearStartDate"].Value = rpP32Report.TaxYearStartDate;
-            report1.Parameters["TaxYearEndDate"].Value = rpP32Report.TaxYearEndDate;
-            report1.DataSource = rpP32Report.RPP32ReportMonths;
-            //// To show the report designer. You need to uncomment this to design the report.
-            //// You also need to comment out the report.ExportToPDF line below
-            ////
+            string assemblyName = "PayRunIOClassLibrary";
+            string reportName = "P32Report";
+
+            XtraReport xtraReport = prWG.CreatePDFReport(rpP32Report, rpEmployer, rpParameters, reportName, assemblyName);
+
+            SaveReport(xtraReport, xdoc, rpEmployer, rpParameters, reportName);
+        }
+        private void SaveReport(XtraReport xtraReport, XDocument xdoc, RPEmployer rpEmployer, RPParameters rpParameters, string reportName)
+        {
+            string dirName = xdoc.Root.Element("DataHomeFolder").Value + "PE-Reports" + "\\" + rpParameters.ErRef + "\\";
+            string docName = rpParameters.ErRef + "_" + reportName + "ReportFor_TaxYear_" + rpParameters.TaxYear + "_Period_" + rpParameters.PeriodNo + ".pdf";
+
             bool designMode = false;
             if (designMode)
             {
-                report1.ShowDesigner();
-                //report1.ShowPreview();
-
+                xtraReport.ShowDesigner();
             }
             else
             {
                 // Export to pdf file.
-
-                //
-                // I'm going to remove spaces from the document name. I'll replace them with dashes
-                //
-                //string dirName = "V:\\Payescape\\PayRunIO\\WG\\";
-
-                string dirName = outgoingFolder + "\\" + coNo + "\\";
                 Directory.CreateDirectory(dirName);
-                string docName = coNo + "_P32ReportFor_TaxYear_" + taxYear + "_Period_" + taxPeriod + ".pdf";
 
-                report1.ExportToPdf(dirName + docName);
+                //Don't save the PDF for the payslip simple.
+                if(reportName != "PayslipSimple")
+                {
+                    xtraReport.ExportToPdf(dirName + docName);
+                }
+                //Check if it's required in xlsx format.
                 if (rpEmployer.ReportsInExcelFormat)
                 {
                     docName = docName.Replace(".pdf", ".xlsx");
-                    report1.ExportToXlsx(dirName + docName);
+                    xtraReport.ExportToXlsx(dirName + docName);
                 }
 
             }
@@ -2213,7 +1650,7 @@ namespace PayRunIOProcessReports
                         rpEmployeePeriod.Week1Month1 = prWG.GetBooleanElementByTagFromXml(employee, "Week1Month1");
                         if (rpEmployeePeriod.Week1Month1)
                         {
-                            rpEmployeePeriod.TaxCode = rpEmployeePeriod.TaxCode + " W1";
+                            rpEmployeePeriod.TaxCode += " W1";
                         }
                         rpEmployeePeriod.TaxCodeChangeTypeID = prWG.GetElementByTagFromXml(employee, "TaxCodeChangeTypeID");
                         rpEmployeePeriod.TaxCodeChangeType = prWG.GetElementByTagFromXml(employee, "TaxCodeChangeType");
@@ -2333,10 +1770,10 @@ namespace PayRunIOProcessReports
 
                             rpPensionContributions.Add(rpPensionContribution);
 
-                            rpEmployeePeriod.EePensionTotalTP = rpEmployeePeriod.EePensionTotalTP + rpPensionPeriod.EePensionTaxPeriod;
-                            rpEmployeePeriod.EePensionTotalYtd = rpEmployeePeriod.EePensionTotalYtd + rpPensionPeriod.EePensionYtd;
-                            rpEmployeePeriod.ErPensionTotalTP = rpEmployeePeriod.ErPensionTotalTP + rpPensionPeriod.ErPensionTaxPeriod;
-                            rpEmployeePeriod.ErPensionTotalYtd = rpEmployeePeriod.ErPensionTotalYtd + rpPensionPeriod.ErPensionYtd;
+                            rpEmployeePeriod.EePensionTotalTP += rpPensionPeriod.EePensionTaxPeriod;
+                            rpEmployeePeriod.EePensionTotalYtd += rpPensionPeriod.EePensionYtd;
+                            rpEmployeePeriod.ErPensionTotalTP += rpPensionPeriod.ErPensionTaxPeriod;
+                            rpEmployeePeriod.ErPensionTotalYtd += rpPensionPeriod.ErPensionYtd;
                         }
                         rpEmployeePeriod.Pensions = rpPensionPeriods;
 
@@ -2438,11 +1875,11 @@ namespace PayRunIOProcessReports
                                     {
                                         if(rpPayComponent.EarningOrDeduction == "E")
                                         {
-                                            rpEmployeePeriod.TotalPayComponentAdditions = rpEmployeePeriod.TotalPayComponentAdditions + rpPayComponent.AmountTP;
+                                            rpEmployeePeriod.TotalPayComponentAdditions += rpPayComponent.AmountTP;
                                         }
                                         else
                                         {
-                                            rpEmployeePeriod.TotalPayComponentDeductions = rpEmployeePeriod.TotalPayComponentDeductions + rpPayComponent.AmountTP;
+                                            rpEmployeePeriod.TotalPayComponentDeductions += rpPayComponent.AmountTP;
                                         }
                                         rpPayComponents.Add(rpPayComponent);
                                     }
@@ -2454,11 +1891,11 @@ namespace PayRunIOProcessReports
                                     {
                                         if (rpPayComponent.IsTaxable)
                                         {
-                                            rpEmployeePeriod.PreTaxAddDed = rpEmployeePeriod.PreTaxAddDed + rpPayComponent.AmountTP;
+                                            rpEmployeePeriod.PreTaxAddDed += rpPayComponent.AmountTP;
                                         }
                                         else
                                         {
-                                            rpEmployeePeriod.PostTaxAddDed = rpEmployeePeriod.PostTaxAddDed + rpPayComponent.AmountTP;
+                                            rpEmployeePeriod.PostTaxAddDed += rpPayComponent.AmountTP;
                                         }
                                     }
 
@@ -2597,8 +2034,8 @@ namespace PayRunIOProcessReports
                                         rpAdditions.Add(rpAddition);
                                         
                                     }
-                                    rpEmployeePeriod.TotalPayTP = rpEmployeePeriod.TotalPayTP + rpAddition.AmountTP;
-                                    rpEmployeePeriod.TotalPayYTD = rpEmployeePeriod.TotalPayYTD + rpAddition.AmountYTD;
+                                    rpEmployeePeriod.TotalPayTP += rpAddition.AmountTP;
+                                    rpEmployeePeriod.TotalPayYTD += rpAddition.AmountYTD;
                                 }
                                 else
                                 {
@@ -2641,15 +2078,15 @@ namespace PayRunIOProcessReports
                                         rpDeductions.Add(rpDeduction);
 
                                     }
-                                    rpEmployeePeriod.TotalDedTP = rpEmployeePeriod.TotalDedTP + rpDeduction.AmountTP;
-                                    rpEmployeePeriod.TotalDedYTD = rpEmployeePeriod.TotalDedYTD + rpDeduction.AmountYTD;
+                                    rpEmployeePeriod.TotalDedTP += rpDeduction.AmountTP;
+                                    rpEmployeePeriod.TotalDedYTD += rpDeduction.AmountYTD;
                                     //Other Deduction is a column on the Pay Run Details YTD report
                                     if(!rpDeduction.Code.Contains("PENSION") && rpDeduction.Code != "TAX" && rpDeduction.Code != "NI" 
                                         && rpDeduction.Code != "AOE" && rpDeduction.Code != "SLOAN"
                                         && rpDeduction.Code != "PGL")
                                     {
-                                        rpEmployeePeriod.TotalOtherDedTP = rpEmployeePeriod.TotalOtherDedTP + rpDeduction.AmountTP;
-                                        rpEmployeePeriod.TotalOtherDedYTD = rpEmployeePeriod.TotalOtherDedYTD + rpDeduction.AmountYTD;
+                                        rpEmployeePeriod.TotalOtherDedTP += rpDeduction.AmountTP;
+                                        rpEmployeePeriod.TotalOtherDedYTD += rpDeduction.AmountYTD;
                                     }
                                     
 
@@ -2729,21 +2166,12 @@ namespace PayRunIOProcessReports
                         rpEmployeePeriod.PayslipDeductions = rpPayslipDeductions;
 
                         //Multiple Tax and NI by -1 to make them positive
-                        rpEmployeePeriod.Tax = rpEmployeePeriod.Tax * -1;
-                        rpEmployeePeriod.NetNI = rpEmployeePeriod.NetNI * -1;
+                        rpEmployeePeriod.Tax *= -1;
+                        rpEmployeePeriod.NetNI *= -1;
                         //Multiple the Pre-Tax Pension & Post-Tax pension by -1 to make them show as positive on the Payroll Run Details report.
-                        rpEmployeePeriod.PreTaxPension = rpEmployeePeriod.PreTaxPension * -1;
-                        rpEmployeePeriod.PostTaxPension = rpEmployeePeriod.PostTaxPension * -1;
+                        rpEmployeePeriod.PreTaxPension *= -1;
+                        rpEmployeePeriod.PostTaxPension *= -1;
 
-                        //We also have a list of pay codes which are in use. We will use these to create the Pre Sample xlsx file.
-                        //foreach(RPPreSamplePayCode rpPreSamplePayCode in rpPreSamplePayCodes)
-                        //{
-                        //    if(rpPreSamplePayCode.InUse==true)
-                        //    {
-                        //        //This is one that is in use.
-                        //    }
-                        //}
-                        //Create a P45 object if the employee is a leaver
                         if (rpEmployeePeriod.Leaver)
                         {
                             P45 p45 = new P45();
@@ -3098,9 +2526,9 @@ namespace PayRunIOProcessReports
                         rpPensionYtd.EePensionYtd = prWG.GetDecimalElementByTagFromXml(pension, "EePensionYtd");
                         rpPensionYtd.ErPensionYtd = prWG.GetDecimalElementByTagFromXml(pension, "ErPensionYtd");
 
-                        rpEmployeeYtd.PensionablePayYtd = rpEmployeeYtd.PensionablePayYtd + rpPensionYtd.PensionablePayYtd;
-                        rpEmployeeYtd.EePensionYtd = rpEmployeeYtd.EePensionYtd + rpPensionYtd.EePensionYtd;
-                        rpEmployeeYtd.ErPensionYtd = rpEmployeeYtd.ErPensionYtd + rpPensionYtd.ErPensionYtd;
+                        rpEmployeeYtd.PensionablePayYtd += rpPensionYtd.PensionablePayYtd;
+                        rpEmployeeYtd.EePensionYtd += rpPensionYtd.EePensionYtd;
+                        rpEmployeeYtd.ErPensionYtd += rpPensionYtd.ErPensionYtd;
 
                         rpPensionsYtd.Add(rpPensionYtd);
                     }
@@ -3198,22 +2626,22 @@ namespace PayRunIOProcessReports
                             {
                                 if (pensionCode == "PENSIONRAS" || pensionCode == "PENSIONTAXEX")
                                 {
-                                    rpEmployeeYtd.PensionPostTaxEeAccounts = rpEmployeeYtd.PensionPostTaxEeAccounts + prWG.GetDecimalElementByTagFromXml(payCode, "AccountsAmount");
-                                    rpEmployeeYtd.PensionPostTaxEePaye = rpEmployeeYtd.PensionPostTaxEePaye + prWG.GetDecimalElementByTagFromXml(payCode, "PayeAmount");
+                                    rpEmployeeYtd.PensionPostTaxEeAccounts += prWG.GetDecimalElementByTagFromXml(payCode, "AccountsAmount");
+                                    rpEmployeeYtd.PensionPostTaxEePaye += prWG.GetDecimalElementByTagFromXml(payCode, "PayeAmount");
                                 }
                                 else
                                 {
-                                    rpEmployeeYtd.PensionPreTaxEeAccounts = rpEmployeeYtd.PensionPreTaxEeAccounts + prWG.GetDecimalElementByTagFromXml(payCode, "AccountsAmount");
-                                    rpEmployeeYtd.PensionPreTaxEePaye = rpEmployeeYtd.PensionPreTaxEePaye + prWG.GetDecimalElementByTagFromXml(payCode, "PayeAmount");
+                                    rpEmployeeYtd.PensionPreTaxEeAccounts += prWG.GetDecimalElementByTagFromXml(payCode, "AccountsAmount");
+                                    rpEmployeeYtd.PensionPreTaxEePaye += prWG.GetDecimalElementByTagFromXml(payCode, "PayeAmount");
                                 }
                             }
 
                         }
                     }
-                    rpEmployeeYtd.PensionPreTaxEeAccounts = rpEmployeeYtd.PensionPreTaxEeAccounts * -1;
-                    rpEmployeeYtd.PensionPreTaxEePaye = rpEmployeeYtd.PensionPreTaxEePaye * -1;
-                    rpEmployeeYtd.PensionPostTaxEeAccounts = rpEmployeeYtd.PensionPostTaxEeAccounts * -1;
-                    rpEmployeeYtd.PensionPostTaxEePaye = rpEmployeeYtd.PensionPostTaxEePaye * -1;
+                    rpEmployeeYtd.PensionPreTaxEeAccounts *= -1;
+                    rpEmployeeYtd.PensionPreTaxEePaye *= -1;
+                    rpEmployeeYtd.PensionPostTaxEeAccounts *= -1;
+                    rpEmployeeYtd.PensionPostTaxEePaye *= -1;
 
                     //These next few fields get treated like pay codes. Use them if they are not zero.
                     //7 pay components EeNiPaidByEr, EeGuTaxPaidByEr, EeNiLERtoUER & ErNi
@@ -3416,9 +2844,9 @@ namespace PayRunIOProcessReports
                                     if (rpPayCode.Type == "D")
                                     {
                                         //Deduction so multiply by -1
-                                        rpPayCode.AccountsAmount = rpPayCode.AccountsAmount * -1;
-                                        rpPayCode.PayeAmount = rpPayCode.PayeAmount * -1;
-                                        rpPayCode.TotalAmount = rpPayCode.TotalAmount * -1;
+                                        rpPayCode.AccountsAmount *= -1;
+                                        rpPayCode.PayeAmount *= -1;
+                                        rpPayCode.TotalAmount *= -1;
 
                                     }
                                     if (rpPayCode.Code == "UNPDM")
@@ -3548,8 +2976,8 @@ namespace PayRunIOProcessReports
                     decimal eePensionYtd = 0;
                     foreach (RPPensionYtd pensionYtd in rpEmployeeYtd.Pensions)
                     {
-                        erPensionYtd = erPensionYtd + pensionYtd.ErPensionYtd;
-                        eePensionYtd = eePensionYtd + pensionYtd.EePensionYtd;
+                        erPensionYtd += pensionYtd.ErPensionYtd;
+                        eePensionYtd += pensionYtd.EePensionYtd;
                     }
                     payYTDDetails[15] = erPensionYtd.ToString();
                     payYTDDetails[16] = eePensionYtd.ToString();
@@ -3711,7 +3139,7 @@ namespace PayRunIOProcessReports
                 csvLine = null;
 
             }
-            string batch = null;
+            string batch;
             switch (rpParameters.PaySchedule)
             {
                 case "Monthly":
@@ -3738,7 +3166,7 @@ namespace PayRunIOProcessReports
                 batch = "M";
             }
 
-            string process = null;
+            string process;
             process = "20" + payYTDDetails[0].Substring(6, 2) + payYTDDetails[0].Substring(3, 2) + payYTDDetails[0].Substring(0, 2) + "01";
             csvLine = csvLine + "\"" + rpParameters.ErRef + "\"" + "," +                                     //Co. Number
                             "\"" + payYTDDetails[0] + "\"" + "," +                                            //Run Date / Last Payment Date
@@ -3780,8 +3208,6 @@ namespace PayRunIOProcessReports
             //Create csv version and write it to the same folder. 
             //Use the PayDate for the yyyyMMdd part of the name, then were going compare is to today's yyyyMMdd and only transfer it up to
             //the SFTP server if it's 1 day or less before today's date.
-            string payDate = rpParameters.PayRunDate.ToString("yyyyMMdd");
-            string nowTime = DateTime.Now.ToString("HHmmssfff");
             string csvFileName = outgoingFolder + "\\" + coNo + "_" + rpParameters.PayRunDate.ToString("yyyyMMdd") + "\\" + coNo + "_PayHistory_" +
                                                   rpParameters.PayRunDate.ToString("yyyyMMdd") + DateTime.Now.ToString("HHmmssfff") + ".csv";//DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".csv";
             bool writeHeader = true;
@@ -3895,12 +3321,12 @@ namespace PayRunIOProcessReports
                         decimal eePensionPrd = 0;
                         foreach (RPPensionPeriod pensionPeriod in rpEmployeePeriod.Pensions)
                         {
-                            erPensionYtd = erPensionYtd + pensionPeriod.ErPensionYtd;
-                            eePensionYtd = eePensionYtd + pensionPeriod.EePensionYtd;
-                            erPensionTp = erPensionTp + pensionPeriod.ErPensionTaxPeriod;
-                            eePensionTp = eePensionTp + pensionPeriod.EePensionTaxPeriod;
-                            erPensionPrd = erPensionPrd + pensionPeriod.ErPensionPayRunDate;
-                            eePensionPrd = eePensionPrd + pensionPeriod.EePensionPayRunDate;
+                            erPensionYtd += pensionPeriod.ErPensionYtd;
+                            eePensionYtd += pensionPeriod.EePensionYtd;
+                            erPensionTp += pensionPeriod.ErPensionTaxPeriod;
+                            eePensionTp += pensionPeriod.EePensionTaxPeriod;
+                            erPensionPrd += pensionPeriod.ErPensionPayRunDate;
+                            eePensionPrd += pensionPeriod.EePensionPayRunDate;
                         }
                         payHistoryDetails[38] = erPensionYtd.ToString();
                         payHistoryDetails[39] = eePensionYtd.ToString();
@@ -4218,7 +3644,7 @@ namespace PayRunIOProcessReports
                 csvLine = null;
 
             }
-            string batch = null;
+            string batch;
             switch (rpParameters.PaySchedule)
             {
                 case "Monthly":
@@ -4241,7 +3667,7 @@ namespace PayRunIOProcessReports
                     break;
             }
 
-            string process = null;
+            string process;
             process = "20" + payHistoryDetails[1].Substring(6, 2) + payHistoryDetails[1].Substring(3, 2) + payHistoryDetails[1].Substring(0, 2) + "01";
             csvLine = csvLine + "\"" + rpParameters.ErRef + "\"" + "," +                                   //Co. Number
                             "\"" + payHistoryDetails[1] + "\"" + "," +                                  //Run Date
@@ -4320,7 +3746,7 @@ namespace PayRunIOProcessReports
         {
             string outgoingFolder = xdoc.Root.Element("DataHomeFolder").Value + "PE-P32xml" + "\\";
 
-            RPP32Report rpP32Report = null;
+            RPP32Report rpP32Report;
             PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
 
             XmlDocument p32ReportXml = new XmlDocument();
@@ -4331,8 +3757,7 @@ namespace PayRunIOProcessReports
             if(test)
             {
                 //I'm going to test the Combined Payroll Run Report here.
-                XmlDocument combinedPayrollRunReportXml = new XmlDocument();
-                combinedPayrollRunReportXml = prWG.GetCombinedPayrollRunReport(xdoc, rpParameters);
+                XmlDocument combinedPayrollRunReportXml = prWG.GetCombinedPayrollRunReport(xdoc, rpParameters);
                 combinedPayrollRunReportXml.Save(outgoingFolder + rpEmployer.Name + "-CombinedPayrollRun.xml");
 
                 p32ReportXml.Load("C:\\Payescape\\Data\\Save\\P32.xml");
@@ -4394,7 +3819,7 @@ namespace PayRunIOProcessReports
                         rpP32PayRun.IncomeTax = prWG.GetDecimalElementByTagFromXml(payRun, "IncomeTax");
                         rpP32PayRun.StudentLoan = prWG.GetDecimalElementByTagFromXml(payRun, "StudentLoan");
                         rpP32PayRun.PostGraduateLoan = prWG.GetDecimalElementByTagFromXml(payRun, "PostGraduateLoan");
-                        rpP32PayRun.StudentLoan = rpP32PayRun.StudentLoan + rpP32PayRun.PostGraduateLoan;
+                        rpP32PayRun.StudentLoan += rpP32PayRun.PostGraduateLoan;
                         rpP32PayRun.NetIncomeTax = prWG.GetDecimalElementByTagFromXml(payRun, "NetIncomeTax");
                         rpP32PayRun.GrossNICs = prWG.GetDecimalElementByTagFromXml(payRun, "GrossNICs");
                         rpP32PayRun.PayPeriod = rpP32PayRun.PayDate.Day < 6 ? rpP32PayRun.PayDate.Month - 4 : rpP32PayRun.PayDate.Month - 3;
@@ -4425,7 +3850,7 @@ namespace PayRunIOProcessReports
                     rpP32Summary.Tax = prWG.GetDecimalElementByTagFromXml(summary, "Tax");
                     rpP32Summary.StudentLoan= prWG.GetDecimalElementByTagFromXml(summary, "StudentLoan");
                     rpP32Summary.PostGraduateLoan = prWG.GetDecimalElementByTagFromXml(summary, "PostGraduateLoan");
-                    rpP32Summary.StudentLoan = rpP32Summary.StudentLoan + rpP32Summary.PostGraduateLoan;
+                    rpP32Summary.StudentLoan += rpP32Summary.PostGraduateLoan;
                     rpP32Summary.NetTax = prWG.GetDecimalElementByTagFromXml(summary, "NetTax");
                     rpP32Summary.EmployerNI = prWG.GetDecimalElementByTagFromXml(summary, "EmployerNI");
                     rpP32Summary.EmployeeNI = prWG.GetDecimalElementByTagFromXml(summary, "EmployeeNI");
@@ -4497,7 +3922,7 @@ namespace PayRunIOProcessReports
                     rpP32Summary.Tax = prWG.GetDecimalElementByTagFromXml(annualTotal, "Tax");
                     rpP32Summary.StudentLoan = prWG.GetDecimalElementByTagFromXml(annualTotal, "StudentLoan");
                     rpP32Summary.PostGraduateLoan = prWG.GetDecimalElementByTagFromXml(annualTotal, "PostGraduateLoan");
-                    rpP32Summary.StudentLoan = rpP32Summary.StudentLoan + rpP32Summary.PostGraduateLoan;
+                    rpP32Summary.StudentLoan += rpP32Summary.PostGraduateLoan;
                     rpP32Summary.NetTax = prWG.GetDecimalElementByTagFromXml(annualTotal, "NetTax");
                     rpP32Summary.EmployerNI = prWG.GetDecimalElementByTagFromXml(annualTotal, "EmployerNI");
                     rpP32Summary.EmployeeNI = prWG.GetDecimalElementByTagFromXml(annualTotal, "EmployeeNI");
@@ -4552,12 +3977,10 @@ namespace PayRunIOProcessReports
             string outgoingFolder = xdoc.Root.Element("DataHomeFolder").Value + "PE-Reports";
             string coNo = rpParameters.ErRef;
             //Create a list of the required fixed columns.
-            List<string> fixCol = new List<string>();
-            fixCol = CreateListOfFixedColumns();
+            List<string> fixCol = CreateListOfFixedColumns();
 
             //Create a list of the required variable columns.
-            List<string> varCol = new List<string>();
-            varCol = CreateListOfVariableColumns(rpPreSamplePayCodes);
+            List<string> varCol = CreateListOfVariableColumns(rpPreSamplePayCodes);
 
             //Create a workbook.
             string workBookName = outgoingFolder + "\\" + coNo + "\\Pre.xlsx";
