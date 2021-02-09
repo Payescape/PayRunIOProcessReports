@@ -804,9 +804,13 @@ namespace PayRunIOProcessReports
                             {
                                 rpPensionFileScheme.ProviderName = "THE PEOPLES PENSION";
                             }
-                            else if (rpPensionFileScheme.ProviderName.ToUpper().Contains("SMART PENSIONS"))
+                            else if (rpPensionFileScheme.ProviderName.ToUpper().Contains("SMART PENSION"))
                             {
-                                rpPensionFileScheme.ProviderName = "SMART PENSIONS";
+                                rpPensionFileScheme.ProviderName = "SMART PENSION";
+                            }
+                            else if (rpPensionFileScheme.ProviderName.ToUpper().Contains("ROYAL LONDON PENSION"))
+                            {
+                                rpPensionFileScheme.ProviderName = "ROYAL LONDON PENSION";
                             }
                             else
                             {
@@ -848,12 +852,10 @@ namespace PayRunIOProcessReports
                     case "THE PEOPLES PENSION":
                         CreateThePeoplesPensionPensionFile(outgoingFolder, rpPensionFileScheme, rpEmployer);
                         break;
-                    case "SMART PENSIONS":
+                    case "SMART PENSION":
+                    case "ROYAL LONDON PENSION":
                         //Get the transformed from PayRun.IO
-                        rpParameters.PensionKey = rpPensionFileScheme.Key;
-                        GetSmartPensionsReport(xdoc, rpPensionFileScheme, rpParameters);
-                        //Create the csv file long hand.
-                        //CreateTheSmartPensionsPensionFile(outgoingFolder, rpPensionFileScheme, rpEmployer, rpParameters);
+                        GetCsvPensionsReport(xdoc, rpPensionFileScheme, rpParameters);
                         break;
                     case "UNKNOWN":
                         break;
@@ -1283,14 +1285,14 @@ namespace PayRunIOProcessReports
             }
 
         }
-        private void GetSmartPensionsReport(XDocument xdoc, RPPensionFileScheme rpPensionFileScheme, RPParameters rpParameters)
+        private void GetCsvPensionsReport(XDocument xdoc, RPPensionFileScheme rpPensionFileScheme, RPParameters rpParameters)
         {
             PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
             string outgoingFolder = xdoc.Root.Element("DataHomeFolder").Value + "PE-Reports" + "\\" + rpParameters.ErRef;
             string pensionFileName = outgoingFolder + "\\" + rpPensionFileScheme.SchemeName + "PensionFile.csv";
 
             //Get the transformed report from PayRun.IO. It'll return the csv file as required and I won't need to run the CreateTheSmartPensionsPensionFile method.
-            string csvReport = prWG.GetSmartPensionsReport(xdoc, rpParameters);
+            string csvReport = prWG.GetCsvPensionsReport(xdoc, rpParameters, rpPensionFileScheme);
 
             using (StreamWriter sw = new StreamWriter(pensionFileName))
             {
