@@ -909,8 +909,8 @@ namespace PayRunIOProcessReports
                     var csvLine = quotes + rpEmployeePeriod.SortCode + quotes + comma +
                                   quotes + fullName + quotes + comma +
                                   quotes + rpEmployeePeriod.BankAccNo + quotes + comma +
-                                  quotes + rpEmployeePeriod.NetPayTP.ToString() + quotes + comma +
-                                  quotes + rpEmployer.Name.ToUpper().Substring(0,18) + quotes + comma +
+                                  quotes + rpEmployeePeriod.NetPayTP + quotes + comma +
+                                  quotes + (rpEmployer.Name.Length > 18 ? rpEmployer.Name.ToUpper().Substring(0, 18) : rpEmployer.Name) + quotes + comma +
                                   quotes + "99" + quotes;
 
                     stringBuilder.AppendLine(csvLine);
