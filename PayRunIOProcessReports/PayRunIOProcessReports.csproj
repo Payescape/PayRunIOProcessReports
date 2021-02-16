@@ -100,9 +100,6 @@
     <PackageReference Include="AWSSDK.S3">
       <Version>3.5.7.6</Version>
     </PackageReference>
-    <PackageReference Include="DevExpress.Win.BonusSkins">
-      <Version>20.1.4</Version>
-    </PackageReference>
     <PackageReference Include="DevExpress.Win.Reporting">
       <Version>20.1.4</Version>
     </PackageReference>

@@ -812,6 +812,18 @@ namespace PayRunIOProcessReports
                             {
                                 rpPensionFileScheme.ProviderName = "ROYAL LONDON PENSION";
                             }
+                            else if (rpPensionFileScheme.ProviderName.ToUpper().Contains("NOW PENSION"))
+                            {
+                                rpPensionFileScheme.ProviderName = "NOW PENSION";
+                            }
+                            else if (rpPensionFileScheme.ProviderName.ToUpper().Contains("LEGAL & GENERAL PENSION"))
+                            {
+                                rpPensionFileScheme.ProviderName = "LEGAL & GENERAL PENSION";
+                            }
+                            else if (rpPensionFileScheme.ProviderName.ToUpper().Contains("AEGON PENSION"))
+                            {
+                                rpPensionFileScheme.ProviderName = "AEGON PENSION";
+                            }
                             else
                             {
                                 rpPensionFileScheme.ProviderName = "UNKOWN";
@@ -854,6 +866,9 @@ namespace PayRunIOProcessReports
                         break;
                     case "SMART PENSION":
                     case "ROYAL LONDON PENSION":
+                    case "NOW PENSION":
+                    case "LEGAL & GENERAL PENSION":
+                    case "AEGON PENSION":
                         //Get the transformed from PayRun.IO
                         GetCsvPensionsReport(xdoc, rpPensionFileScheme, rpParameters);
                         break;
