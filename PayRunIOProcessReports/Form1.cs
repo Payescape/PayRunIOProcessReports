@@ -741,7 +741,7 @@ namespace PayRunIOProcessReports
                     break;
                 case "002":
                     //Eagle
-                    CreateEagleBankFile(outgoingFolder, rpEmployeePeriodList);
+                    CreateEagleBankFile(outgoingFolder, rpEmployeePeriodList, rpEmployer);
                     break;
                 case "003":
                     //Revolut
@@ -912,9 +912,9 @@ namespace PayRunIOProcessReports
             
             return stringBuilder.ToString();
         }
-        public static string CreateEagleBankFile(string outgoingFolder, List<RPEmployeePeriod> rpEmployeePeriodList)
+        public static string CreateEagleBankFile(string outgoingFolder, List<RPEmployeePeriod> rpEmployeePeriodList, RPEmployer rpEmployer)
         {
-            string bankFileName = outgoingFolder + "\\" + "EagleBankFile.csv";
+            string bankFileName = outgoingFolder + "\\" + rpEmployer.Name.Replace(" ","") + "_EagleBankFile.csv";
             string comma = ",";
 
             //Create the Eagle bank file which does have a header row.
@@ -926,7 +926,7 @@ namespace PayRunIOProcessReports
 
             foreach (RPEmployeePeriod rpEmployeePeriod in rpEmployeePeriodList)
             {
-                if (rpEmployeePeriod.PaymentMethod == "BACS")
+                if (rpEmployeePeriod.PaymentMethod == "BACS" && rpEmployeePeriod.NetPayTP != 0)
                 {
                     string fullName = rpEmployeePeriod.Forename + " " + rpEmployeePeriod.Surname;
                     fullName = fullName.ToUpper();
