@@ -741,7 +741,8 @@ namespace PayRunIOProcessReports
                     break;
                 case "002":
                     //Eagle
-                    CreateEagleBankFile(outgoingFolder, rpEmployeePeriodList, rpEmployer);
+                    PicoXLSX.Workbook workbook = CreateEagleBankFile(outgoingFolder, rpEmployeePeriodList, rpEmployer, rpParameters);
+                    workbook.Save();
                     break;
                 case "003":
                     //Revolut
@@ -912,44 +913,39 @@ namespace PayRunIOProcessReports
             
             return stringBuilder.ToString();
         }
-        public static string CreateEagleBankFile(string outgoingFolder, List<RPEmployeePeriod> rpEmployeePeriodList, RPEmployer rpEmployer)
+        public static PicoXLSX.Workbook CreateEagleBankFile(string outgoingFolder, List<RPEmployeePeriod> rpEmployeePeriodList, RPEmployer rpEmployer, RPParameters rpParameters)
         {
-            string bankFileName = outgoingFolder + "\\" + rpEmployer.Name.Replace(" ","") + "_EagleBankFile.csv";
-            string comma = ",";
-
-            //Create the Eagle bank file which does have a header row.
-            var stringBuilder = new StringBuilder();
+            //Create a PicoXLSX workbook
+            string workBookName = outgoingFolder + "\\" + rpEmployer.Name.Replace(" ", "") + "_EagleBankFile_Period_" + rpParameters.PeriodNo + ".xlsx";
+            Workbook workbook = new Workbook(workBookName, "BACSDetails");
 
             //Write the header row
-            string csvLine = "AccName,SortCode,AccNumber,Amount,Ref";
-            stringBuilder.AppendLine(csvLine);
+            workbook.CurrentWorksheet.AddNextCell("AccName");
+            workbook.CurrentWorksheet.AddNextCell("SortCode");
+            workbook.CurrentWorksheet.AddNextCell("AccNumber");
+            workbook.CurrentWorksheet.AddNextCell("Amount");
+            workbook.CurrentWorksheet.AddNextCell("Ref");
 
+            //Write a row for each employee
             foreach (RPEmployeePeriod rpEmployeePeriod in rpEmployeePeriodList)
             {
                 if (rpEmployeePeriod.PaymentMethod == "BACS" && rpEmployeePeriod.NetPayTP != 0)
                 {
+                    workbook.CurrentWorksheet.GoToNextRow();
+                    
                     string fullName = rpEmployeePeriod.Forename + " " + rpEmployeePeriod.Surname;
                     fullName = fullName.ToUpper();
-                    csvLine = fullName + comma +
-                              rpEmployeePeriod.SortCode + comma +
-                              rpEmployeePeriod.BankAccNo + comma +
-                              rpEmployeePeriod.NetPayTP.ToString() + comma +
-                              fullName;
-                    stringBuilder.AppendLine(csvLine);
+                    
+                    workbook.CurrentWorksheet.AddNextCell(fullName);
+                    workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.SortCode);
+                    workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.BankAccNo);
+                    workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.NetPayTP);
+                    workbook.CurrentWorksheet.AddNextCell(fullName);
                 }
             }
 
-            if (!string.IsNullOrEmpty(outgoingFolder))
-            {
-                using (StreamWriter sw = new StreamWriter(bankFileName))
-                {
-                    sw.Write(stringBuilder.ToString());
-                }
-            }
-
-            return stringBuilder.ToString();
+            return workbook;
         }
-
         public static string CreateRevolutBankFile(string outgoingFolder, List<RPEmployeePeriod> rpEmployeePeriodList)
         {
             string bankFileName = outgoingFolder + "\\" + "RevolutBankFile.csv";
