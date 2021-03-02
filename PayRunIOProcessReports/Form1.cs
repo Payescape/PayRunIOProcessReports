@@ -1879,6 +1879,8 @@ namespace PayRunIOProcessReports
                                 rpPayComponent.PayrollAccrued = prWG.GetDecimalElementByTagFromXml(payCode, "PayrollAccrued");
                                 rpPayComponent.IsTaxable = prWG.GetBooleanElementByTagFromXml(payCode, "IsTaxable");
                                 rpPayComponent.IsPayCode = prWG.GetBooleanElementByTagFromXml(payCode, "IsPayCode");
+                                //If the pay component is one of the statutory absences set IsPayCode to false regardless of what's in the file.
+                                rpPayComponent.IsPayCode = SetStatutoryAbsenceIsPayCode(rpPayComponent.IsPayCode, rpPayComponent.PayCode);
                                 rpPayComponent.EarningOrDeduction = prWG.GetElementByTagFromXml(payCode, "EarningOrDeduction");
                                 if (rpPayComponent.AmountTP != 0 || rpPayComponent.AmountYTD != 0)
                                 {
@@ -2285,6 +2287,30 @@ namespace PayRunIOProcessReports
                                   List<RPPensionContribution>, RPEmployer, RPParameters>
                                   (rpEmployeePeriodList, rpPayComponents, p45s, rpPreSamplePayCodes, rpPensionContributions, rpEmployer, rpParameters);
 
+        }
+
+        private static bool SetStatutoryAbsenceIsPayCode(bool isPayCode, string payCode)
+        {
+            switch (payCode)
+            {
+                case "SAP":
+                case "SAPOFFSET":
+                case "SHPP":
+                case "SHPPOFFSET":
+                case "SMP":
+                case "SMPOFFSET":
+                case "SPBP":
+                case "SPBPOFFSET":
+                case "SPP":
+                case "SPPOFFSET":
+                case "SSP":
+                case "SSPOFFSET":
+                    isPayCode = false;
+                    break;
+                default:
+                    break;
+            }
+            return isPayCode;
         }
         private static string GetAEAssessmentStatus(string assessmentCode)
         {
@@ -2831,6 +2857,8 @@ namespace PayRunIOProcessReports
                             rpPayCode.PayCode = prWG.GetElementByTagFromXml(payCode, "Code");
                             rpPayCode.Description = prWG.GetElementByTagFromXml(payCode, "Description");
                             rpPayCode.IsPayCode = prWG.GetBooleanElementByTagFromXml(payCode, "IsPayCode");
+                            //If the pay component is one of the statutory absences set IsPayCode to false regardless of what's in the file.
+                            rpPayCode.IsPayCode = SetStatutoryAbsenceIsPayCode(rpPayCode.IsPayCode, rpPayCode.PayCode);
                             rpPayCode.Type = prWG.GetElementByTagFromXml(payCode, "EarningOrDeduction");
                             rpPayCode.TotalAmount = prWG.GetDecimalElementByTagFromXml(payCode, "TotalAmount");
                             rpPayCode.AccountsAmount = prWG.GetDecimalElementByTagFromXml(payCode, "AccountsAmount");
