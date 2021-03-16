@@ -267,6 +267,10 @@ namespace PayRunIOProcessReports
                     decimal hmrcTotal = prWG.CalculateHMRCTotal(rpP32Report, payeMonth);
                     rpEmployer.HMRCDesc = "[" + hmrcTotal.ToString() + "]";
                 }
+                if(rpEmployer.CalculateApprenticeshipLevy)
+                {
+                    PrintApprenticeshipLevyReport(xdoc, rpParameters, rpEmployer);
+                }
             }
             catch(Exception ex)
             {
@@ -1477,6 +1481,17 @@ namespace PayRunIOProcessReports
             string reportName = "P45";
 
             XtraReport xtraReport = prWG.CreatePDFReport(p45s, reportName, assemblyName);
+
+            SaveReport(xtraReport, xdoc, rpEmployer, rpParameters, reportName);
+        }
+        public void PrintApprenticeshipLevyReport(XDocument xdoc, RPParameters rpParameters, RPEmployer rpEmployer)
+        {
+            PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
+            XmlDocument xmlReport = prWG.GetApprenticeshipLevyReport(xdoc, rpParameters);
+
+            string reportName = "ApprenticeshipLevyReport";
+            string assemblyName = "PayRunIOClassLibrary";
+            XtraReport xtraReport = prWG.CreatePDFReport(xmlReport, reportName, assemblyName);
 
             SaveReport(xtraReport, xdoc, rpEmployer, rpParameters, reportName);
         }
