@@ -267,6 +267,10 @@ namespace PayRunIOProcessReports
                     decimal hmrcTotal = prWG.CalculateHMRCTotal(rpP32Report, payeMonth);
                     rpEmployer.HMRCDesc = "[" + hmrcTotal.ToString() + "]";
                 }
+                if(rpEmployer.CalculateApprenticeshipLevy)
+                {
+                    PrintApprenticeshipLevyReport(xdoc, rpParameters, rpEmployer);
+                }
             }
             catch(Exception ex)
             {
@@ -741,7 +745,8 @@ namespace PayRunIOProcessReports
                     break;
                 case "002":
                     //Eagle
-                    CreateEagleBankFile(outgoingFolder, rpEmployeePeriodList);
+                    PicoXLSX.Workbook workbook = CreateEagleBankFile(outgoingFolder, rpEmployeePeriodList, rpEmployer, rpParameters);
+                    workbook.Save();
                     break;
                 case "003":
                     //Revolut
@@ -812,6 +817,18 @@ namespace PayRunIOProcessReports
                             {
                                 rpPensionFileScheme.ProviderName = "ROYAL LONDON PENSION";
                             }
+                            else if (rpPensionFileScheme.ProviderName.ToUpper().Contains("NOW PENSION"))
+                            {
+                                rpPensionFileScheme.ProviderName = "NOW PENSION";
+                            }
+                            else if (rpPensionFileScheme.ProviderName.ToUpper().Contains("LEGAL & GENERAL PENSION"))
+                            {
+                                rpPensionFileScheme.ProviderName = "LEGAL & GENERAL PENSION";
+                            }
+                            else if (rpPensionFileScheme.ProviderName.ToUpper().Contains("AEGON PENSION"))
+                            {
+                                rpPensionFileScheme.ProviderName = "AEGON PENSION";
+                            }
                             else
                             {
                                 rpPensionFileScheme.ProviderName = "UNKOWN";
@@ -854,6 +871,9 @@ namespace PayRunIOProcessReports
                         break;
                     case "SMART PENSION":
                     case "ROYAL LONDON PENSION":
+                    case "NOW PENSION":
+                    case "LEGAL & GENERAL PENSION":
+                    case "AEGON PENSION":
                         //Get the transformed from PayRun.IO
                         GetCsvPensionsReport(xdoc, rpPensionFileScheme, rpParameters);
                         break;
@@ -897,44 +917,39 @@ namespace PayRunIOProcessReports
             
             return stringBuilder.ToString();
         }
-        public static string CreateEagleBankFile(string outgoingFolder, List<RPEmployeePeriod> rpEmployeePeriodList)
+        public static PicoXLSX.Workbook CreateEagleBankFile(string outgoingFolder, List<RPEmployeePeriod> rpEmployeePeriodList, RPEmployer rpEmployer, RPParameters rpParameters)
         {
-            string bankFileName = outgoingFolder + "\\" + "EagleBankFile.csv";
-            string comma = ",";
-
-            //Create the Eagle bank file which does have a header row.
-            var stringBuilder = new StringBuilder();
+            //Create a PicoXLSX workbook
+            string workBookName = outgoingFolder + "\\" + rpEmployer.Name.Replace(" ", "") + "_EagleBankFile_Period_" + rpParameters.PeriodNo + ".xlsx";
+            Workbook workbook = new Workbook(workBookName, "BACSDetails");
 
             //Write the header row
-            string csvLine = "AccName,SortCode,AccNumber,Amount,Ref";
-            stringBuilder.AppendLine(csvLine);
+            workbook.CurrentWorksheet.AddNextCell("AccName");
+            workbook.CurrentWorksheet.AddNextCell("SortCode");
+            workbook.CurrentWorksheet.AddNextCell("AccNumber");
+            workbook.CurrentWorksheet.AddNextCell("Amount");
+            workbook.CurrentWorksheet.AddNextCell("Ref");
 
+            //Write a row for each employee
             foreach (RPEmployeePeriod rpEmployeePeriod in rpEmployeePeriodList)
             {
-                if (rpEmployeePeriod.PaymentMethod == "BACS")
+                if (rpEmployeePeriod.PaymentMethod == "BACS" && rpEmployeePeriod.NetPayTP != 0)
                 {
+                    workbook.CurrentWorksheet.GoToNextRow();
+                    
                     string fullName = rpEmployeePeriod.Forename + " " + rpEmployeePeriod.Surname;
                     fullName = fullName.ToUpper();
-                    csvLine = fullName + comma +
-                              rpEmployeePeriod.SortCode + comma +
-                              rpEmployeePeriod.BankAccNo + comma +
-                              rpEmployeePeriod.NetPayTP.ToString() + comma +
-                              fullName;
-                    stringBuilder.AppendLine(csvLine);
+                    
+                    workbook.CurrentWorksheet.AddNextCell(fullName);
+                    workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.SortCode);
+                    workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.BankAccNo);
+                    workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.NetPayTP);
+                    workbook.CurrentWorksheet.AddNextCell(fullName);
                 }
             }
 
-            if (!string.IsNullOrEmpty(outgoingFolder))
-            {
-                using (StreamWriter sw = new StreamWriter(bankFileName))
-                {
-                    sw.Write(stringBuilder.ToString());
-                }
-            }
-
-            return stringBuilder.ToString();
+            return workbook;
         }
-
         public static string CreateRevolutBankFile(string outgoingFolder, List<RPEmployeePeriod> rpEmployeePeriodList)
         {
             string bankFileName = outgoingFolder + "\\" + "RevolutBankFile.csv";
@@ -1469,6 +1484,17 @@ namespace PayRunIOProcessReports
 
             SaveReport(xtraReport, xdoc, rpEmployer, rpParameters, reportName);
         }
+        public void PrintApprenticeshipLevyReport(XDocument xdoc, RPParameters rpParameters, RPEmployer rpEmployer)
+        {
+            PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
+            XmlDocument xmlReport = prWG.GetApprenticeshipLevyReport(xdoc, rpParameters);
+
+            string reportName = "ApprenticeshipLevyReport";
+            string assemblyName = "PayRunIOClassLibrary";
+            XtraReport xtraReport = prWG.CreatePDFReport(xmlReport, reportName, assemblyName);
+
+            SaveReport(xtraReport, xdoc, rpEmployer, rpParameters, reportName);
+        }
         public void PrintP32Report(XDocument xdoc, RPP32Report rpP32Report, RPParameters rpParameters, RPEmployer rpEmployer)
         {
             PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
@@ -1868,6 +1894,8 @@ namespace PayRunIOProcessReports
                                 rpPayComponent.PayrollAccrued = prWG.GetDecimalElementByTagFromXml(payCode, "PayrollAccrued");
                                 rpPayComponent.IsTaxable = prWG.GetBooleanElementByTagFromXml(payCode, "IsTaxable");
                                 rpPayComponent.IsPayCode = prWG.GetBooleanElementByTagFromXml(payCode, "IsPayCode");
+                                //If the pay component is one of the statutory absences set IsPayCode to false regardless of what's in the file.
+                                rpPayComponent.IsPayCode = SetStatutoryAbsenceIsPayCode(rpPayComponent.IsPayCode, rpPayComponent.PayCode);
                                 rpPayComponent.EarningOrDeduction = prWG.GetElementByTagFromXml(payCode, "EarningOrDeduction");
                                 if (rpPayComponent.AmountTP != 0 || rpPayComponent.AmountYTD != 0)
                                 {
@@ -2274,6 +2302,30 @@ namespace PayRunIOProcessReports
                                   List<RPPensionContribution>, RPEmployer, RPParameters>
                                   (rpEmployeePeriodList, rpPayComponents, p45s, rpPreSamplePayCodes, rpPensionContributions, rpEmployer, rpParameters);
 
+        }
+
+        private static bool SetStatutoryAbsenceIsPayCode(bool isPayCode, string payCode)
+        {
+            switch (payCode)
+            {
+                case "SAP":
+                case "SAPOFFSET":
+                case "SHPP":
+                case "SHPPOFFSET":
+                case "SMP":
+                case "SMPOFFSET":
+                case "SPBP":
+                case "SPBPOFFSET":
+                case "SPP":
+                case "SPPOFFSET":
+                case "SSP":
+                case "SSPOFFSET":
+                    isPayCode = false;
+                    break;
+                default:
+                    break;
+            }
+            return isPayCode;
         }
         private static string GetAEAssessmentStatus(string assessmentCode)
         {
@@ -2820,6 +2872,8 @@ namespace PayRunIOProcessReports
                             rpPayCode.PayCode = prWG.GetElementByTagFromXml(payCode, "Code");
                             rpPayCode.Description = prWG.GetElementByTagFromXml(payCode, "Description");
                             rpPayCode.IsPayCode = prWG.GetBooleanElementByTagFromXml(payCode, "IsPayCode");
+                            //If the pay component is one of the statutory absences set IsPayCode to false regardless of what's in the file.
+                            rpPayCode.IsPayCode = SetStatutoryAbsenceIsPayCode(rpPayCode.IsPayCode, rpPayCode.PayCode);
                             rpPayCode.Type = prWG.GetElementByTagFromXml(payCode, "EarningOrDeduction");
                             rpPayCode.TotalAmount = prWG.GetDecimalElementByTagFromXml(payCode, "TotalAmount");
                             rpPayCode.AccountsAmount = prWG.GetDecimalElementByTagFromXml(payCode, "AccountsAmount");
@@ -3941,6 +3995,7 @@ namespace PayRunIOProcessReports
                     rpP32Summary.CisSuffered = prWG.GetDecimalElementByTagFromXml(annualTotal, "CisSuffered");
                     rpP32Summary.EmploymentAllowance = prWG.GetDecimalElementByTagFromXml(annualTotal, "EmploymentAllowance");
                     rpP32Summary.NetNICs = prWG.GetDecimalElementByTagFromXml(annualTotal, "NetNICs") - rpP32Summary.EmploymentAllowance;
+                    rpP32Summary.AppLevy = prWG.GetDecimalElementByTagFromXml(annualTotal, "ApprenticeshipLevy");
                     rpP32Summary.AmountDue = prWG.GetDecimalElementByTagFromXml(annualTotal, "AmountDue");
                     rpP32Summary.AmountPaid = prWG.GetDecimalElementByTagFromXml(annualTotal, "AmountPaid");
                     rpP32Summary.RemainingBalance = prWG.GetDecimalElementByTagFromXml(annualTotal, "RemainingBalance");
