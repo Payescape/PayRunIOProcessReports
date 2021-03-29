@@ -137,7 +137,17 @@ namespace PayRunIOProcessReports
                     {
                         try
                         {
-                            bool success = TransferToBlueMarbleSFTPServer(xdoc, directories[i]);            // Transfer contents of the folder up to Blue Marble SFTP server.//ProduceReports(xdoc, directories[i]);
+                            bool success;
+                            //Emer doesn't want the PayHistory file being uploaded to Blue Marble for the test server anymore.
+                            if(live)
+                            {
+                                success = TransferToBlueMarbleSFTPServer(xdoc, directories[i]);            // Transfer contents of the folder up to Blue Marble SFTP server.//ProduceReports(xdoc, directories[i]);
+                            }
+                            else
+                            {
+                                success = true;
+                            }
+                            
                             if (success)
                             {
                                 //Copy the folder up to the S3 server before archiving it.
