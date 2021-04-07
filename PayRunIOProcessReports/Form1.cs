@@ -137,7 +137,17 @@ namespace PayRunIOProcessReports
                     {
                         try
                         {
-                            bool success = TransferToBlueMarbleSFTPServer(xdoc, directories[i]);            // Transfer contents of the folder up to Blue Marble SFTP server.//ProduceReports(xdoc, directories[i]);
+                            bool success;
+                            //Emer doesn't want the PayHistory file being uploaded to Blue Marble for the test server anymore.
+                            if(live)
+                            {
+                                success = TransferToBlueMarbleSFTPServer(xdoc, directories[i]);            // Transfer contents of the folder up to Blue Marble SFTP server.//ProduceReports(xdoc, directories[i]);
+                            }
+                            else
+                            {
+                                success = true;
+                            }
+                            
                             if (success)
                             {
                                 //Copy the folder up to the S3 server before archiving it.
@@ -1387,6 +1397,11 @@ namespace PayRunIOProcessReports
                     PrintNoteAndCoinRequiredReport(xdoc, rpEmployer, rpParameters);
                 }
             }
+            if(rpParameters.AOERequired)
+            {
+                //At least one employee has an AOE amount.
+                PrintCurrentAttachmentOfEarningsOrders(xdoc, rpEmployer, rpParameters);
+            }
 
             if (p45s.Count > 0)
             {
@@ -1406,6 +1421,27 @@ namespace PayRunIOProcessReports
             string dirName = xdoc.Root.Element("DataHomeFolder").Value + "PE-Reports" + "\\" + rpParameters.ErRef + "\\";
             Directory.CreateDirectory(dirName);
             string docName = rpParameters.ErRef + "_NoteAndCoinRequirementReportFor_TaxYear_" + rpParameters.TaxYear + "_Period_" + rpParameters.PeriodNo + ".pdf";
+
+            xtraReport.ExportToPdf(dirName + docName);
+            if (rpEmployer.ReportsInExcelFormat)
+            {
+                docName = docName.Replace(".pdf", ".xlsx");
+                xtraReport.ExportToXlsx(dirName + docName);
+            }
+        }
+        private void PrintCurrentAttachmentOfEarningsOrders(XDocument xdoc, RPEmployer rpEmployer, RPParameters rpParameters)
+        {
+
+            PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
+            XmlDocument xmlReport = prWG.GetCurrentAttachmentOfEarningsOrders(xdoc, rpParameters);
+
+            string reportName = "CurrentAttachmentOfEarningsOrders";
+            string assemblyName = "PayRunIOClassLibrary";
+            XtraReport xtraReport = prWG.CreatePDFReport(xmlReport, reportName, assemblyName);
+
+            string dirName = xdoc.Root.Element("DataHomeFolder").Value + "PE-Reports" + "\\" + rpParameters.ErRef + "\\";
+            Directory.CreateDirectory(dirName);
+            string docName = rpParameters.ErRef + "_CurrentAttachmentOfEarningsOrdersFor_TaxYear_" + rpParameters.TaxYear + "_Period_" + rpParameters.PeriodNo + ".pdf";
 
             xtraReport.ExportToPdf(dirName + docName);
             if (rpEmployer.ReportsInExcelFormat)
@@ -1582,6 +1618,7 @@ namespace PayRunIOProcessReports
                            List<RPPensionContribution>, RPEmployer, RPParameters> 
                            PrepareStandardReports(XDocument xdoc, XmlDocument xmlReport, RPParameters rpParameters)
         {
+            bool aoeRequired = false;
             bool paidInCash = false;
             string textLine = null;
             int logOneIn = Convert.ToInt32(xdoc?.Root?.Element("LogOneIn")?.Value);
@@ -1939,6 +1976,11 @@ namespace PayRunIOProcessReports
                                 //If the pay component is one of the statutory absences set IsPayCode to false regardless of what's in the file.
                                 rpPayComponent.IsPayCode = SetStatutoryAbsenceIsPayCode(rpPayComponent.IsPayCode, rpPayComponent.PayCode);
                                 rpPayComponent.EarningOrDeduction = prWG.GetElementByTagFromXml(payCode, "EarningOrDeduction");
+                                //Check if it's an AEO with an amount other than zero.
+                                if(rpPayComponent.PayCode == "AOE" && rpPayComponent.AmountTP != 0)
+                                {
+                                    aoeRequired = true;
+                                }
                                 if (rpPayComponent.AmountTP != 0 || rpPayComponent.AmountYTD != 0)
                                 {
                                     //Value is not equal to zero so go through the list of Pre Sample codes and mark this one as in use
@@ -2339,6 +2381,11 @@ namespace PayRunIOProcessReports
             {
                 //At least one employee was paid in cash so we may need the NotesAndCoinRequirement report
                 rpParameters.PaidInCash = true;
+            }
+            if(aoeRequired)
+            {
+                //At least one employee has an amount of AOE
+                rpParameters.AOERequired = true;
             }
             return new Tuple<List<RPEmployeePeriod>, List<RPPayComponent>, List<P45>, List<RPPreSamplePayCode>,
                                   List<RPPensionContribution>, RPEmployer, RPParameters>
