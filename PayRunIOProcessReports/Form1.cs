@@ -81,9 +81,22 @@ namespace PayRunIOProcessReports
                     bool success = ProcessOutputFiles(xdoc, directories[i]);
                     if (success)
                     {
+                        archiveDirName = "PE-ArchivedOutputs";
+                    }
+                    else
+                    {
+                        archiveDirName = "PE-FailedOutputs";
+                    }
+                    try
+                    {
                         prWG.ArchiveDirectory(xdoc, directories[i], originalDirName, archiveDirName);
                     }
-
+                    catch(Exception ex)
+                    {
+                        textLine = string.Format("Error archiving Outputs folder for directory {0}.\r\n{1}.\r\n", directories[i], ex);
+                        prWG.Update_Progress(textLine, softwareHomeFolder);
+                    }
+                    
 
                 }
                 catch (Exception ex)
@@ -3102,21 +3115,44 @@ namespace PayRunIOProcessReports
                         payYTDDetails[19] = "";
                     }
                     payYTDDetails[20] = rpEmployeeYtd.StudentLoanDeductionsYTD.ToString();
-                    payYTDDetails[21] = rpEmployeeYtd.NicYtd.NILetter;
-                    payYTDDetails[22] = rpEmployeeYtd.NicYtd.NiableYtd.ToString();
-                    payYTDDetails[23] = rpEmployeeYtd.NicYtd.EarningsToLEL.ToString();
-                    payYTDDetails[24] = rpEmployeeYtd.NicYtd.EarningsToSET.ToString();
-                    payYTDDetails[25] = rpEmployeeYtd.NicYtd.EarningsToPET.ToString();
-                    payYTDDetails[26] = rpEmployeeYtd.NicYtd.EarningsToUST.ToString();
-                    payYTDDetails[27] = rpEmployeeYtd.NicYtd.EarningsToAUST.ToString();
-                    payYTDDetails[28] = rpEmployeeYtd.NicYtd.EarningsToUEL.ToString();
-                    payYTDDetails[29] = rpEmployeeYtd.NicYtd.EarningsAboveUEL.ToString();
-                    payYTDDetails[30] = rpEmployeeYtd.NicYtd.EeContributionsPt1.ToString();
-                    payYTDDetails[31] = rpEmployeeYtd.NicYtd.EeContributionsPt2.ToString();
-                    payYTDDetails[32] = rpEmployeeYtd.NicYtd.ErContributions.ToString();
-                    payYTDDetails[33] = rpEmployeeYtd.NicYtd.EeRebate.ToString();
-                    payYTDDetails[34] = rpEmployeeYtd.NicYtd.ErRebate.ToString();
-                    payYTDDetails[35] = rpEmployeeYtd.NicYtd.EeReduction.ToString();
+                    if(rpEmployeeYtd.NicYtd == null)
+                    {
+                        payYTDDetails[21] = "";
+                        payYTDDetails[22] = "0";
+                        payYTDDetails[23] = "0";
+                        payYTDDetails[24] = "0";
+                        payYTDDetails[25] = "0";
+                        payYTDDetails[26] = "0";
+                        payYTDDetails[27] = "0";
+                        payYTDDetails[28] = "0";
+                        payYTDDetails[29] = "0";
+                        payYTDDetails[30] = "0";
+                        payYTDDetails[31] = "0";
+                        payYTDDetails[32] = "0";
+                        payYTDDetails[33] = "0";
+                        payYTDDetails[34] = "0";
+                        payYTDDetails[35] = "0";
+                        payYTDDetails[40] = "0";
+                    }
+                    else
+                    {
+                        payYTDDetails[21] = rpEmployeeYtd.NicYtd.NILetter;
+                        payYTDDetails[22] = rpEmployeeYtd.NicYtd.NiableYtd.ToString();
+                        payYTDDetails[23] = rpEmployeeYtd.NicYtd.EarningsToLEL.ToString();
+                        payYTDDetails[24] = rpEmployeeYtd.NicYtd.EarningsToSET.ToString();
+                        payYTDDetails[25] = rpEmployeeYtd.NicYtd.EarningsToPET.ToString();
+                        payYTDDetails[26] = rpEmployeeYtd.NicYtd.EarningsToUST.ToString();
+                        payYTDDetails[27] = rpEmployeeYtd.NicYtd.EarningsToAUST.ToString();
+                        payYTDDetails[28] = rpEmployeeYtd.NicYtd.EarningsToUEL.ToString();
+                        payYTDDetails[29] = rpEmployeeYtd.NicYtd.EarningsAboveUEL.ToString();
+                        payYTDDetails[30] = rpEmployeeYtd.NicYtd.EeContributionsPt1.ToString();
+                        payYTDDetails[31] = rpEmployeeYtd.NicYtd.EeContributionsPt2.ToString();
+                        payYTDDetails[32] = rpEmployeeYtd.NicYtd.ErContributions.ToString();
+                        payYTDDetails[33] = rpEmployeeYtd.NicYtd.EeRebate.ToString();
+                        payYTDDetails[34] = rpEmployeeYtd.NicYtd.ErRebate.ToString();
+                        payYTDDetails[35] = rpEmployeeYtd.NicYtd.EeReduction.ToString();
+                        payYTDDetails[40] = rpEmployeeYtd.NicYtd.NiableYtd.ToString();
+                    }
                     payYTDDetails[36] = rpEmployeeYtd.TaxCode;
                     if (rpEmployeeYtd.Week1Month1)
                     {
@@ -3128,7 +3164,7 @@ namespace PayRunIOProcessReports
                     }
                     payYTDDetails[38] = rpEmployeeYtd.WeekNumber.ToString();
                     payYTDDetails[39] = rpEmployeeYtd.MonthNumber.ToString();
-                    payYTDDetails[40] = rpEmployeeYtd.NicYtd.NiableYtd.ToString();
+                    
                     switch (rpEmployeeYtd.StudentLoanPlanType)
                     {
                         case "Plan1":
