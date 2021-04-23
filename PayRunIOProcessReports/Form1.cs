@@ -919,11 +919,13 @@ namespace PayRunIOProcessReports
                 {
                     string fullName = rpEmployeePeriod.Forename + " " + rpEmployeePeriod.Surname;
                     fullName = fullName.ToUpper();
+                    //The company name has to be restricted to a maximum of 18 characters. So set maxLength to 18 or the length of the company name which ever is shorter.
+                    int maxLength = Math.Min(rpEmployer.Name.Length, 18);
                     var csvLine = quotes + rpEmployeePeriod.SortCode + quotes + comma +
                                   quotes + fullName + quotes + comma +
                                   quotes + rpEmployeePeriod.BankAccNo + quotes + comma +
                                   quotes + rpEmployeePeriod.NetPayTP.ToString() + quotes + comma +
-                                  quotes + rpEmployer.Name.ToUpper().Substring(0,18) + quotes + comma +
+                                  quotes + rpEmployer.Name.ToUpper().Substring(0,maxLength) + quotes + comma +
                                   quotes + "99" + quotes;
 
                     stringBuilder.AppendLine(csvLine);
@@ -3895,10 +3897,6 @@ namespace PayRunIOProcessReports
             bool test = false;
             if(test)
             {
-                //I'm going to test the Combined Payroll Run Report here.
-                XmlDocument combinedPayrollRunReportXml = prWG.GetCombinedPayrollRunReport(xdoc, rpParameters);
-                combinedPayrollRunReportXml.Save(outgoingFolder + rpEmployer.Name + "-CombinedPayrollRun.xml");
-
                 p32ReportXml.Load("C:\\Payescape\\Data\\Save\\P32.xml");
             }
             else
@@ -3923,9 +3921,11 @@ namespace PayRunIOProcessReports
                 rpP32Report.TaxYearEndDate = Convert.ToDateTime(prWG.GetDateElementByTagFromXml(header, "TaxYearEndDate"));
                 rpP32Report.ApprenticeshipLevyAllowance = prWG.GetDecimalElementByTagFromXml(header, "ApprenticeshipLevyAllowance");
                 rpP32Report.AnnualEmploymentAllowance = prWG.GetDecimalElementByTagFromXml(header, "AnnualEmploymentAllowance");
+                rpP32Report.OpeningBalancesRequired = true;
             }
             bool addToList = false;
             bool annualTotalRequired = false;
+            RPP32ReportMonth obP32ReportMonth = null;   //To hold the opening balance object until I can check for month 1
             List<RPP32ReportMonth> rpP32ReportMonths = new List<RPP32ReportMonth>();
             foreach(XmlElement reportMonth in p32ReportXml.GetElementsByTagName("ReportMonth"))
             {
@@ -4020,25 +4020,117 @@ namespace PayRunIOProcessReports
 
                 rpP32ReportMonth.RPP32Summary = rpP32Summary;
 
-                if(!addToList)
+                if (!addToList)
                 {
                     //If any of the values are not zero add the P32 period to the list
                     addToList = CheckIfNotZero(rpP32ReportMonth);
-                    
-                }
 
-                //Check if PeriodNo is less than or equal to PAYE Month.
-
-                if (rpP32ReportMonth.PeriodNo == 0)
-                {
-                    addToList = true;
                 }
-                if (addToList)
+                ////We only want to print the opening balances is values are not all zero or the values for period 1 are all zeros
+                ////Check if PeriodNo is zero then store until we know if there's period 1
+                if(addToList)
                 {
+                    //If it's got values always add it.
                     rpP32ReportMonths.Add(rpP32ReportMonth);
                     annualTotalRequired = true;
                 }
-                
+                else
+                {
+                    if(rpP32ReportMonth.PeriodNo == 0)
+                    {
+                        //If it's period 0 (opening balances) store it we might use it even if it is all zeros
+                        obP32ReportMonth = rpP32ReportMonth;
+                    }
+                    else if(rpP32ReportMonth.PeriodNo == 1)
+                    {
+                        if(obP32ReportMonth != null)
+                        {
+                            //If it's period 1 add period 0 was also all zeros add in period 0
+                            rpP32ReportMonths.Add(obP32ReportMonth);
+                            annualTotalRequired = true;
+                        }
+                        
+                    }
+                }
+                //if (rpP32ReportMonth.PeriodNo == 0)
+                //{
+                //    if(addToList)
+                //    {
+                //        //Add period zero as it does have values
+                //        rpP32ReportMonths.Add(rpP32ReportMonth);
+                //        annualTotalRequired = true;
+                //    }
+                //    else
+                //    {
+                //        //Store opening balance line for now as it is all zeros.
+                //        obP32ReportMonth = rpP32ReportMonth;
+                //    }
+
+                //}
+                //else if(rpP32ReportMonth.PeriodNo == 1)
+                //{
+                //    if(!addToList)
+                //    {
+                //        if(obP32ReportMonth != null)
+                //        {
+                //            //Period 1 is not being added the list so add the period 0, opening balances whether it's all zeros or not.
+                //            rpP32ReportMonths.Add(obP32ReportMonth);
+                //            annualTotalRequired = true;
+                //        }
+
+                //    }
+                //    else
+                //    {
+                //        rpP32ReportMonths.Add(obP32ReportMonth);
+                //        annualTotalRequired = true;
+                //    }
+                //}
+                //else
+                //{
+                //    if(addToList)
+                //    {
+                //        rpP32ReportMonths.Add(rpP32ReportMonth);
+                //        annualTotalRequired = true;
+                //    }
+                //}
+                ////Check if PeriodNo is zero.
+                //if (rpP32ReportMonth.PeriodNo == 0)
+                //{
+                //    addToList = true;
+                //}
+                //if (addToList)
+                //{
+                //    //They want to show an opening balance line, even if it's all zeros, where a payroll started midway through the year.
+                //    //However they do not want to show an opening balance line if the payroll started in month 1.
+                //    //Problem is the report always returns a month 1, it'll just be all zeros if the payroll wasn't run for month 1.
+                //    //So I'm going store the opening balance until I get a look at month 1.
+                //    //If there's a non zero month 1 don't add the opening balances, if there's no non zero month 1 and opening balances even if they are zero.
+                //    if (rpP32ReportMonth.PeriodNo == 0)
+                //    {
+                //        //Opening balance line store it for now.
+                //        obP32ReportMonth = rpP32ReportMonth;
+                //    }
+                //    else if(rpP32ReportMonth.PeriodNo == 1)
+                //    {
+                //        //Period 1 is not all zeros so we don't want an opening balance line
+                //        obP32ReportMonth = null;
+                //        rpP32ReportMonths.Add(rpP32ReportMonth);
+                //        annualTotalRequired = true;
+                //    }
+                //    else
+                //    {
+                //        //If we didn't get a period 1 then add in the opening balance.
+                //        if(obP32ReportMonth != null)
+                //        {
+                //            rpP32ReportMonths.Add(obP32ReportMonth);
+                //            obP32ReportMonth = null;
+                //        }
+                //        rpP32ReportMonths.Add(rpP32ReportMonth);
+                //        annualTotalRequired = true;
+                //    }
+
+                //}
+
             }
             rpP32Report.RPP32ReportMonths = rpP32ReportMonths;
 
@@ -4047,7 +4139,7 @@ namespace PayRunIOProcessReports
                 RPP32ReportMonth rpP32ReportMonth = new RPP32ReportMonth();
                 rpP32ReportMonth.PeriodNo = 13;
                 rpP32ReportMonth.RPPeriodNo = "";
-                rpP32ReportMonth.RPPeriodText = "Year " + rpP32Report.TaxYear.ToString();
+                rpP32ReportMonth.RPPeriodText = "Year " + rpP32Report.TaxYear.ToString() + "/" + (rpP32Report.TaxYear + 1).ToString();
                 rpP32ReportMonth.PeriodName = "Annual total";
 
                 //There is no breakdown for the annual total so just add a null one.
