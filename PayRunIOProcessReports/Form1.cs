@@ -3903,7 +3903,7 @@ namespace PayRunIOProcessReports
             {
                 p32ReportXml = prWG.GetP32Report(xdoc, rpParameters);
             }
-            p32ReportXml.Save(outgoingFolder + rpEmployer.Name + "-P32.xml");
+            p32ReportXml.Save(outgoingFolder + rpEmployer.Name.Replace("/","") + "-P32.xml");
             rpP32Report = PrepareP32SummaryReport(xdoc, p32ReportXml, rpParameters, prWG);
 
             return rpP32Report;
