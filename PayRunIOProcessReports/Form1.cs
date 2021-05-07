@@ -945,7 +945,8 @@ namespace PayRunIOProcessReports
         public static PicoXLSX.Workbook CreateEagleBankFile(string outgoingFolder, List<RPEmployeePeriod> rpEmployeePeriodList, RPEmployer rpEmployer, RPParameters rpParameters)
         {
             //Create a PicoXLSX workbook
-            string workBookName = outgoingFolder + "\\" + rpEmployer.Name.Replace(" ", "") + "_EagleBankFile_Period_" + rpParameters.PeriodNo + ".xlsx";
+            RegexUtilities regexUtilities = new RegexUtilities();
+            string workBookName = outgoingFolder + "\\" + regexUtilities.RemoveNonAlphaNumericChars(rpEmployer.Name) + "_EagleBankFile_Period_" + rpParameters.PeriodNo + ".xlsx";
             Workbook workbook = new Workbook(workBookName, "BACSDetails");
 
             //Write the header row
@@ -3046,8 +3047,11 @@ namespace PayRunIOProcessReports
             string coNo = rpParameters.ErRef;
             //Create csv version and write it to the same folder.
             //string csvFileName = "V:\\Payescape\\PayRunIO\\WG\\" + coNo + "_YearToDates_" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".csv";
+            //string csvFileName = outgoingFolder + "\\" + coNo + "_" + rpParameters.PayRunDate.ToString("yyyyMMdd") + "\\" + coNo + "_YearToDates_" +
+            //                                      rpParameters.PayRunDate.ToString("yyyyMMdd") + DateTime.Now.ToString("HHmmssfff") + ".csv"; //DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".csv";
+            //Emer doesn't want multiple versions of the csv files being sent so if I remove the timestamp that should do it.
             string csvFileName = outgoingFolder + "\\" + coNo + "_" + rpParameters.PayRunDate.ToString("yyyyMMdd") + "\\" + coNo + "_YearToDates_" +
-                                                  rpParameters.PayRunDate.ToString("yyyyMMdd") + DateTime.Now.ToString("HHmmssfff") + ".csv"; //DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".csv";
+                                                  rpParameters.PayRunDate.ToString("yyyyMMdd") + ".csv";
             bool writeHeader = true;
             using (StreamWriter sw = new StreamWriter(csvFileName))
             {
@@ -3349,8 +3353,11 @@ namespace PayRunIOProcessReports
             //Create csv version and write it to the same folder. 
             //Use the PayDate for the yyyyMMdd part of the name, then were going compare is to today's yyyyMMdd and only transfer it up to
             //the SFTP server if it's 1 day or less before today's date.
+            //string csvFileName = outgoingFolder + "\\" + coNo + "_" + rpParameters.PayRunDate.ToString("yyyyMMdd") + "\\" + coNo + "_PayHistory_" +
+            //                                      rpParameters.PayRunDate.ToString("yyyyMMdd") + DateTime.Now.ToString("HHmmssfff") + ".csv";//DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".csv";
+            //Emer only wants one file sent so if I don't add a time stamp that should do it.
             string csvFileName = outgoingFolder + "\\" + coNo + "_" + rpParameters.PayRunDate.ToString("yyyyMMdd") + "\\" + coNo + "_PayHistory_" +
-                                                  rpParameters.PayRunDate.ToString("yyyyMMdd") + DateTime.Now.ToString("HHmmssfff") + ".csv";//DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".csv";
+                                                  rpParameters.PayRunDate.ToString("yyyyMMdd") + ".csv";
             bool writeHeader = true;
             using (StreamWriter sw = new StreamWriter(csvFileName))
             {
@@ -3903,11 +3910,13 @@ namespace PayRunIOProcessReports
             {
                 p32ReportXml = prWG.GetP32Report(xdoc, rpParameters);
             }
-            p32ReportXml.Save(outgoingFolder + rpEmployer.Name.Replace("/","") + "-P32.xml");
+            RegexUtilities regexUtilities = new RegexUtilities();
+            p32ReportXml.Save(outgoingFolder + regexUtilities.RemoveNonAlphaNumericChars(rpEmployer.Name) + "-P32.xml");
             rpP32Report = PrepareP32SummaryReport(xdoc, p32ReportXml, rpParameters, prWG);
 
             return rpP32Report;
         }
+        
         public static RPP32Report PrepareP32SummaryReport(XDocument xdoc, XmlDocument p32ReportXml, RPParameters rpParameters, PayRunIOWebGlobeClass prWG)
         {
             RPP32Report rpP32Report = new RPP32Report();
