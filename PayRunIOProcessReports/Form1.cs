@@ -810,54 +810,51 @@ namespace PayRunIOProcessReports
                         {
                             rpPensionFileScheme.ProviderName = "UNKOWN";
                         }
+                        else if (rpPensionFileScheme.ProviderName.ToUpper().Contains("AVIVA"))
+                        {
+                            rpPensionFileScheme.ProviderName = "AVIVA";
+                        }
+                        else if (rpPensionFileScheme.ProviderName.ToUpper().Contains("NEST"))
+                        {
+                            rpPensionFileScheme.ProviderName = "NEST";
+                        }
+                        else if (rpPensionFileScheme.ProviderName.ToUpper().Contains("WORKERS PENSION TRUST"))
+                        {
+                            rpPensionFileScheme.ProviderName = "WORKERS PENSION TRUST";
+                        }
+                        else if (rpPensionFileScheme.ProviderName.ToUpper().Contains("CREATIVE AUTO ENROLMENT"))
+                        {
+                            rpPensionFileScheme.ProviderName = "CREATIVE AUTO ENROLMENT";
+                        }
+                        else if (rpPensionFileScheme.ProviderName.ToUpper().Contains("THE PEOPLES PENSION"))
+                        {
+                            rpPensionFileScheme.ProviderName = "THE PEOPLES PENSION";
+                        }
+                        else if (rpPensionFileScheme.ProviderName.ToUpper().Contains("SMART PENSION"))
+                        {
+                            rpPensionFileScheme.ProviderName = "SMART PENSION";
+                        }
+                        else if (rpPensionFileScheme.ProviderName.ToUpper().Contains("ROYAL LONDON PENSION"))
+                        {
+                            rpPensionFileScheme.ProviderName = "ROYAL LONDON PENSION";
+                        }
+                        else if (rpPensionFileScheme.ProviderName.ToUpper().Contains("NOW PENSION"))
+                        {
+                            rpPensionFileScheme.ProviderName = "NOW PENSION";
+                        }
+                        else if (rpPensionFileScheme.ProviderName.ToUpper().Contains("LEGAL & GENERAL"))
+                        {
+                            rpPensionFileScheme.ProviderName = "LEGAL & GENERAL";
+                        }
+                        else if (rpPensionFileScheme.ProviderName.ToUpper().Contains("AEGON"))
+                        {
+                            rpPensionFileScheme.ProviderName = "AEGON";
+                        }
                         else
                         {
-                            if (rpPensionFileScheme.ProviderName.ToUpper().Contains("AVIVA"))
-                            {
-                                rpPensionFileScheme.ProviderName = "AVIVA";
-                            }
-                            else if (rpPensionFileScheme.ProviderName.ToUpper().Contains("NEST"))
-                            {
-                                rpPensionFileScheme.ProviderName = "NEST";
-                            }
-                            else if (rpPensionFileScheme.ProviderName.ToUpper().Contains("WORKERS PENSION TRUST"))
-                            {
-                                rpPensionFileScheme.ProviderName = "WORKERS PENSION TRUST";
-                            }
-                            else if (rpPensionFileScheme.ProviderName.ToUpper().Contains("CREATIVE AUTO ENROLMENT"))
-                            {
-                                rpPensionFileScheme.ProviderName = "CREATIVE AUTO ENROLMENT";
-                            }
-                            else if (rpPensionFileScheme.ProviderName.ToUpper().Contains("THE PEOPLES PENSION"))
-                            {
-                                rpPensionFileScheme.ProviderName = "THE PEOPLES PENSION";
-                            }
-                            else if (rpPensionFileScheme.ProviderName.ToUpper().Contains("SMART PENSION"))
-                            {
-                                rpPensionFileScheme.ProviderName = "SMART PENSION";
-                            }
-                            else if (rpPensionFileScheme.ProviderName.ToUpper().Contains("ROYAL LONDON PENSION"))
-                            {
-                                rpPensionFileScheme.ProviderName = "ROYAL LONDON PENSION";
-                            }
-                            else if (rpPensionFileScheme.ProviderName.ToUpper().Contains("NOW PENSION"))
-                            {
-                                rpPensionFileScheme.ProviderName = "NOW PENSION";
-                            }
-                            else if (rpPensionFileScheme.ProviderName.ToUpper().Contains("LEGAL & GENERAL PENSION"))
-                            {
-                                rpPensionFileScheme.ProviderName = "LEGAL & GENERAL PENSION";
-                            }
-                            else if (rpPensionFileScheme.ProviderName.ToUpper().Contains("AEGON PENSION"))
-                            {
-                                rpPensionFileScheme.ProviderName = "AEGON PENSION";
-                            }
-                            else
-                            {
-                                rpPensionFileScheme.ProviderName = "UNKOWN";
-                            }
+                            rpPensionFileScheme.ProviderName = "UNKOWN";
                         }
-
+                        
                     }
                     rpPensionFileSchemePensionContributions.Add(rpPensionContribution);
                 }
@@ -895,8 +892,8 @@ namespace PayRunIOProcessReports
                     case "SMART PENSION":
                     case "ROYAL LONDON PENSION":
                     case "NOW PENSION":
-                    case "LEGAL & GENERAL PENSION":
-                    case "AEGON PENSION":
+                    case "LEGAL & GENERAL":
+                    case "AEGON":
                         //Get the transformed from PayRun.IO
                         GetCsvPensionsReport(xdoc, rpPensionFileScheme, rpParameters);
                         break;
@@ -1328,16 +1325,32 @@ namespace PayRunIOProcessReports
         }
         private void GetCsvPensionsReport(XDocument xdoc, RPPensionFileScheme rpPensionFileScheme, RPParameters rpParameters)
         {
+            bool joinerRequired = false;
+            if(rpPensionFileScheme.ProviderName == "LEGAL & GENERAL" || rpPensionFileScheme.ProviderName == "AEGON")
+            {
+                joinerRequired = true;
+            }
             PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
             string outgoingFolder = xdoc.Root.Element("DataHomeFolder").Value + "PE-Reports" + "\\" + rpParameters.ErRef;
-            string pensionFileName = outgoingFolder + "\\" + rpPensionFileScheme.SchemeName + "PensionFile.csv";
+            string pensionFileName = outgoingFolder + "\\" + rpPensionFileScheme.SchemeName + "PensionContributionsFile.csv";
 
             //Get the transformed report from PayRun.IO. It'll return the csv file as required and I won't need to run the CreateTheSmartPensionsPensionFile method.
-            string csvReport = prWG.GetCsvPensionsReport(xdoc, rpParameters, rpPensionFileScheme);
+            bool isJoiner = false;
+            string csvReport = prWG.GetCsvPensionsReport(xdoc, rpParameters, rpPensionFileScheme, isJoiner);
 
             using (StreamWriter sw = new StreamWriter(pensionFileName))
             {
                 sw.Write(csvReport);
+            }
+            if(joinerRequired)
+            {
+                isJoiner = true;
+                csvReport = prWG.GetCsvPensionsReport(xdoc, rpParameters, rpPensionFileScheme, isJoiner);
+                pensionFileName = pensionFileName.Replace("PensionContributionsFile.csv", "PensionJoinersFile.csv");
+                using (StreamWriter sw = new StreamWriter(pensionFileName))
+                {
+                    sw.Write(csvReport);
+                }
             }
         }
         public void PrintStandardReports(XDocument xdoc, List<RPEmployeePeriod> rpEmployeePeriodList, RPEmployer rpEmployer, RPParameters rpParameters,
