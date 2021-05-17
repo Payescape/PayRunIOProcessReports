@@ -81,9 +81,22 @@ namespace PayRunIOProcessReports
                     bool success = ProcessOutputFiles(xdoc, directories[i]);
                     if (success)
                     {
+                        archiveDirName = "PE-ArchivedOutputs";
+                    }
+                    else
+                    {
+                        archiveDirName = "PE-FailedOutputs";
+                    }
+                    try
+                    {
                         prWG.ArchiveDirectory(xdoc, directories[i], originalDirName, archiveDirName);
                     }
-
+                    catch(Exception ex)
+                    {
+                        textLine = string.Format("Error archiving Outputs folder for directory {0}.\r\n{1}.\r\n", directories[i], ex);
+                        prWG.Update_Progress(textLine, softwareHomeFolder);
+                    }
+                    
 
                 }
                 catch (Exception ex)
@@ -906,11 +919,13 @@ namespace PayRunIOProcessReports
                 {
                     string fullName = rpEmployeePeriod.Forename + " " + rpEmployeePeriod.Surname;
                     fullName = fullName.ToUpper();
+                    //The company name has to be restricted to a maximum of 18 characters. So set maxLength to 18 or the length of the company name which ever is shorter.
+                    int maxLength = Math.Min(rpEmployer.Name.Length, 18);
                     var csvLine = quotes + rpEmployeePeriod.SortCode + quotes + comma +
                                   quotes + fullName + quotes + comma +
                                   quotes + rpEmployeePeriod.BankAccNo + quotes + comma +
-                                  quotes + rpEmployeePeriod.NetPayTP + quotes + comma +
-                                  quotes + (rpEmployer.Name.Length > 18 ? rpEmployer.Name.ToUpper().Substring(0, 18) : rpEmployer.Name) + quotes + comma +
+                                  quotes + rpEmployeePeriod.NetPayTP.ToString() + quotes + comma +
+                                  quotes + rpEmployer.Name.ToUpper().Substring(0,maxLength) + quotes + comma +
                                   quotes + "99" + quotes;
 
                     stringBuilder.AppendLine(csvLine);
@@ -930,7 +945,8 @@ namespace PayRunIOProcessReports
         public static PicoXLSX.Workbook CreateEagleBankFile(string outgoingFolder, List<RPEmployeePeriod> rpEmployeePeriodList, RPEmployer rpEmployer, RPParameters rpParameters)
         {
             //Create a PicoXLSX workbook
-            string workBookName = outgoingFolder + "\\" + rpEmployer.Name.Replace(" ", "") + "_EagleBankFile_Period_" + rpParameters.PeriodNo + ".xlsx";
+            RegexUtilities regexUtilities = new RegexUtilities();
+            string workBookName = outgoingFolder + "\\" + regexUtilities.RemoveNonAlphaNumericChars(rpEmployer.Name) + "_EagleBankFile_Period_" + rpParameters.PeriodNo + ".xlsx";
             Workbook workbook = new Workbook(workBookName, "BACSDetails");
 
             //Write the header row
@@ -3031,8 +3047,11 @@ namespace PayRunIOProcessReports
             string coNo = rpParameters.ErRef;
             //Create csv version and write it to the same folder.
             //string csvFileName = "V:\\Payescape\\PayRunIO\\WG\\" + coNo + "_YearToDates_" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".csv";
+            //string csvFileName = outgoingFolder + "\\" + coNo + "_" + rpParameters.PayRunDate.ToString("yyyyMMdd") + "\\" + coNo + "_YearToDates_" +
+            //                                      rpParameters.PayRunDate.ToString("yyyyMMdd") + DateTime.Now.ToString("HHmmssfff") + ".csv"; //DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".csv";
+            //Emer doesn't want multiple versions of the csv files being sent so if I remove the timestamp that should do it.
             string csvFileName = outgoingFolder + "\\" + coNo + "_" + rpParameters.PayRunDate.ToString("yyyyMMdd") + "\\" + coNo + "_YearToDates_" +
-                                                  rpParameters.PayRunDate.ToString("yyyyMMdd") + DateTime.Now.ToString("HHmmssfff") + ".csv"; //DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".csv";
+                                                  rpParameters.PayRunDate.ToString("yyyyMMdd") + ".csv";
             bool writeHeader = true;
             using (StreamWriter sw = new StreamWriter(csvFileName))
             {
@@ -3102,21 +3121,44 @@ namespace PayRunIOProcessReports
                         payYTDDetails[19] = "";
                     }
                     payYTDDetails[20] = rpEmployeeYtd.StudentLoanDeductionsYTD.ToString();
-                    payYTDDetails[21] = rpEmployeeYtd.NicYtd.NILetter;
-                    payYTDDetails[22] = rpEmployeeYtd.NicYtd.NiableYtd.ToString();
-                    payYTDDetails[23] = rpEmployeeYtd.NicYtd.EarningsToLEL.ToString();
-                    payYTDDetails[24] = rpEmployeeYtd.NicYtd.EarningsToSET.ToString();
-                    payYTDDetails[25] = rpEmployeeYtd.NicYtd.EarningsToPET.ToString();
-                    payYTDDetails[26] = rpEmployeeYtd.NicYtd.EarningsToUST.ToString();
-                    payYTDDetails[27] = rpEmployeeYtd.NicYtd.EarningsToAUST.ToString();
-                    payYTDDetails[28] = rpEmployeeYtd.NicYtd.EarningsToUEL.ToString();
-                    payYTDDetails[29] = rpEmployeeYtd.NicYtd.EarningsAboveUEL.ToString();
-                    payYTDDetails[30] = rpEmployeeYtd.NicYtd.EeContributionsPt1.ToString();
-                    payYTDDetails[31] = rpEmployeeYtd.NicYtd.EeContributionsPt2.ToString();
-                    payYTDDetails[32] = rpEmployeeYtd.NicYtd.ErContributions.ToString();
-                    payYTDDetails[33] = rpEmployeeYtd.NicYtd.EeRebate.ToString();
-                    payYTDDetails[34] = rpEmployeeYtd.NicYtd.ErRebate.ToString();
-                    payYTDDetails[35] = rpEmployeeYtd.NicYtd.EeReduction.ToString();
+                    if(rpEmployeeYtd.NicYtd == null)
+                    {
+                        payYTDDetails[21] = "";
+                        payYTDDetails[22] = "0";
+                        payYTDDetails[23] = "0";
+                        payYTDDetails[24] = "0";
+                        payYTDDetails[25] = "0";
+                        payYTDDetails[26] = "0";
+                        payYTDDetails[27] = "0";
+                        payYTDDetails[28] = "0";
+                        payYTDDetails[29] = "0";
+                        payYTDDetails[30] = "0";
+                        payYTDDetails[31] = "0";
+                        payYTDDetails[32] = "0";
+                        payYTDDetails[33] = "0";
+                        payYTDDetails[34] = "0";
+                        payYTDDetails[35] = "0";
+                        payYTDDetails[40] = "0";
+                    }
+                    else
+                    {
+                        payYTDDetails[21] = rpEmployeeYtd.NicYtd.NILetter;
+                        payYTDDetails[22] = rpEmployeeYtd.NicYtd.NiableYtd.ToString();
+                        payYTDDetails[23] = rpEmployeeYtd.NicYtd.EarningsToLEL.ToString();
+                        payYTDDetails[24] = rpEmployeeYtd.NicYtd.EarningsToSET.ToString();
+                        payYTDDetails[25] = rpEmployeeYtd.NicYtd.EarningsToPET.ToString();
+                        payYTDDetails[26] = rpEmployeeYtd.NicYtd.EarningsToUST.ToString();
+                        payYTDDetails[27] = rpEmployeeYtd.NicYtd.EarningsToAUST.ToString();
+                        payYTDDetails[28] = rpEmployeeYtd.NicYtd.EarningsToUEL.ToString();
+                        payYTDDetails[29] = rpEmployeeYtd.NicYtd.EarningsAboveUEL.ToString();
+                        payYTDDetails[30] = rpEmployeeYtd.NicYtd.EeContributionsPt1.ToString();
+                        payYTDDetails[31] = rpEmployeeYtd.NicYtd.EeContributionsPt2.ToString();
+                        payYTDDetails[32] = rpEmployeeYtd.NicYtd.ErContributions.ToString();
+                        payYTDDetails[33] = rpEmployeeYtd.NicYtd.EeRebate.ToString();
+                        payYTDDetails[34] = rpEmployeeYtd.NicYtd.ErRebate.ToString();
+                        payYTDDetails[35] = rpEmployeeYtd.NicYtd.EeReduction.ToString();
+                        payYTDDetails[40] = rpEmployeeYtd.NicYtd.NiableYtd.ToString();
+                    }
                     payYTDDetails[36] = rpEmployeeYtd.TaxCode;
                     if (rpEmployeeYtd.Week1Month1)
                     {
@@ -3128,7 +3170,7 @@ namespace PayRunIOProcessReports
                     }
                     payYTDDetails[38] = rpEmployeeYtd.WeekNumber.ToString();
                     payYTDDetails[39] = rpEmployeeYtd.MonthNumber.ToString();
-                    payYTDDetails[40] = rpEmployeeYtd.NicYtd.NiableYtd.ToString();
+                    
                     switch (rpEmployeeYtd.StudentLoanPlanType)
                     {
                         case "Plan1":
@@ -3311,8 +3353,11 @@ namespace PayRunIOProcessReports
             //Create csv version and write it to the same folder. 
             //Use the PayDate for the yyyyMMdd part of the name, then were going compare is to today's yyyyMMdd and only transfer it up to
             //the SFTP server if it's 1 day or less before today's date.
+            //string csvFileName = outgoingFolder + "\\" + coNo + "_" + rpParameters.PayRunDate.ToString("yyyyMMdd") + "\\" + coNo + "_PayHistory_" +
+            //                                      rpParameters.PayRunDate.ToString("yyyyMMdd") + DateTime.Now.ToString("HHmmssfff") + ".csv";//DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".csv";
+            //Emer only wants one file sent so if I don't add a time stamp that should do it.
             string csvFileName = outgoingFolder + "\\" + coNo + "_" + rpParameters.PayRunDate.ToString("yyyyMMdd") + "\\" + coNo + "_PayHistory_" +
-                                                  rpParameters.PayRunDate.ToString("yyyyMMdd") + DateTime.Now.ToString("HHmmssfff") + ".csv";//DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".csv";
+                                                  rpParameters.PayRunDate.ToString("yyyyMMdd") + ".csv";
             bool writeHeader = true;
             using (StreamWriter sw = new StreamWriter(csvFileName))
             {
@@ -3859,21 +3904,19 @@ namespace PayRunIOProcessReports
             bool test = false;
             if(test)
             {
-                //I'm going to test the Combined Payroll Run Report here.
-                XmlDocument combinedPayrollRunReportXml = prWG.GetCombinedPayrollRunReport(xdoc, rpParameters);
-                combinedPayrollRunReportXml.Save(outgoingFolder + rpEmployer.Name + "-CombinedPayrollRun.xml");
-
                 p32ReportXml.Load("C:\\Payescape\\Data\\Save\\P32.xml");
             }
             else
             {
                 p32ReportXml = prWG.GetP32Report(xdoc, rpParameters);
             }
-            p32ReportXml.Save(outgoingFolder + rpEmployer.Name + "-P32.xml");
+            RegexUtilities regexUtilities = new RegexUtilities();
+            p32ReportXml.Save(outgoingFolder + regexUtilities.RemoveNonAlphaNumericChars(rpEmployer.Name) + "-P32.xml");
             rpP32Report = PrepareP32SummaryReport(xdoc, p32ReportXml, rpParameters, prWG);
 
             return rpP32Report;
         }
+        
         public static RPP32Report PrepareP32SummaryReport(XDocument xdoc, XmlDocument p32ReportXml, RPParameters rpParameters, PayRunIOWebGlobeClass prWG)
         {
             RPP32Report rpP32Report = new RPP32Report();
@@ -3887,9 +3930,11 @@ namespace PayRunIOProcessReports
                 rpP32Report.TaxYearEndDate = Convert.ToDateTime(prWG.GetDateElementByTagFromXml(header, "TaxYearEndDate"));
                 rpP32Report.ApprenticeshipLevyAllowance = prWG.GetDecimalElementByTagFromXml(header, "ApprenticeshipLevyAllowance");
                 rpP32Report.AnnualEmploymentAllowance = prWG.GetDecimalElementByTagFromXml(header, "AnnualEmploymentAllowance");
+                rpP32Report.OpeningBalancesRequired = true;
             }
             bool addToList = false;
             bool annualTotalRequired = false;
+            RPP32ReportMonth obP32ReportMonth = null;   //To hold the opening balance object until I can check for month 1
             List<RPP32ReportMonth> rpP32ReportMonths = new List<RPP32ReportMonth>();
             foreach(XmlElement reportMonth in p32ReportXml.GetElementsByTagName("ReportMonth"))
             {
@@ -3984,25 +4029,117 @@ namespace PayRunIOProcessReports
 
                 rpP32ReportMonth.RPP32Summary = rpP32Summary;
 
-                if(!addToList)
+                if (!addToList)
                 {
                     //If any of the values are not zero add the P32 period to the list
                     addToList = CheckIfNotZero(rpP32ReportMonth);
-                    
-                }
 
-                //Check if PeriodNo is less than or equal to PAYE Month.
-
-                if (rpP32ReportMonth.PeriodNo == 0)
-                {
-                    addToList = true;
                 }
-                if (addToList)
+                ////We only want to print the opening balances is values are not all zero or the values for period 1 are all zeros
+                ////Check if PeriodNo is zero then store until we know if there's period 1
+                if(addToList)
                 {
+                    //If it's got values always add it.
                     rpP32ReportMonths.Add(rpP32ReportMonth);
                     annualTotalRequired = true;
                 }
-                
+                else
+                {
+                    if(rpP32ReportMonth.PeriodNo == 0)
+                    {
+                        //If it's period 0 (opening balances) store it we might use it even if it is all zeros
+                        obP32ReportMonth = rpP32ReportMonth;
+                    }
+                    else if(rpP32ReportMonth.PeriodNo == 1)
+                    {
+                        if(obP32ReportMonth != null)
+                        {
+                            //If it's period 1 add period 0 was also all zeros add in period 0
+                            rpP32ReportMonths.Add(obP32ReportMonth);
+                            annualTotalRequired = true;
+                        }
+                        
+                    }
+                }
+                //if (rpP32ReportMonth.PeriodNo == 0)
+                //{
+                //    if(addToList)
+                //    {
+                //        //Add period zero as it does have values
+                //        rpP32ReportMonths.Add(rpP32ReportMonth);
+                //        annualTotalRequired = true;
+                //    }
+                //    else
+                //    {
+                //        //Store opening balance line for now as it is all zeros.
+                //        obP32ReportMonth = rpP32ReportMonth;
+                //    }
+
+                //}
+                //else if(rpP32ReportMonth.PeriodNo == 1)
+                //{
+                //    if(!addToList)
+                //    {
+                //        if(obP32ReportMonth != null)
+                //        {
+                //            //Period 1 is not being added the list so add the period 0, opening balances whether it's all zeros or not.
+                //            rpP32ReportMonths.Add(obP32ReportMonth);
+                //            annualTotalRequired = true;
+                //        }
+
+                //    }
+                //    else
+                //    {
+                //        rpP32ReportMonths.Add(obP32ReportMonth);
+                //        annualTotalRequired = true;
+                //    }
+                //}
+                //else
+                //{
+                //    if(addToList)
+                //    {
+                //        rpP32ReportMonths.Add(rpP32ReportMonth);
+                //        annualTotalRequired = true;
+                //    }
+                //}
+                ////Check if PeriodNo is zero.
+                //if (rpP32ReportMonth.PeriodNo == 0)
+                //{
+                //    addToList = true;
+                //}
+                //if (addToList)
+                //{
+                //    //They want to show an opening balance line, even if it's all zeros, where a payroll started midway through the year.
+                //    //However they do not want to show an opening balance line if the payroll started in month 1.
+                //    //Problem is the report always returns a month 1, it'll just be all zeros if the payroll wasn't run for month 1.
+                //    //So I'm going store the opening balance until I get a look at month 1.
+                //    //If there's a non zero month 1 don't add the opening balances, if there's no non zero month 1 and opening balances even if they are zero.
+                //    if (rpP32ReportMonth.PeriodNo == 0)
+                //    {
+                //        //Opening balance line store it for now.
+                //        obP32ReportMonth = rpP32ReportMonth;
+                //    }
+                //    else if(rpP32ReportMonth.PeriodNo == 1)
+                //    {
+                //        //Period 1 is not all zeros so we don't want an opening balance line
+                //        obP32ReportMonth = null;
+                //        rpP32ReportMonths.Add(rpP32ReportMonth);
+                //        annualTotalRequired = true;
+                //    }
+                //    else
+                //    {
+                //        //If we didn't get a period 1 then add in the opening balance.
+                //        if(obP32ReportMonth != null)
+                //        {
+                //            rpP32ReportMonths.Add(obP32ReportMonth);
+                //            obP32ReportMonth = null;
+                //        }
+                //        rpP32ReportMonths.Add(rpP32ReportMonth);
+                //        annualTotalRequired = true;
+                //    }
+
+                //}
+
             }
             rpP32Report.RPP32ReportMonths = rpP32ReportMonths;
 
@@ -4011,7 +4148,7 @@ namespace PayRunIOProcessReports
                 RPP32ReportMonth rpP32ReportMonth = new RPP32ReportMonth();
                 rpP32ReportMonth.PeriodNo = 13;
                 rpP32ReportMonth.RPPeriodNo = "";
-                rpP32ReportMonth.RPPeriodText = "Year " + rpP32Report.TaxYear.ToString();
+                rpP32ReportMonth.RPPeriodText = "Year " + rpP32Report.TaxYear.ToString() + "/" + (rpP32Report.TaxYear + 1).ToString();
                 rpP32ReportMonth.PeriodName = "Annual total";
 
                 //There is no breakdown for the annual total so just add a null one.
