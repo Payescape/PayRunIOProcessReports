@@ -758,6 +758,7 @@ namespace PayRunIOProcessReports
         public void ProcessBankAndPensionFiles(XDocument xdoc, List<RPEmployeePeriod> rpEmployeePeriodList, List<RPPensionContribution> rpPensionContributions, RPEmployer rpEmployer, RPParameters rpParameters)
         {
             string outgoingFolder = xdoc.Root.Element("DataHomeFolder").Value + "PE-Reports" + "\\" + rpParameters.ErRef;
+            PicoXLSX.Workbook workbook;
 
             //Bank file code is not equal to "001" so a bank file is required.
             switch (rpEmployer.BankFileCode)
@@ -768,12 +769,20 @@ namespace PayRunIOProcessReports
                     break;
                 case "002":
                     //Eagle
-                    PicoXLSX.Workbook workbook = CreateEagleBankFile(outgoingFolder, rpEmployeePeriodList, rpEmployer, rpParameters);
+                    workbook = CreateEagleBankFile(outgoingFolder, rpEmployeePeriodList, rpEmployer, rpParameters);
                     workbook.Save();
                     break;
                 case "003":
                     //Revolut
                     CreateRevolutBankFile(outgoingFolder, rpEmployeePeriodList);
+                    break;
+                case "004":
+                    //Natwest
+                    break;
+                case "005":
+                    //Bottomline 
+                    workbook = CreateBottomlineBankFile(xdoc, outgoingFolder, rpParameters);
+                    workbook.Save();
                     break;
                 default:
                     //No bank file required
@@ -972,6 +981,31 @@ namespace PayRunIOProcessReports
             }
 
             return workbook;
+        }
+        public static PicoXLSX.Workbook CreateBottomlineBankFile(XDocument xdoc, string outgoingFolder, RPParameters rpParameters)
+        {
+            PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
+            XmlDocument xmlReport = GetBankFileReport(xdoc, rpParameters);
+            //Create a PicoXLSX workbook
+            string workBookName = outgoingFolder + "\\" + rpParameters.ErRef + "_BottomlineBankReport.xlsx";
+            Workbook workbook = prWG.CreateBottomlineReportWorkbook(xmlReport, workBookName);
+
+            return workbook;
+        }
+        private static XmlDocument GetBankFileReport(XDocument xdoc, RPParameters rPParameters)
+        {
+            PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
+            XmlDocument xmlReport = new XmlDocument();
+            //PE-BankReport - Bank report
+            string prm1 = "EmployerKey";
+            string prm2 = "PayScheduleKey";
+            string prm3 = "PaymentDate";
+            string rptRef = "PE-BankFileReport";
+            string val1 = rPParameters.ErRef;//Employer
+            string val2 = rPParameters.PaySchedule;//Pay schedule
+            string val3 = rPParameters.PayRunDate.ToString("yyyy-MM-dd");//Payment date
+            xmlReport = prWG.RunReport(xdoc, rptRef, prm1, val1, prm2, val2, prm3, val3, null, null, null, null, null, null);
+            return xmlReport;
         }
         public static string CreateRevolutBankFile(string outgoingFolder, List<RPEmployeePeriod> rpEmployeePeriodList)
         {
