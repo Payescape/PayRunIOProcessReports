@@ -2498,6 +2498,13 @@ namespace PayRunIOProcessReports
             bool eeYtdProcessed = false;
             PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
             DirectoryInfo dirInfo = new DirectoryInfo(directory);
+            //We now have the possibility that there are multiple EmployeePeriod files and multiple EmployeeYtd files.
+            //For large numbers of employees they are being split into batches of 100 employees.
+            //I'm going run through an combine them into one file for EmployeePeriod and one for EmployeeYtd.
+            //Combine EmployeePeriod files
+            CombineXmlFiles(directory,"Period");
+            //Combine EmployeeYtd files
+            CombineXmlFiles(directory, "Ytd");
             FileInfo[] files = dirInfo.GetFiles("*.xml");
             //We haven't got the correct payroll run date in the "EmployeeYtd" report so I'm going use the RPParameters from the "EmployeePeriod" report.
             //I'm just a bit concerned of the order they will come in. Hopefully always alphabetical.
@@ -2505,7 +2512,7 @@ namespace PayRunIOProcessReports
             RPEmployer rpEmployer = null;
             foreach (FileInfo file in files.OrderBy(x => x.Name))
             {
-                if (file.FullName.Contains("EmployeePeriod"))
+                if (file.FullName.Contains("CompleteEmployeePeriod"))
                 {
                     List<RPEmployeePeriod> rpEmployeePeriodList = null;
                     List<RPPayComponent> rpPayComponents = null;
@@ -2556,7 +2563,7 @@ namespace PayRunIOProcessReports
                     }
                    
                 }
-                else if (file.FullName.Contains("EmployeeYtd"))
+                else if (file.FullName.Contains("CompleteEmployeeYtd"))
                 {
                     eeYtdProcessed = true;
                     if (!rpEmployer.HoldPayHistory)
@@ -2606,6 +2613,64 @@ namespace PayRunIOProcessReports
             {
                 return false;
             }
+        }
+        private void CombineXmlFiles(string directory, string fileType)
+        {
+            DirectoryInfo dirInfo = new DirectoryInfo(directory);
+            
+            string type = null;
+            string masterFileName = null;
+            if (fileType == "Period")
+            {
+                type = "EmployeePeriod*.xml";
+                masterFileName = directory + "\\" + "CompleteEmployeePeriod.xml";
+            }
+            else
+            {
+                type = "EmployeeYtd*.xml";
+                masterFileName = directory + "\\" + "CompleteEmployeeYtd.xml";
+            }
+
+            FileInfo[] files = dirInfo.GetFiles(type);
+            int noOfFiles = files.Count();
+            if(noOfFiles == 1)
+            {
+                FileInfo firstFile = files.First();
+                firstFile.MoveTo(masterFileName);
+            }
+            else if(noOfFiles > 1)
+            {
+                int i = 0;
+                XmlDocument masterFile = new XmlDocument();
+                XmlDocument nextFile = new XmlDocument();
+                foreach (FileInfo file in files.OrderBy(x => x.Name))
+                {
+                    if (i == 0)
+                    {
+                        masterFile.Load(file.FullName);
+                        i++;
+                    }
+                    else
+                    {
+                        nextFile.Load(file.FullName);
+                        foreach (XmlNode childNode in nextFile.DocumentElement.ChildNodes)
+                        {
+                            if (childNode.Name == "Employees")
+                            {
+                                var newNode = masterFile.ImportNode(childNode, true);
+                                masterFile.DocumentElement.AppendChild(newNode);
+                            }
+
+                        }
+                    }
+                    file.Delete();
+                }
+
+                masterFile.Save(masterFileName);
+            }
+            
+            
+           
         }
         public Tuple<List<RPEmployeeYtd>, RPParameters> PrepareYTDReport(XDocument xdoc, FileInfo file)
         {
