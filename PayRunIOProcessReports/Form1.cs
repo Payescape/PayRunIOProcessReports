@@ -3326,7 +3326,8 @@ namespace PayRunIOProcessReports
                         if (rpPayCode.Code != "TAX" && rpPayCode.Code != "NI" && !rpPayCode.Code.StartsWith("PENSION"))
                         {
                             string[] payCodeDetails = new string[8];
-                            if (rpPayCode.IsPayCode)
+                            //The BIKOFFSET IsPayCode marker should really be set to false. It is in the EEPERIOD report but not the EEYTD report.
+                            if (rpPayCode.IsPayCode && rpPayCode.PayCode != "BIKOFFSET")
                             {
                                 payCodeDetails[0] = "";
                             }
