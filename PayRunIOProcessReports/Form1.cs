@@ -2351,12 +2351,12 @@ namespace PayRunIOProcessReports
                             p45.Postcode = address[4];
                             p45.Country = address[5];
                             p45.ErName = rpEmployer.Name;
-                            p45.ErAddress1 = "Address Linel";// rpEmployer.Address1;
-                            p45.ErAddress2 = "Address Line2";// rpEmployer.Address2;
-                            p45.ErAddress3 = "Address Line3";// rpEmployer.Address3;
-                            p45.ErAddress4 = "Address Line4";// rpEmployer.Address4;
-                            p45.ErPostcode = "Postcode";// rpEmployer.Postcode;
-                            p45.ErCountry = "United Kingdom";// rpEmployer.Country;
+                            p45.ErAddress1 = rpEmployer.Address1;
+                            p45.ErAddress2 = rpEmployer.Address2;
+                            p45.ErAddress3 = rpEmployer.Address3;
+                            p45.ErAddress4 = rpEmployer.Address4;
+                            p45.ErPostcode = rpEmployer.Postcode;
+                            p45.ErCountry = rpEmployer.Country;
                             p45.Now = DateTime.Now;
 
                             p45s.Add(p45);
