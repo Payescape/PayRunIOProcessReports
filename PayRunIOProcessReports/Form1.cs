@@ -1956,6 +1956,9 @@ namespace PayRunIOProcessReports
                         rpEmployeePeriod.SPBPSetOff = 0;
                         rpEmployeePeriod.SPBPAdd = 0;
                         rpEmployeePeriod.Zero = 0;
+                        rpEmployeePeriod.Branch = prWG.GetElementByTagFromXml(employee, "Branch");
+                        rpEmployeePeriod.Department = prWG.GetElementByTagFromXml(employee, "Department");
+                        rpEmployeePeriod.CostCentre = prWG.GetElementByTagFromXml(employee, "CostCentre");
 
                         List<RPAddition> rpAdditions = new List<RPAddition>();
                         List<RPDeduction> rpDeductions = new List<RPDeduction>();
@@ -4418,9 +4421,9 @@ namespace PayRunIOProcessReports
         {
             workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.Reference);
             workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.Fullname);
-            workbook.CurrentWorksheet.AddNextCell("Department");
-            workbook.CurrentWorksheet.AddNextCell("Cost Centre");
-            workbook.CurrentWorksheet.AddNextCell("Branch");
+            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.Department);
+            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.CostCentre);
+            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.Branch);
             workbook.CurrentWorksheet.AddNextCell("Calc");
             workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.TaxCode);
             workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.NILetter);
