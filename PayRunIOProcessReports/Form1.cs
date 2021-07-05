@@ -49,7 +49,7 @@ namespace PayRunIOProcessReports
             
             
             //Start by updating the contacts table
-            prWG.UpdateContactDetails(xdoc);
+            //prWG.UpdateContactDetails(xdoc);
 
             
             //Now process the reports
