@@ -49,7 +49,7 @@ namespace PayRunIOProcessReports
             
             
             //Start by updating the contacts table
-            prWG.UpdateContactDetails(xdoc);
+            //prWG.UpdateContactDetails(xdoc);
 
             
             //Now process the reports
@@ -781,8 +781,9 @@ namespace PayRunIOProcessReports
                     break;
                 case "005":
                     //Bottomline 
-                    workbook = CreateBottomlineBankFile(xdoc, outgoingFolder, rpParameters);
-                    workbook.Save();
+                    //workbook = CreateBottomlineBankFile(xdoc, outgoingFolder, rpParameters);
+                    //workbook.Save();
+                    CreateBottomlineBankFileCSV(xdoc, outgoingFolder, rpParameters);
                     break;
                 default:
                     //No bank file required
@@ -1031,6 +1032,24 @@ namespace PayRunIOProcessReports
             Workbook workbook = prWG.CreateBottomlineReportWorkbook(xmlReport, workBookName);
 
             return workbook;
+        }
+        public static string CreateBottomlineBankFileCSV(XDocument xdoc, string outgoingFolder, RPParameters rpParameters)
+        {
+            PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
+            XmlDocument xmlReport = GetBankFileReport(xdoc, rpParameters);
+            string bankFileName = outgoingFolder + "\\" + rpParameters.ErRef + "_BottomlineBankReport.csv";
+            //Create a CSV file
+            StringBuilder csvFile = prWG.CreateBottomlineReportCSVFile(xmlReport);
+
+            if (!string.IsNullOrEmpty(outgoingFolder))
+            {
+                using (StreamWriter sw = new StreamWriter(bankFileName))
+                {
+                    sw.Write(csvFile.ToString());
+                }
+            }
+
+            return csvFile.ToString();
         }
         private static XmlDocument GetBankFileReport(XDocument xdoc, RPParameters rPParameters)
         {
@@ -1998,6 +2017,9 @@ namespace PayRunIOProcessReports
                         rpEmployeePeriod.SPBPSetOff = 0;
                         rpEmployeePeriod.SPBPAdd = 0;
                         rpEmployeePeriod.Zero = 0;
+                        rpEmployeePeriod.Branch = prWG.GetElementByTagFromXml(employee, "Branch");
+                        rpEmployeePeriod.Department = prWG.GetElementByTagFromXml(employee, "Department");
+                        rpEmployeePeriod.CostCentre = prWG.GetElementByTagFromXml(employee, "CostCentre");
 
                         List<RPAddition> rpAdditions = new List<RPAddition>();
                         List<RPDeduction> rpDeductions = new List<RPDeduction>();
@@ -3368,7 +3390,8 @@ namespace PayRunIOProcessReports
                         if (rpPayCode.Code != "TAX" && rpPayCode.Code != "NI" && !rpPayCode.Code.StartsWith("PENSION"))
                         {
                             string[] payCodeDetails = new string[8];
-                            if (rpPayCode.IsPayCode)
+                            //The BIKOFFSET IsPayCode marker should really be set to false. It is in the EEPERIOD report but not the EEYTD report.
+                            if (rpPayCode.IsPayCode && rpPayCode.PayCode != "BIKOFFSET")
                             {
                                 payCodeDetails[0] = "";
                             }
@@ -4459,9 +4482,9 @@ namespace PayRunIOProcessReports
         {
             workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.Reference);
             workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.Fullname);
-            workbook.CurrentWorksheet.AddNextCell("Department");
-            workbook.CurrentWorksheet.AddNextCell("Cost Centre");
-            workbook.CurrentWorksheet.AddNextCell("Branch");
+            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.Department);
+            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.CostCentre);
+            workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.Branch);
             workbook.CurrentWorksheet.AddNextCell("Calc");
             workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.TaxCode);
             workbook.CurrentWorksheet.AddNextCell(rpEmployeePeriod.NILetter);
