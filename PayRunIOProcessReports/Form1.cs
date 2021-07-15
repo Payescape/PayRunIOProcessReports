@@ -781,8 +781,9 @@ namespace PayRunIOProcessReports
                     break;
                 case "005":
                     //Bottomline 
-                    workbook = CreateBottomlineBankFile(xdoc, outgoingFolder, rpParameters);
-                    workbook.Save();
+                    //workbook = CreateBottomlineBankFile(xdoc, outgoingFolder, rpParameters);
+                    //workbook.Save();
+                    CreateBottomlineBankFileCSV(xdoc, outgoingFolder, rpParameters);
                     break;
                 default:
                     //No bank file required
@@ -991,6 +992,24 @@ namespace PayRunIOProcessReports
             Workbook workbook = prWG.CreateBottomlineReportWorkbook(xmlReport, workBookName);
 
             return workbook;
+        }
+        public static string CreateBottomlineBankFileCSV(XDocument xdoc, string outgoingFolder, RPParameters rpParameters)
+        {
+            PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
+            XmlDocument xmlReport = GetBankFileReport(xdoc, rpParameters);
+            string bankFileName = outgoingFolder + "\\" + rpParameters.ErRef + "_BottomlineBankReport.csv";
+            //Create a CSV file
+            StringBuilder csvFile = prWG.CreateBottomlineReportCSVFile(xmlReport);
+
+            if (!string.IsNullOrEmpty(outgoingFolder))
+            {
+                using (StreamWriter sw = new StreamWriter(bankFileName))
+                {
+                    sw.Write(csvFile.ToString());
+                }
+            }
+
+            return csvFile.ToString();
         }
         private static XmlDocument GetBankFileReport(XDocument xdoc, RPParameters rPParameters)
         {
