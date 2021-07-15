@@ -948,6 +948,7 @@ namespace PayRunIOProcessReports
             
             return stringBuilder.ToString();
         }
+        
         public static PicoXLSX.Workbook CreateEagleBankFile(string outgoingFolder, List<RPEmployeePeriod> rpEmployeePeriodList, RPEmployer rpEmployer, RPParameters rpParameters)
         {
             //Create a PicoXLSX workbook
@@ -982,6 +983,45 @@ namespace PayRunIOProcessReports
 
             return workbook;
         }
+
+        public static string CreateEagleBankFileCsv(string outgoingFolder, List<RPEmployeePeriod> rpEmployeePeriodList)
+        {
+            string bankFileName = outgoingFolder + "\\" + "EagleBankFile.csv";
+            string comma = ",";
+
+            //Create the Eagle bank file which does have a header row.
+            var stringBuilder = new StringBuilder();
+
+            //Write the header row
+            string csvLine = "AccName,SortCode,AccNumber,Amount,Ref";
+            stringBuilder.AppendLine(csvLine);
+
+            foreach (RPEmployeePeriod rpEmployeePeriod in rpEmployeePeriodList)
+            {
+                if (rpEmployeePeriod.PaymentMethod == "BACS")
+                {
+                    string fullName = rpEmployeePeriod.Forename + " " + rpEmployeePeriod.Surname;
+                    fullName = fullName.ToUpper();
+                    csvLine = fullName + comma +
+                              rpEmployeePeriod.SortCode + comma +
+                              rpEmployeePeriod.BankAccNo + comma +
+                              rpEmployeePeriod.NetPayTP + comma +
+                              fullName;
+                    stringBuilder.AppendLine(csvLine);
+                }
+            }
+
+            if (!string.IsNullOrEmpty(outgoingFolder))
+            {
+                using (StreamWriter sw = new StreamWriter(bankFileName))
+                {
+                    sw.Write(stringBuilder.ToString());
+                }
+            }
+
+            return stringBuilder.ToString();
+        }
+
         public static PicoXLSX.Workbook CreateBottomlineBankFile(XDocument xdoc, string outgoingFolder, RPParameters rpParameters)
         {
             PayRunIOWebGlobeClass prWG = new PayRunIOWebGlobeClass();
@@ -1185,6 +1225,7 @@ namespace PayRunIOProcessReports
                                 gender = ' ';
                                 break;
                         }
+                        
                         switch (joiner.Freq)
                         {
                             case ("Weekly"):
@@ -1209,6 +1250,7 @@ namespace PayRunIOProcessReports
                                 frequency = "";
                                 break;
                         }
+                        
                         joinerCSVLine = joiner.Forename + comma + joiner.Surname + comma + joinerDateOfBirth + comma + joiner.NINumber + comma + joiner.EmailAddress + comma +
                                                     joiner.EmailAddress + comma + gender + comma + "" + comma + joiner.RPPensionPeriod.ProviderEmployerReference + comma + joinerStartDate +
                                                     comma + joiner.RPPensionPeriod.PensionablePayTaxPeriod + comma + frequency + comma + "" + comma + "" + comma + joiner.RPAddress.Line1 + comma +
